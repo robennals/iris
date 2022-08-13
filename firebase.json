@@ -1,0 +1,45 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": "public_out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites":[
+      {"source": "/api/**", "function": "api"},
+      {"source": "/g/**", "destination": "/jsindex.html"},
+      {"source": "/", "destination": "/jsindex.html"},
+      {"source": "/home", "destination": "/jsindex.html"},
+      {"source": "/group/**", "destination": "/jsindex.html"},
+      {"source": "/groupProfile/**", "destination": "/jsindex.html"},
+      {"source": "/leaveGroup/**", "destination": "/jsindex.html"},
+      {"source": "/profile/**", "destination": "/jsindex.html"},
+      {"source": "/join/**", "destination": "/jsindex.html"},
+      {"source": "/new", "destination": "/jsindex.html"},
+      {"source": "/invite/**", "destination": "/jsindex.html"},
+      {"source": "/thread/**", "destination": "/jsindex.html"},
+      {"source": "/notifs", "destination": "/jsindex.html"},
+      {"source": "/notifs/**", "destination": "/jsindex.html"},
+      {"source": "/digestFreq", "destination": "/jsindex.html"},
+      {"source": "/joinOrCreate", "destination": "/jsindex.html"}
+    ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    }
+  },
+  "functions": {
+    "source": "functions"
+  }
+}

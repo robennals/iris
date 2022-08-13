@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "TalkWell",
+    "slug": "talkwell",
+    "scheme": "talkwell",
+    "version": "1.0.5",
+    "icon": "./assets/talkwell_icon.png",
+    "splash": {
+      "image": "./assets/talkwell_splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "platforms": ["ios", "android", "web"],
+    "updates": {
+      "fallbackToCacheTimeout": 10
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "buildNumber": "6",
+      "supportsTablet": true,
+      "bundleIdentifier": "net.talkwell",
+      "associatedDomains": [
+        "applinks:talkwell.net"
+      ],
+      "infoPlist": {
+        "NSCameraUsageDescription": "This allows you to attach an image to your post",
+        "NSPhotoLibraryAddUsageDescription": "This allows you to attach an image to your post",
+        "NSPhotoLibraryUsageDescription": "This allows you to attach an image to your post"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "net.talkwell",
+      "versionCode": 6,
+      "permissions": [],
+      "icon": "./assets/talkwell_icon.png",      
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "useNextNotificationsApi": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "talkwell.net",
+              "pathPrefix": ".*"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

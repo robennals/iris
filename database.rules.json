@@ -1,0 +1,40 @@
+{
+	"rules": {
+  	"userPrivate": {
+  		"$user": {
+  			".read": "$user == auth.uid",
+  			".write": "$user == auth.uid"
+      }
+    },
+    "special": {
+      ".read": false,
+      ".write": false,
+      "versioncheck": {
+        ".read": true
+      }
+    },
+    "group": {
+      "$group": {
+        ".write": false,
+        ".read": "data.child('member').child(auth.uid).exists()",
+      	"name": {
+          ".read": true,
+          ".write": false
+        },
+        "photo": {
+          ".read": true,
+          ".write": false
+        },
+        "memberMsg": {
+          ".indexOn": ["time"]
+        }
+      }
+    },
+    "groupAdmin": {
+      "$group": {
+        ".write": false,
+        ".read": "root.child('group').child($group).child('member').child(auth.uid).child('role').val() == 'admin'"
+      }
+    }
+  }
+}

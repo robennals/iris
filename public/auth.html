@@ -1,0 +1,16 @@
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script>
+   const firebaseConfig = {
+      apiKey: "AIzaSyDw3bA7TxCtVNnIoKvIrzXFAK9ugj0Ia9w",
+      authDomain: "talkwell.firebaseapp.com",
+      projectId: "talkwell",
+      appId: "1:925533439545:web:d8dbb6204d39ea9129afe8"
+   };
+   const firebaseApp = firebase.initializeApp(firebaseConfig);
+   const auth = firebaseApp.auth();
+   firebaseApp.auth().onAuthStateChanged(function(user) {
+      console.log('foo', user);
+   });
+</script>

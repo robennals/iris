@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{groupTitle}}</title>
+    </head>
+    <body>
+        <h1>{{groupTitle}}</h1>
+
+        <ol>
+            {{#sortedPostInfo}}
+            <li>
+                <a href='post/{{postKey}}.html'>{{postTitle}}</a>
+                <br/>
+                <span class='small'>by {{postAuthor}}, {{dateText}} {{#hasReplies}}, {{messageCount}} replies{{/hasReplies}}</span>
+            </li>
+            {{/sortedPostInfo}}
+        </ol>
+    </body>
+</html>
+
+

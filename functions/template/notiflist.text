@@ -1,0 +1,18 @@
+
+{{#notifList}}
+{{title}}
+{{body}}
+
+
+{{/notifList}}
+
+
+
+See All Notifcations: https://talkwell.net/notifs
+
+----
+This email was sent by Talkful (213 N Bayview Ave, Sunnyvale, CA 94086).
+
+If you don't want to receive notifications by email, either install the mobile app, or 
+unsubscribe: {{unSubURL}}
+

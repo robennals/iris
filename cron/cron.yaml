@@ -1,0 +1,6 @@
+
+cron:
+- description: "regular ping to send to firebase"
+  url: /pings/hour
+  schedule: every 15 minutes synchronized
+

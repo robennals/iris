@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{subject}}</title>
+    </head>
+
+<body>
+    <div style='max-width: 500px; margin: auto; font-family: Arial, Helvetica, sans-serif;'>
+        <div style='font-size: 22px'>Talkwell Digest</div>
+
+        {{#groupData}}
+            <div>
+                <div style='border-top: 1px solid #ddd; margin: 16px 0px'></div>
+                <div style='font-size: 22px; font-weight: bold'>{{groupName}}</div>
+                {{#memberDigests}}             
+                    <div style='border: 1px solid #ddd; border-radius: 8px; max-width: 500px; padding: 8px; margin-top: 8px; margin-bottom: 8px'>
+                        <div style='font-size: 18; font-weight: bold'><a href='{{groupUrl}}'>{{memberName}}</a></div>
+
+                        <ul style='padding-left: 16px; margin-top: 4px; margin-bottom: 4px'>
+                        {{#messages}}
+                        <li style='margin-bottom: 2px; color: #222'>
+                            {{#isReply}}
+                                <img src='https://talkwell.net/reply.png' width=14 height=14 />
+                            {{/isReply}}
+                            <b>{{title}}</b>: <span style='color: #666'>{{text}}</span>
+                        </li>
+
+                        {{/messages}}
+                        </ul>
+                        {{#hasMoreCount}}
+                            <div style='display: inline-block; font-size: 12px; border: 1px solid #ddd; padding: 1px 4px; margin-top: 4px'>{{moreCount}} more</div>
+                        {{/hasMoreCount}}
+                    </div>                
+                {{/memberDigests}}
+
+                <div style='display: flex; flex-direction: row; align-items: center;'>
+                    <a href='{{groupUrl}}' style='margin-left: 16px; margin-right: 16px; display: inline-block; color: white; font-size: 14px; text-decoration: none; border-radius: 8px; background-color: #0084ff; padding: 4px 8px; border-radius: 8px'>Go to Group</a>
+                </div>
+            </div>        
+        {{/groupData}}
+
+        <div style='margin: 32px 0px'>
+            You currently receive a digest at most <strong>{{userFreq}}</strong>
+                <a href='https://talkwell.net/digestFreq'>(change)</a>.
+        </div>
+        <div style='font-size: 12px; color: #999'>
+            This email was sent by Talkful (213 N Bayview Ave, Sunnyvale, CA 94086).
+        </div>
+        <div style='font-size: 12px; color: #999'>
+            If you don't want to receive digest emails then you can 
+            <a href='https://talkwell.net/digestFreq'>unsubscribe</a>.
+        </div>
+        
+        
+    
+    </div>
+
+        
+</body>
+</html>

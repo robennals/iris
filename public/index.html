@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<title>Talkwell: Easy to Join. Hard to Disrupt.</title>
+	<style>
+		p {
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+			color: #666;
+		}
+        #back {
+            width: 100%;
+            height: 100%;
+            background-color: red;
+            position: fixed;
+            z-index: -1;
+            opacity: 0.2;
+            background-blend-mode: screen, multiply, normal;
+            height: 100%
+        }
+        #slogan {
+            text-align: center;
+            margin: auto;
+            font-size: 60px; 
+            margin-top: 40px;
+            max-width: 800px;
+            font-weight: 400; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu
+        }
+        #subhead {
+            margin: auto;
+            text-align: center;
+/*            margin-bottom: 60px;*/
+            margin-top: 10px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+            font-size: 24px;
+            color: #666;
+/*            max-width: 400px;*/
+
+        }
+
+        h3 {
+            font-size: 30px; 
+            margin-bottom: 8px; 
+            font-weight: 700; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu
+        }
+        
+        .left {
+            max-width: 400px;
+            margin-left: 100px;
+        }
+        .right {
+            max-width: 400px;
+            margin-left: 100px;
+            align-self: flex-end;
+        }
+        
+       footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 32px;
+        }
+        
+        footer {
+/*            width: 100%;*/
+            background-color: #666;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            margin-top: 16px;
+            padding-left: 16px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+            display:flex;
+        }
+        #footlinks {
+            max-width: 500px;
+            margin: auto;
+        }
+        #legal {
+            margin-top: 40px;
+        }
+        #reasons {
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+/*
+            max-width: 800px;
+            margin: auto;
+*/
+        }
+    
+        .section {
+            width: 100%;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .innersection {
+            margin: auto;
+            max-width: 1300px;
+/*
+            margin-left: 8px;
+            margin-right: 8px;
+*/
+        }
+
+        .content {
+            max-width: 500px;
+            margin-left: 100px;
+            font-size: 20px;
+            line-height: 28px;
+            margin-bottom: 50px;
+        }
+        .sidecontent {
+            margin-left: 100px;
+            font-size: 20px;
+            line-height: 28px;
+            margin-bottom: 50px;            
+        }
+        
+        .calltoaction {
+            align-self: center;
+            margin: auto;
+            max-width: 500px;
+            font-size: 20px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .calltoaction a {
+            text-decoration: none;
+            color: #54aae9;
+        }
+
+        
+        .sidebyside {
+            display: flex;
+            margin: auto;
+            align-self: center;
+            max-width: 1000px;
+/*
+            margin-left: 100px;
+            margin-right: 100px;
+*/
+            padding-left: 16px;
+            padding-right: 16px;
+            font-size: 20px;
+            line-height: 28px;
+            margin-bottom: 50px;
+/*
+            margin-left: 8px;
+            margin-right: 8px;
+*/
+        }
+        .sidebyside .text {
+            max-width: 500px;
+            flex: 2;
+        }
+        .sidebyside .infopic {
+            flex: 1;
+            flex-shrink: 2;
+            max-width: 400px;
+            margin-left: 80px;
+            margin-top: 50px;
+        }
+        .sidebyside img {
+            align-self: flex-start;
+            width: 100%;
+/*            max-width: 400px;*/
+            box-shadow: rgb(85, 85, 85) 0px 2px 4px;
+            border-radius: 16px;
+        }
+        .factoid {
+            max-width: 500px;
+            margin-left: 100px;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: row;
+        }
+        .factoid .text {
+            font-size: 20px;
+            line-height: 28px;            
+        }
+
+        #box-row {
+            display: flex;
+            justify-content: center;            
+            margin-top: 40px;
+            margin-bottom: 40px;
+/*            max-width: 800px;*/
+/*            width: 100%;*/
+        }
+        #pic-box {
+            max-width: 600px;
+            flex: 1;
+/*            margin-top: 40px;*/
+            margin-bottom: 64px;
+            flex-direction: row;
+            align-items: top;
+        }
+        #phone-screenshot {
+            width: 200px;          
+            flex: 1;
+/*            align-self: center;*/
+            box-shadow: rgb(85, 85, 85) 0px 8px 16px;
+            border-radius: 6px;
+            margin-right: 16px;
+/*            width: 100%;*/
+            margin-bottom: 16px;
+        }
+        #screenshot {
+/*            align-self: center;*/
+            width: 600px;
+/*            flex: 2;*/
+/*            width: 100%;*/
+/*            display: block;*/
+            box-shadow: rgb(85, 85, 85) 0px 8px 16px;
+            border-radius: 6px;
+
+        }
+        
+        #top-part {
+/*
+            margin-left: 16px;
+            margin-right: 16px;
+*/
+        }
+        
+        #logo-head {
+            display: flex; 
+            flex-direction: row; 
+            align-items: center;
+        }
+        
+        #top-head {
+            background-color: white; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: center; 
+            border-bottom: solid 1px #eee; 
+            justify-content: space-between;
+        }
+        .button {
+            background-color: #51B1E7; 
+            color: white; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu; 
+            padding: 10px; margin-right: 8px; 
+            text-decoration: none;
+            border-radius: 4px;
+        }
+                
+        @media only screen and (min-width: 600px) {
+            .innersection {
+                margin: auto;
+                max-width: 1300px;
+/*
+                margin-left: 64px;
+                margin-right: 64px;
+*/
+            }
+            .sidebyside {
+                padding-left: 32px;
+                padding-right: 32px;
+            }
+        }
+        @media only screen and (max-width: 600px) {
+            #slogan {
+                font-size: 50px;
+                margin: 16px;
+            }
+            #subhead {
+                margin: 16px;
+            }
+            #top-head {
+/*
+                flex-direction: column;
+                align-items: flex-start;
+*/
+/*                padding-bottom: 8px;*/
+/*                box-shadow: #999 0px 2px 4px;*/
+            }
+            .sidebyside {
+                flex-direction: column;
+            }
+            #box-row {
+                justify-content: flex-start;
+                padding: 16px;
+/*                margin-right: 16px;*/
+                margin-bottom: 0px;
+                overflow-x: scroll;
+
+/*                flex-direction: column;*/
+/*                align-items: center;*/
+            }
+            #screenshot {
+                margin-right: 16px;
+            }
+            .sidebyside .infopic {
+                margin-top: 16px;
+            }
+            #buttons {
+                margin-left: 16px;
+/*                align-self: flex-end;*/
+            }
+/*
+            .sidebyside .infopic {
+                display: none;
+            }
+*/
+
+        }
+
+
+	</style>
+</head>
+<body style='margin: 0px; padding: 0px; display: none'>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+          apiKey: "AIzaSyDw3bA7TxCtVNnIoKvIrzXFAK9ugj0Ia9w",
+          authDomain: "talkwell.firebaseapp.com",
+          projectId: "talkwell",
+          appId: "1:925533439545:web:d8dbb6204d39ea9129afe8"
+      };
+      const firebaseApp = firebase.initializeApp(firebaseConfig);
+      const auth = firebaseApp.auth();
+      firebaseApp.auth().onAuthStateChanged(function(user) {        
+        if (user) {
+          window.location.href = 'https://talkwell.net/home';
+        } else {
+          document.body.style.display = '';
+        }
+      });
+    </script>
+
+	<header>
+        <div id='top-head'>
+            <div id='logo-head'>
+                <image src='https://talkwell.net/talkwell_icon.png' width='28px' height='28px' style='margin-left: 16px; margin-right: 8px' />
+                <h1 style='font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif; font-size: 28px; font-weight: 500; margin-top: 10px; margin-bottom: 10px'>Talkwell</h1>
+            </div>
+            <div id='buttons' style='display: flex; justify-content: flex-end; flex-direction: row; margin-left: 8px'>
+                <a href='/home' style='text-decoration: none'>
+                    <div class='button'>
+                        Log In / Sign Up
+                    </div>
+                </a>
+            </div>
+        </div>
+	</header>
+<!--	<article style='margin: auto; max-width: 500px; padding: 16px;'>-->
+        
+    <div id='top-part'>
+        <h2 id='slogan'>
+            Easy to Join. Hard to Disrupt.
+        </h2>
+        <div id='subhead'>
+            Groups organized around people, so the loudest people don't dominate.
+        </div>
+
+        <section id='apps' style='text-align: center'>
+            <!-- <a href='https://apps.apple.com/bm/app/talkbeat/id1446803824' >
+                <img class='appbutton' src='https://talkbeat.com/app_store.png' style='width: 150px; margin-top: 32px'/>
+            </a> -->
+            <!-- <a href='https://play.google.com/store/apps/details?id=org.talkbeat'>
+                <img class='appbutton' src='https://talkbeat.com/google_play.png' style='width: 150px; margin-top: 32px'/>
+            </a> -->
+        </section>
+
+        
+        <div id='box-row'>
+            <div id='phone-box'>
+                <img id='phone-screenshot' src='iphone8_california.png' />
+            </div>
+            <div id='pic-box'>
+                <img id='screenshot' src='web_california.png' />
+            </div>
+        </div>    
+    </div>
+    <!-- EEF9FD -->
+    
+<!--    <div id='reasons'>-->
+    <div class='section' style='background-image: linear-gradient(180deg,#f6f1fa,#fbf9fd)'>
+        <div class='innersection'>
+            <div class='sidebyside'>
+                <div class='text'>
+                <h3>Groups organized around People</h3>
+                <p>
+                  Talkwell is organized around people. The primary view of a group is the people in it. 
+                  Expand a person to see what they have been talking about, and maybe jump into conversation with them.
+                </p>              
+                </div>
+                <div class='infopic'>
+                    <img src='pics/members.png' />
+                </div>                
+            </div>
+
+            <div class='sidebyside'>
+              <div class='text'>
+              <h3>Big Groups made from Small Groups</h3>
+                <p>
+                  Talkwell groups can contain sub-groups. This lets you have small tight-knit (&lt;50) groups that
+                  feel socially meaningful, and then connect them together into big groups that can get things done.
+                </p>
+                <p>
+                  Posts highlighted in a sub-group flow up to the parent group and vice-versa, allowing
+                  information to flow between groups and keeping every in sync.
+                </p>
+              </div>
+              <div class='infopic'>
+                  <img src='pics/subgroups.png' />
+              </div>                
+            </div>
+
+            <div class='sidebyside'>
+                <div class='text'>
+                    <h3>Avoid the Tyranny of the Annoying</h3>
+                    <p>
+                      Other social products tend to be dominated by the people who talk loudest or talk most. 
+                    </p>
+                    <p>
+                      In Talkwell, each person's posts are clustered under their name, making it easy to
+                      make sure that everyone gets heard equally. You can talk as much without worrying 
+                      about dominating the space, and it's easy to see if a quieter person has something to say.
+                    </p>
+                </div>
+                <div class='infopic'>
+                    <img src='pics/annoying.png' />
+                </div>
+            </div>            
+            
+            <div class='sidebyside'>
+                <div class='text'>
+                    <h3>Easy to Join. Hard to Disrupt</h3>
+                    <p>
+                      A common problem with online groups is the apparent tension between making your 
+                      group open enough that it can obtain new members, without making it so open that 
+                      it gets taken over by disruptive people who don't respect group norms.
+                    </p>
+                    <p>
+                      Talkwell distinguishes between Visitors and Members. 
+                      You can make it easy for people to visit your group, but 
+                      require them to win your trust before they become a member.
+                    </p>
+                </div>
+                <div class='infopic'>
+                    <img src='pics/visitors.png' />
+                </div>
+            </div>            
+            
+            <div class='sidebyside'>
+                <div class='text'>
+                    <h3>Avoid Public Arguments</h3>
+                    <p>
+                      A common problem in online spaces is getting drawn into a public argument.
+                      You say something dumb, and then find yourself having to defend it in front of an audience.
+                    </p>
+                    <p>
+                      In Talkwell, if you say something dumb, you can edit your original message to say something
+                      more reasonable. Crucially, and replies to that message will then be marked as "out of date"
+                      and can no longer be replied to.
+                    </p>
+                </div>
+                <div class='infopic'>
+                    <img src='pics/out_of_date.png' />
+                </div>
+            </div>            
+          </div>            
+
+                      
+            <div class='calltoaction'>
+                <div class='text'>
+                    <h3>Try it Yourself Now</h3>
+                    <p>
+                        <a target='_blank' href='https://talkwell.net/joinOrCreate'>Create your own</a> Talkwell group, or join the <a targe='_blank' href='https://talkwell.net/join/-MzGy4wc0yoVNDnB3fdL'>Talkwell Open House</a> group to chat with us about Talkwell.
+                    </p>
+                </div>
+    
+            </div>
+        </div>
+        
+    </div>
+<!--    </div>-->
+
+    <div style='text-align: center; margin: auto; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu; color: #666; margin-top: 32px'>
+        Talkwell is a product of Talkful, Inc.
+    </div>
+    
+    <footer>
+        <div id='footlinks'>
+            <a href='mailto:info@talkwell.net'>Contact</a>
+            <a href='/privacy.html'>Privacy</a>
+            <a href='/license.html'>License</a>
+        </div>
+    </footer>
+
+
+</body>
+</html>
