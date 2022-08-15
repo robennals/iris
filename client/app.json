@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "TalkWell",
-    "slug": "talkwell",
-    "scheme": "talkwell",
+    "name": "Communitalk",
+    "slug": "iris",
+    "scheme": "iris",
     "version": "1.0.5",
     "icon": "./assets/talkwell_icon.png",
     "splash": {
@@ -20,9 +20,9 @@
     "ios": {
       "buildNumber": "6",
       "supportsTablet": true,
-      "bundleIdentifier": "net.talkwell",
+      "bundleIdentifier": "org.communitalk",
       "associatedDomains": [
-        "applinks:talkwell.net"
+        "applinks:communitalk.org"
       ],
       "infoPlist": {
         "NSCameraUsageDescription": "This allows you to attach an image to your post",
@@ -34,7 +34,7 @@
       }
     },
     "android": {
-      "package": "net.talkwell",
+      "package": "org.communitalk",
       "versionCode": 6,
       "permissions": [],
       "icon": "./assets/talkwell_icon.png",      
@@ -50,7 +50,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "talkwell.net",
+              "host": "communitalk.org",
               "pathPrefix": ".*"
             }
           ],

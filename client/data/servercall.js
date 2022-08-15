@@ -136,3 +136,7 @@ export async function addSubgroupsAsync({group, groupLinks, newGroupNames}) {
 export async function reportMemberAsync({group, member, block}) {
     return await callServerApiAsync('blockMember', {group, member, block});
 }
+
+export async function adminCreateGroupAsync({name, questions, people}) {
+    return await callServerApiAsync('adminCreateGroup', {name, questions, people});
+}

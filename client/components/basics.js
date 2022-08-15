@@ -247,9 +247,9 @@ export function WideButton({onPress, children, progressText, disabled, alwaysAct
     )
   } else {
     return (
-      <FixedTouchable onPress={() => {
+      <FixedTouchable onPress={async () => {
         setClicked(true);
-        onPress()
+        await onPress();
       }}>
         <View style={[{padding: 8, borderRadius: 8, backgroundColor: baseColor, margin: 16, 
               alignItems: 'center'},style]}>

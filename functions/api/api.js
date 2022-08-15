@@ -6,6 +6,7 @@ const Digest = require('./digest');
 const Cron = require('./cron');
 const Migrate = require('./migrate');
 const Export = require('./export');
+const Iris = require('./iris');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -77,6 +78,12 @@ async function apiActionAsync({action, components, params}) {
         case 'blockMember': {
             return Group.blockMemberAsync(params);
         }
+
+        // IRIS
+        case 'adminCreateGroup': {
+            return Iris.adminCreateGroupAsync(params);
+        }
+        
 
         default: {
             console.log('unknown action', action);

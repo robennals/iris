@@ -59,8 +59,8 @@ async function requestLoginCode({email}) {
 
   await Email.sendEmail({
     To: email,
-    From: 'TalkWell Login <login@talkwell.net>',
-    Subject: 'Login code for TalkWell',
+    From: 'Communitalk Login <login@communitalk.org>',
+    Subject: 'Login code for Communitalk',
     HtmlBody: htmlOutput,
     TextBody: textOutput
   })
@@ -69,7 +69,7 @@ async function requestLoginCode({email}) {
 
 
 const uid_reviewer = 'hTIKb4WUzCfXWAksf43D45nbbGg2';
-const email_reviewer = 'reviewer@talkwell.net'
+const email_reviewer = 'reviewer@communitalk.org'
 const pin_reviewer = 847632;
 
 async function getLoginTokenForCode({email, code}) {

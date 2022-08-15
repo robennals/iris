@@ -4,6 +4,7 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Entypo, Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { ScreenContentScroll } from '../components/basics';
+import { appDomain } from '../data/config';
 
 
 export class InviteScreen extends React.Component {
@@ -15,7 +16,7 @@ export class InviteScreen extends React.Component {
 
     render() {
         const {name, group} = this.props.route.params;
-        const url = 'https://talkwell.net/join/'+group;
+        const url = appDomain + '/join/' + group;
 
         return (
             <ScreenContentScroll>

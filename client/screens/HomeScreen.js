@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { firstLine, FixedTouchable, GroupIcon, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
-import { baseColor, minTwoPanelWidth } from '../data/config';
+import { appName, baseColor, minTwoPanelWidth } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
@@ -114,7 +114,7 @@ export class GroupList extends React.Component {
                             <MemberIcon name={name} size={32} style={{marginRight: 8}} />
                             <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
                         </View> */}
-                        <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
+                        <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
                         <NotifIcon navigation={navigation} alwaysShow />
                     </View>
                 }
@@ -138,20 +138,21 @@ export class GroupList extends React.Component {
                         </FixedTouchable>
                     </Catcher>
                 )}
-                {shrink ? null : 
+                {/* {shrink ? null : 
                     <FixedTouchable onPress={() => navigation.navigate('joinOrCreate')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginTop: 8}}>Join or Create a group</Text>
                     </FixedTouchable>
-                }   
+                }    */}
                 <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd', marginTop: 32}} />
                     
                 <FixedTouchable onPress={() => navigation.navigate('about')}>
-                    <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : 'About Talkwell'}</Text>
+                    <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : ('About ' + appName)}</Text>
                 </FixedTouchable>
 
-                {Platform.OS == 'web' && !shrink ?
+                {/* TODO: Bring back link to app once app is available */}
+                {/* {Platform.OS == 'web' && !shrink ?
                     <AppPromo />
-                :null}
+                :null} */}
             </ScreenContentScroll>
         )
     }
@@ -174,20 +175,6 @@ export function SidePanel({navigation}) {
     }
 }
 
-function MaybeWelcomeScreen() {
-    return (
-        <ScreenContentScroll>
-            <View>
-                <Text style={{fontSize: 24, fontWeight: 'bold', marginVertical: 16}}>Welcome to Talkwell</Text>
-                <Text style={styles.p}>Talkwell is a platform for People-Centered Groups.</Text>
-                <Text style={styles.p}>
-                    Get started by creating a new group, or clicking on an invite link someone sent you to visit their group.
-                </Text>
-            </View>
-        </ScreenContentScroll>
-    )
-}
-
 export function EmptyScreen() {
     return (
         <View style={{backgroundColor: '#fbf8f4', flex: 1}}></View>
@@ -195,25 +182,7 @@ export function EmptyScreen() {
 }
 
 export function HomeScreen({navigation, route, shrink}) {
-    // const {width} = useWindowDimensions();
-    // const {alwaysShow} = route.params || {};
-    // const wide = width > minTwoPanelWidth;
-
-    // useEffect(() => {
-    //     if (wide && !alwaysShow) {
-    //         navigation.setOptions({title: 'Welcome to Talkwell'})
-    //     } else {   
-    //         navigation.setOptions({title: 'Groups'})
-    //     }
-    // }, [wide])
-
-    // if (wide && !alwaysShow) {
-    //     return null;
-    // } else {
-        return <GroupList navigation={navigation} singleScreen={true} shrink={shrink} showSelected />
-    // }
-    
-    // onSelect={group => navigation.navigate('group', {group})} />
+    return <GroupList navigation={navigation} singleScreen={true} shrink={shrink} showSelected />
 }
 
 const styles = StyleSheet.create({

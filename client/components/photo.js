@@ -125,7 +125,7 @@ export function MessagePhoto({photoKey, photoUser}) {
 
 export function getUrlForFile(path) {
 	const pathAsParam = encodeURIComponent(path);
-	return 'https://firebasestorage.googleapis.com/v0/b/talkwell.appspot.com/o/' + pathAsParam + '?alt=media';
+	return 'https://firebasestorage.googleapis.com/v0/b/iris-talk.appspot.com/o/' + pathAsParam + '?alt=media';
 }
 
 export function getUrlForImage(photoKey, photoUser, thumb=false) {

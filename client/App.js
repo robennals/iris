@@ -34,6 +34,8 @@ import { AboutScreen } from './screens/AboutScreen';
 import { AddSubgroupScreen } from './screens/AddSubgroupScreen';
 import { OutsiderThreadScreen, OutsiderThreadScreenHeader } from './screens/OutsiderThreadScreen';
 import { DigestFreqScreen } from './screens/DigestFreqScreen';
+import { appName } from './data/config';
+import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreateGroup';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -129,10 +131,11 @@ export default function App() {
     photo: {component: PhotoScreen, title: 'Photo', noHeader: true},
     empty: {component: EmptyScreen, noHeader: true},
     leaveGroup: {component: LeaveGroupScreen, title: 'Leave Group'},
-    about: {component: AboutScreen, title: 'About Talkwell'},
+    about: {component: AboutScreen, title: 'About ' + appName},
     addsubgroup: {component: AddSubgroupScreen, title: 'Add Subgroup'},
     outsiderThread: {component: OutsiderThreadScreen, headerTitle: OutsiderThreadScreenHeader},
-    digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'}
+    digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
+    adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
   }
 
 

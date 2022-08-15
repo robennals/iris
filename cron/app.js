@@ -1,16 +1,14 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const { appDomain, appName } = require('../client/data/config');
 
 const app = express()
 
 
 async function doPingFetch() {
-	const url = 'https://talkwell.net/api/v1/ping?secret=8275283672950274';
+	const url = appDomain + '/api/v1/ping?secret=8275283672950274';
 	await fetch(url);
-	console.log('Did ping to TalkWell server');
-	// const url2 = 'https://newsnode.org/api/v1/hourPing?secret=782643622';
-	// await fetch(url2);
-	console.log('Did ping to Hubcard server');
+	console.log('Did ping to '+appName+' server');
 }
 
 app.get('/pings/hour', async (req, res) => {

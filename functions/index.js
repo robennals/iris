@@ -18,8 +18,8 @@ const { getDataAsync } = require("./output/fbutil.js");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://talkwell-default-rtdb.firebaseio.com",
-  storageBucket: "talkwell.appspot.com"
+  databaseURL: "https://iris-talk-default-rtdb.firebaseio.com",
+  storageBucket: "iris-talk.appspot.com",
 });
 
 

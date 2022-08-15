@@ -5,25 +5,25 @@ import 'firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDw3bA7TxCtVNnIoKvIrzXFAK9ugj0Ia9w",
-  authDomain: "talkwell.firebaseapp.com",
-  databaseURL: "https://talkwell-default-rtdb.firebaseio.com",
-  projectId: "talkwell",
-  storageBucket: "talkwell.appspot.com",
-  messagingSenderId: "925533439545",
-  appId: "1:925533439545:web:d8dbb6204d39ea9129afe8"
+  apiKey: "AIzaSyAP2I_E2zv8ab3t6uscHPcXr2UTGIPbbHU",
+  authDomain: "iris-talk.firebaseapp.com",
+  databaseURL: "https://iris-talk-default-rtdb.firebaseio.com",
+  projectId: "iris-talk",
+  storageBucket: "iris-talk.appspot.com",
+  messagingSenderId: "859886276868",
+  appId: "1:859886276868:web:7ac842c9e4a552bbc28051"
 };
 
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
 
-export const appName = 'TalkWell'
-export const appSlogan = 'Easy to Join. Hard to Disrupt'
+export const appName = 'Communitalk'
+export const appSlogan = 'Get good conversations started!'
 // export const appSlogan = 'People-Centered Groups'
 export const missingPersonName = 'No Longer in Group'
 
-export const appIcon = 'https://talkwell.net/talkwell_icon.png'
-export const appDomain = 'https://talkwell.net'
+export const appIcon = 'https://communitalk.org/logo.png'
+export const appDomain = 'https://communitalk.org'
 export const localWebDomain = 'http://localhost:5000';
 
 export const baseColor = '#0084ff';
