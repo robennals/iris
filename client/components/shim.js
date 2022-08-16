@@ -39,3 +39,23 @@ export function historyPushState({state, url}) {}
 export function useCustomNavigation() {
   return useNavigation();
 }
+
+export class BottomFlatScroller extends React.Component {
+  state = {}
+  safariScrollToEnd() {}
+  render() {
+    const {data, style} = this.props;
+    const {height} = this.state;    
+    return (
+      <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
+        <FlatList inverted initialNumToRender={20}
+          style={{flex: 1, backgroundColor: 'white', /* maxHeight: height */}}
+          keyboardDismissMode='on-drag'
+          data={data.slice().reverse()}
+          renderItem={basicRenderItem}
+          onContentSizeChange={(width, height) => this.setState({height})}
+        />
+      </View>
+    )
+  }
+}

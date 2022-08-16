@@ -140,3 +140,7 @@ export async function reportMemberAsync({group, member, block}) {
 export async function adminCreateGroupAsync({name, questions, people}) {
     return await callServerApiAsync('adminCreateGroup', {name, questions, people});
 }
+
+export async function sendMessageAsync({group, text}) {
+    return await callServerApiAsync('sendMessage', {group, text});
+}

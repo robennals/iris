@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Communitalk",
-    "slug": "iris",
-    "scheme": "iris",
+    "name": "Mix5",
+    "slug": "mix5",
+    "scheme": "mix5",
     "version": "1.0.5",
-    "icon": "./assets/talkwell_icon.png",
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/talkwell_splash.png",
-      "resizeMode": "cover",
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "platforms": ["ios", "android", "web"],
@@ -20,9 +20,9 @@
     "ios": {
       "buildNumber": "6",
       "supportsTablet": true,
-      "bundleIdentifier": "org.communitalk",
+      "bundleIdentifier": "us.mix5",
       "associatedDomains": [
-        "applinks:communitalk.org"
+        "applinks:mix5.us"
       ],
       "infoPlist": {
         "NSCameraUsageDescription": "This allows you to attach an image to your post",
@@ -34,7 +34,7 @@
       }
     },
     "android": {
-      "package": "org.communitalk",
+      "package": "us.mix5",
       "versionCode": 6,
       "permissions": [],
       "icon": "./assets/talkwell_icon.png",      
@@ -50,7 +50,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "communitalk.org",
+              "host": "mix5.us",
               "pathPrefix": ".*"
             }
           ],

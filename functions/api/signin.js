@@ -59,8 +59,8 @@ async function requestLoginCode({email}) {
 
   await Email.sendEmail({
     To: email,
-    From: 'Communitalk Login <login@communitalk.org>',
-    Subject: 'Login code for Communitalk',
+    From: 'Mix5 Login <login@mix5.us>',
+    Subject: 'Login code for Mix5',
     HtmlBody: htmlOutput,
     TextBody: textOutput
   })
@@ -69,7 +69,7 @@ async function requestLoginCode({email}) {
 
 
 const uid_reviewer = 'hTIKb4WUzCfXWAksf43D45nbbGg2';
-const email_reviewer = 'reviewer@communitalk.org'
+const email_reviewer = 'reviewer@mix5.us'
 const pin_reviewer = 847632;
 
 async function getLoginTokenForCode({email, code}) {

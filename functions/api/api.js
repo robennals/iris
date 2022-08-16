@@ -83,6 +83,9 @@ async function apiActionAsync({action, components, params}) {
         case 'adminCreateGroup': {
             return Iris.adminCreateGroupAsync(params);
         }
+        case 'sendMessage': {
+            return Iris.sendMessageAsync(params);
+        }
         
 
         default: {

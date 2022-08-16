@@ -36,6 +36,7 @@ import { OutsiderThreadScreen, OutsiderThreadScreenHeader } from './screens/Outs
 import { DigestFreqScreen } from './screens/DigestFreqScreen';
 import { appName } from './data/config';
 import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreateGroup';
+import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -106,12 +107,12 @@ export default function App() {
   const screens = {
     home: {component: HomeScreen, noHeader: true},
     new: {component: EditGroupScreen, title: 'New Group'},
-    group: {component: GroupScreen, headerTitle: GroupScreenHeader}, 
+    group: {component: ChatScreen, headerTitle: ChatScreenHeader}, 
       
       // options: ({navigation, route}) => ({
       // headerLeft: null, headerRight: () => <NotifIcon navigation={navigation} />, 
       // headerTitle: ({children}) => <GroupScreenHeader navigation={navigation} route={route} children={children} />})},
-    pgroup: {component: GroupScreen, headerTitle: GroupScreenHeader},
+    pgroup: {component: ChatScreen, headerTitle: ChatScreenHeader},
       // options: ({navigation, route}) => ({
       // animationEnabled: false, 
       // headerLeft: null, headerRight: () => <NotifIcon navigation={navigation} />, 

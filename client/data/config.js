@@ -17,7 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
 
-export const appName = 'Communitalk'
+export const appName = 'Mix5'
 export const appSlogan = 'Get good conversations started!'
 // export const appSlogan = 'People-Centered Groups'
 export const missingPersonName = 'No Longer in Group'
