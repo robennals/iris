@@ -2,10 +2,12 @@ import React from 'react';
 import { useContext } from "react";
 import { findDOMNode } from 'react-dom';
 import { ScrollView } from 'react-native';
-import { appDomain, localWebDomain } from "../data/config";
+import { appDomain, appName, localWebDomain } from "../data/config";
 import { parsePhotoDataUri } from "./basics";
 import { Catcher } from './catcher';
 import { AppContext } from "./context";
+import {Audio} from 'expo-av';
+
 
 export function getCurrentDomain() {
     console.log('web - getCurrentDomain', window.location.host);
@@ -143,4 +145,73 @@ export class BottomFlatScroller extends React.Component {
       )
     }
   }
+
+  export function setFaviconAlert(alertOn) {
+    const links = document.getElementsByTagName('link');
+    for (var i = 0; i < links.length; i++) {
+        const link = links[i];
+        const href = link.href;
+        if (href.indexOf('favicon') != -1) {
+            var newHref;
+            if (alertOn) {
+                newHref = href.replace('favicon', 'favicon_alert');
+            } else {
+                newHref = href.replace('favicon_alert', 'favicon');
+            }   
+            newHref = newHref.replace('http://localhost:19006', 'https://mix5.us');
+            link.href = newHref;
+        }
+    }
+  }
   
+
+    export function setTitle(title) {
+        if (title) {
+            document.title = title + ' - ' + appName;
+        }
+    }   
+  
+  export class TitleBlinker extends React.Component {
+    unmounted = false;
+    componentDidMount() {
+      // this.favicon = document.getElementById('favicon');
+      this.maybeBlinkOn();
+    }
+    componentWillUnmount() {
+      this.unmounted = true;
+    }
+    maybeBlinkOn(){
+      const {count, focussed} = this.props;
+      if (this.unmounted) return;
+      setTimeout(() => this.maybeBlinkOff(), 1000);
+      if (count && !focussed) {
+        setTitle('New Message');
+        setFaviconAlert(true);
+      }
+    }
+    maybeBlinkOff(){
+      const {title, count, focussed} = this.props;
+      if (this.unmounted) return;
+      setTimeout(() => this.maybeBlinkOn(), 1000);
+      if (count && !focussed) {
+        setTitle('(' + count + ') ' + title);
+      } else {
+        setTitle(title);
+      }
+      setFaviconAlert(false);
+    }
+    render() {
+      return null;
+    }
+  }
+
+  export async function playAlertSound() {
+    // return;
+    const soundObject = new Audio.Sound();
+    try {
+      await soundObject.loadAsync(require('../assets/pop.mp3'));
+      await soundObject.playAsync();
+    } catch (error) {
+    }  
+  }
+

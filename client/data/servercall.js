@@ -144,3 +144,7 @@ export async function adminCreateGroupAsync({name, questions, people}) {
 export async function sendMessageAsync({group, text}) {
     return await callServerApiAsync('sendMessage', {group, text});
 }
+
+export async function makeChatRead({group}) {
+    return await callServerApiAsync('markChatRead', {group});
+}

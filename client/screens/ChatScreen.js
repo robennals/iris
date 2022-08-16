@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { NewMessageSound } from '../components/alertping';
 import { FixedTouchable, HeaderSpaceView, OneLineText } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
@@ -7,7 +8,8 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { GroupPhotoIcon } from '../components/photo';
-import { BottomFlatScroller } from '../components/shim';
+import { BottomFlatScroller, TitleBlinker } from '../components/shim';
+import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
 
 export function ChatScreenHeader({navigation, route}) {
@@ -32,6 +34,28 @@ export function ChatScreenHeader({navigation, route}) {
     )
 }
 
+
+function NewMessageTracker({group}) {
+    const [groups, setGroups] = useState({});
+    useEffect(() => {
+        var x = {};
+        watchData(x, ['userPrivate', getCurrentUser(), 'group'], setGroups);
+        return () => internalReleaseWatchers(x);
+    }, [group]);
+    const groupKeys = Object.keys(groups || {});
+    const unreadGroups = _.filter(groupKeys, 
+        k => (groups[k].readTime < _.get(groups,[k, 'lastMessage', 'time']))
+            && _.get(groups, [k, 'lastMessage', 'from']) != getCurrentUser()
+    );
+    const unreadCount = unreadGroups.length;
+
+    const title = _.get(groups, [group, 'name']);
+    setTitle(title);
+    console.log('NewMessageTracker', title, groups, group);
+
+    return <TitleBlinker count={unreadCount} title={title} />
+}
+
 // export function ChatScreen() {
 //     return (
 //         <View style={{flex: 1, backgroundColor: 'white'}}>
@@ -46,6 +70,8 @@ export function ChatScreen({navigation, route}) {
       <KeyboardSafeView style={{flex: 1}}>
         <HeaderSpaceView style={{flex:1 }}>
           <EnableNotifsBanner />
+          <NewMessageSound />
+          <NewMessageTracker group={group} />
           <View style={{backgroundColor: '#f5f5f5', flex: 1}}>
             {/* <NotifBanner meeting={meeting} navigation={navigation} /> */}
             {/* <PhotoPopup />             */}

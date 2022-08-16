@@ -76,6 +76,7 @@ export function MessageEntryBox({style, onCancel, editText='', editPhotoKey=null
         
     }
 
+
     return (
         <View style={[styles.messageEntryBox, style]}>
             <View style={styles.messageEntryHoriz}>

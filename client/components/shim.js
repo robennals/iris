@@ -1,6 +1,7 @@
 import { appDomain } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
+import {Audio} from 'expo-av';
 
 
 export function getCurrentDomain(){ 
@@ -59,3 +60,18 @@ export class BottomFlatScroller extends React.Component {
     )
   }
 }
+
+export function TitleBlinker() {return null};
+export function setTitle() {};
+
+export async function playAlertSound() {
+  const soundObject = new Audio.Sound();
+  try {
+    await soundObject.loadAsync(require('../assets/pop.mp3'));
+    await soundObject.playAsync();
+    // Your sound is playing!
+  } catch (error) {
+    // An error occurred!
+  }  
+}
+

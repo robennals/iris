@@ -13,7 +13,8 @@ import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 
 function GroupPreview ({name, groupInfo, highlight, shrink}) {
-    const unread = _.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0);
+    const unread = (_.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0))
+        && _.get(groupInfo, ['lastMessage', 'from']) != getCurrentUser();
     var summaryLine = '';
     if (groupInfo.lastMessage) {
         summaryLine = groupInfo.lastMessage.fromName + ': ' + 

@@ -72,7 +72,7 @@ function parseTsv(tsv) {
     const lines = _.filter(tsv.trim().split('\n'));
     const people = _.map(lines, line => {
         const [name, email, bio] = line.split('\t');
-        return {name, email, bio}
+        return {name: name.trim(), email: email.trim(), bio: bio.trim()}
     })
     return people;
 }

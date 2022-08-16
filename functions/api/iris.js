@@ -52,14 +52,32 @@ async function sendMessageAsync({group, text, replyTo, userId}) {
     }
     var updates = {};
     const key = FBUtil.newKey();
+    const time = Date.now();
+    const fromName = members[userId].name;
     updates['group/' + group + '/message/' + key] = {
-        time: Date.now(),
+        time,
         replyTo: replyTo || null,
         text: text || null,
         from: userId
     }   
+
+    // update local state for all members
+    Object.keys(members).forEach(member => {
+        updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = {
+            text: text || null, time, from: userId, fromName
+        };
+        if (member != userId) {
+            updates['userPrivate/' + member + '/lastMessageTime'] = time;
+        }
+    })
     return {success: true, updates}
 }
 
 exports.sendMessageAsync = sendMessageAsync;
 
+function markChatReadAsync({group, userId}) {
+    var updates = {};
+    updates['userPrivate/' + userId + '/group/' + group + '/readTime'] = Date.now();
+    return {success: true, updates};
+}
+exports.markChatReadAsync = markChatReadAsync;
