@@ -17,13 +17,13 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
 
-export const appName = 'Mix5'
+export const appName = 'Iris'
 export const appSlogan = 'Get good conversations started!'
 // export const appSlogan = 'People-Centered Groups'
 export const missingPersonName = 'No Longer in Group'
 
-export const appIcon = 'https://communitalk.org/logo.png'
-export const appDomain = 'https://communitalk.org'
+export const appIcon = 'https://iris-talk.com/logo.png'
+export const appDomain = 'https://iris-talk.com'
 export const localWebDomain = 'http://localhost:5000';
 
 export const baseColor = '#0084ff';
@@ -35,3 +35,4 @@ export const minTwoPanelWidth = 900
 
 export const version = 23
 
+export const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'];

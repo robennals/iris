@@ -151,8 +151,8 @@ function urlForScreen(topScreen) {
         path = '/' + topScreen.params.group + '/' + topScreen.params.subgroup + '/' + topScreen.params.rootKey
     } else if (topScreen.screen == 'messagebox') {
         path = '/' + topScreen.params.group
-    } else if (topScreen.screen = 'adminCreateGroup') {
-        path = '/admincreategroup'
+    } else if (topScreen.screen == 'adminCreateGroup') {
+        path = '/adminCreateGroup'
     }
     return '/' + topScreen.screen + path;
 }

@@ -1,4 +1,4 @@
-import {firebaseApp } from "./config";
+import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
 import { getDatabase, ref, onValue, off, update, get, set, once } from "firebase/database";
 import _ from 'lodash';
@@ -19,6 +19,16 @@ onAuthStateChanged(auth, fbUser => {
 
 export function getCurrentUser() {
     return global_currentUser;
+}
+
+export function isMasterUser() {
+    const me = getCurrentUser();
+    for (var i = 0; i < masterUsers.length; i++) {
+        if (masterUsers[i] == me) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function getUser() {

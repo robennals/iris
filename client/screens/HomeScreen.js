@@ -3,7 +3,7 @@ import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } fro
 import { firstLine, FixedTouchable, GroupIcon, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
 import { appName, baseColor, minTwoPanelWidth } from '../data/config';
-import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
@@ -149,6 +149,14 @@ export class GroupList extends React.Component {
                 <FixedTouchable onPress={() => navigation.navigate('about')}>
                     <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : ('About ' + appName)}</Text>
                 </FixedTouchable>
+
+                {isMasterUser ? 
+                    <FixedTouchable onPress={() => navigation.navigate('adminCreateGroup')}>
+                        <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Group (admin)</Text>
+                    </FixedTouchable>
+                :
+                    null
+                }
 
                 {/* TODO: Bring back link to app once app is available */}
                 {/* {Platform.OS == 'web' && !shrink ?

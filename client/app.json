@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Mix5",
-    "slug": "mix5",
-    "scheme": "mix5",
+    "name": "Iris",
+    "slug": "iris-talk",
+    "scheme": "iris-talk",
     "version": "1.0.5",
     "icon": "./assets/icon.png",
     "splash": {
