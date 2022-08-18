@@ -13,11 +13,11 @@ const tagExpr = /@[A-Z][a-z]*( [A-Z][a-z]*)?/
 export const tagRegex = new RegExp(tagExpr);
 
 
-function LinkTextLink({url, children, style}) {
+function LinkTextLink({url, children, linkColor}) {
   if (Platform.OS != 'web') {
-    return <Text style={{color: style.color, textDecorationLine: 'underline'}} onPress={()=>Linking.openURL(url)}>{children}</Text>
+    return <Text style={{color: linkColor, textDecorationLine: 'underline'}} onPress={()=>Linking.openURL(url)}>{children}</Text>
   } else {
-    return <a target='_blank' style={{color: style.color, textDecoration: 'underline'}} href={url}>{children}</a>
+    return <a target='_blank' style={{color: linkColor, textDecoration: 'underline'}} href={url}>{children}</a>
   }
 }
 
@@ -50,7 +50,7 @@ function removeTrailingPeriod(url) {
   }
 }
 
-export function LinkText({text, style}) {
+export function LinkText({text, style, linkColor}) {
   if (!text) return null;
   const m = text.match(urlRegex);
   if (m && m.length > 0) {
@@ -62,8 +62,8 @@ export function LinkText({text, style}) {
     return (
       <Text style={style}>
         {before}
-        <LinkTextLink style={style} url={linkUrl}>{trimUrl(url)}</LinkTextLink>
-        <LinkText style={style} text={after} />
+        <LinkTextLink style={style} linkColor={linkColor} url={linkUrl}>{trimUrl(url)}</LinkTextLink>
+        <LinkText style={style} linkColor={linkColor} text={after} />
         {/* {after} */}
       </Text>
     )
@@ -78,7 +78,7 @@ export function LinkText({text, style}) {
       <Text style={style}>
         {before}
         <TaggedName>{name}</TaggedName>
-        <LinkText style={style} text={after} />
+        <LinkText style={style} linkColor={linkColor} text={after} />
         {/* {after} */}
       </Text>
     )

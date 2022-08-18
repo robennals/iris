@@ -69,6 +69,7 @@ export async function playAlertSound() {
   try {
     await soundObject.loadAsync(require('../assets/pop.mp3'));
     await soundObject.playAsync();
+    await soundObject.unloadAsync();
     // Your sound is playing!
   } catch (error) {
     // An error occurred!

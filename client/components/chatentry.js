@@ -9,6 +9,7 @@ export function ChatEntryBox({group}) {
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
     const [text, setText] = useState('');
+    const [textKey, setTextKey] = useState(0);
 
     function onContentSizeChange(event) {
         const contentHeight = event.nativeEvent.contentSize.height;
@@ -24,6 +25,8 @@ export function ChatEntryBox({group}) {
 
     async function onSubmit() {
         setInProgress(true);
+        // setText('');
+        // setTextKey(textKey+1);
         await sendMessageAsync({group, text});
         setText('');
         setHeight(36);        
@@ -35,8 +38,11 @@ export function ChatEntryBox({group}) {
         if (Platform.OS == 'web' && e.nativeEvent.key == 'Enter') {
             if (!e.nativeEvent.shiftKey && !e.nativeEvent.ctrlKey && !e.nativeEvent.metaKey){
                 onSubmit();    
+                e.preventDefault();
+                return false;
             }
         }
+        return true;
     }
 
     return (
@@ -44,7 +50,8 @@ export function ChatEntryBox({group}) {
                 borderTopWidth: StyleSheet.hairlineWidth, 
                 borderColor: '#ddd', 
                 alignItems: 'center', paddingHorizontal: 8}}>
-            <TextInput disabled={inProgress} 
+            <TextInput // disabled={inProgress} 
+                key={textKey}
                 value={text}
                 onChangeText={setText}
                 autoFocus
@@ -57,7 +64,7 @@ export function ChatEntryBox({group}) {
                     fontSize: 16, lineHeight: 20, flex: 1
                 }, {height}]}
                 onContentSizeChange={onContentSizeChange}
-                onKeyPress={onKeyPress}
+                onKeyPress={onKeyPress}                
             />
             <FixedTouchable part='sendMessage' onPress={onSubmit} >
               <Ionicons style={{marginHorizontal: 8}} name='md-send' size={24}  

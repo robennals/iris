@@ -5,6 +5,7 @@ import { FixedTouchable, HeaderSpaceView, OneLineText } from '../components/basi
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
+import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { GroupPhotoIcon } from '../components/photo';
@@ -51,7 +52,7 @@ function NewMessageTracker({group}) {
 
     const title = _.get(groups, [group, 'name']);
     setTitle(title);
-    console.log('NewMessageTracker', title, groups, group);
+    // console.log('NewMessageTracker', title, groups, group);
 
     return <TitleBlinker count={unreadCount} title={title} />
 }
@@ -98,8 +99,8 @@ function MessageList({group}) {
     const messageKeys = Object.keys(messages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
 
-    console.log('sortedMessageKeys', sortedMessageKeys);
-    console.log('messages', messages);
+    // console.log('sortedMessageKeys', sortedMessageKeys);
+    // console.log('messages', messages);
 
     return (
         <View style={{flex: 1}}>
@@ -117,7 +118,7 @@ function Message({messages, messageKey}) {
     return (
         <View style={myMessage ? styles.myMessageRow : styles.theirMessageRow}>
             <View style={myMessage ? styles.myMessage : styles.theirMessage}>
-                <Text style={myMessage ? styles.myMessageText : styles.theirMessageText}>{message.text}</Text>
+                <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
             </View>
             <View style={{width: 64, height: 40, flexShrink: 0, color: 'red'}} />
         </View>
@@ -156,7 +157,14 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     theirMessageText: {
-
+        color: '#222'
+    },
+    myMessageLink: {
+        color: 'white',
+        textDecorationLine: 'underline'
+    },
+    theirMessageLink: {
+        textDecorationLine: 'underline'
     }
 })
 
