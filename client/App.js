@@ -7,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, CommonActions, useNavigationContainerRef } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
+
 import _ from 'lodash';
 
 import { EmptyScreen, GroupList, HomeScreen, SidePanel } from './screens/HomeScreen';
@@ -64,6 +66,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -74,9 +77,10 @@ export default function App() {
 
   useEffect(() => {
     console.log('initial setup');
-    onFirebaseAuthStatechanged(fbUser => {
+    onFirebaseAuthStatechanged(async fbUser => {
       setUser(fbUser && fbUser.uid)
       setGotAuth(true);
+      await SplashScreen.hideAsync();
     })
     webInit();
   },[]);
@@ -140,7 +144,7 @@ export default function App() {
 
 
   if (!gotAuth) {
-    return <AppLoading/>
+    return null;
   } else if (!user) {
     return <SignInScreen/>
   } else {

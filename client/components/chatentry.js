@@ -54,7 +54,7 @@ export function ChatEntryBox({group}) {
                 key={textKey}
                 value={text}
                 onChangeText={setText}
-                autoFocus
+                autoFocus={Platform.OS == 'web'}
                 placeholder='Type a message'
                 multiline
                 style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 

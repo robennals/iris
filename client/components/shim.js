@@ -1,7 +1,10 @@
+import React from 'react';
+import {View, FlatList} from 'react-native';
 import { appDomain } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
 import {Audio} from 'expo-av';
+import { Catcher } from './catcher';
 
 
 export function getCurrentDomain(){ 
@@ -41,6 +44,10 @@ export function useCustomNavigation() {
   return useNavigation();
 }
 
+function basicRenderItem ({item: {key, item, value}}) {
+  return <Catcher>{item || value()}</Catcher>;
+}
+
 export class BottomFlatScroller extends React.Component {
   state = {}
   safariScrollToEnd() {}
@@ -50,7 +57,7 @@ export class BottomFlatScroller extends React.Component {
     return (
       <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
         <FlatList inverted initialNumToRender={20}
-          style={{flex: 1, backgroundColor: 'white', /* maxHeight: height */}}
+          style={{flex: 1, /* maxHeight: height */}}
           keyboardDismissMode='on-drag'
           data={data.slice().reverse()}
           renderItem={basicRenderItem}

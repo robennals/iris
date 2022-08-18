@@ -12,6 +12,7 @@ import { GroupPhotoIcon } from '../components/photo';
 import { BottomFlatScroller, TitleBlinker } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
+import _ from 'lodash';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -73,7 +74,7 @@ export function ChatScreen({navigation, route}) {
           <EnableNotifsBanner />
           <NewMessageSound />
           <NewMessageTracker group={group} />
-          <View style={{backgroundColor: '#f5f5f5', flex: 1}}>
+          <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <NotifBanner meeting={meeting} navigation={navigation} /> */}
             {/* <PhotoPopup />             */}
             <MessageList group={group} />
@@ -105,7 +106,8 @@ function MessageList({group}) {
     return (
         <View style={{flex: 1}}>
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
-                ... sortedMessageKeys.map(k => ({key: k, item: <Message key={k} messages={messages} messageKey={k} />}))
+                ... sortedMessageKeys.map(k => ({key: k, item: <Message key={k} messages={messages} messageKey={k} />})),
+                {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
         </View>
     )
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
         flexShrink: 1
     },
     theirMessage: {
-        backgroundColor: 'white',
+        backgroundColor: '#F3F3F4',
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 16,
@@ -155,9 +157,13 @@ const styles = StyleSheet.create({
     },
     myMessageText: {
         color: 'white',
+        fontSize: Platform.OS == 'web' ? 14 : 16,
+        lineHeight: Platform.OS == 'web' ? undefined : 20
     },
     theirMessageText: {
-        color: '#222'
+        color: '#222',
+        fontSize: Platform.OS == 'web' ? 14 : 16,
+        lineHeight: Platform.OS == 'web' ? undefined : 20
     },
     myMessageLink: {
         color: 'white',

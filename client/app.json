@@ -37,7 +37,7 @@
       "package": "us.mix5",
       "versionCode": 6,
       "permissions": [],
-      "icon": "./assets/talkwell_icon.png",      
+      "icon": "./assets/icon.png",      
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

@@ -211,6 +211,7 @@ export class BottomFlatScroller extends React.Component {
     try {
       await soundObject.loadAsync(require('../assets/pop.mp3'));
       await soundObject.playAsync();
+      await soundObject.unloadAsync();
     } catch (error) {
     }  
   }
