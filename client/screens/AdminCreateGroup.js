@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
+import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { FormInput, FormTitle, WideButton } from '../components/basics';
 import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';

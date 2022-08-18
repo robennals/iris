@@ -9,7 +9,6 @@ import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import _ from 'lodash';
 
-import 'react-native-gesture-handler';
 import { EmptyScreen, GroupList, HomeScreen, SidePanel } from './screens/HomeScreen';
 import EditGroupScreen from './screens/NewGroupScreen';
 import { setupServerTokenWatch } from './data/servercall';
