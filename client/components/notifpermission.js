@@ -76,7 +76,7 @@ export class EnableNotifsBanner extends React.Component {
               padding: 8, margin: 0}}>
             <Ionicons name='ios-notifications' size={30}/>
             <Text style={{marginHorizontal: 8, flex: 1}}>
-              <Text style={{fontWeight: 'bold'}}>Enable notifications</Text> to know when someone messages you.
+              <Text style={{fontWeight: 'bold'}}>Enable notifications</Text> to know when you get a new message.
             </Text>
             {denied 
             ? <WideButton alwaysActive style={{margin: 0}} onPress={()=>{Linking.openURL('app-settings://'); this.pollForNotifsGranted()}}

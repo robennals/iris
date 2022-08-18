@@ -34,7 +34,7 @@ async function adminCreateGroupAsync({name, questions, people, userId}) {
         updates['userPrivate/' + uid + '/group/' + group] = {name}
     })
 
-    console.log('updates', updates);
+    // console.log('updates', updates);
 
     return {success: true, updates, data: {group}}
 }
@@ -45,7 +45,8 @@ exports.adminCreateGroupAsync = adminCreateGroupAsync;
 async function sendMessageAsync({group, text, replyTo, userId}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
-    const members = await pMembers;
+    const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
+    const members = await pMembers; const groupName = await pGroupName;
     console.log('members', members);
     if (!members[userId]) {
         return {success: false, message: 'access denied'};
@@ -61,6 +62,15 @@ async function sendMessageAsync({group, text, replyTo, userId}) {
         from: userId
     }   
 
+    var notifs = [];
+    const notifBase = {
+        title: fromName + ' in ' + groupName,
+        body: text,
+        data: {
+            from: userId, fromName, group, groupName, time, type: 'message'
+        }
+    }
+
     // update local state for all members
     Object.keys(members).forEach(member => {
         updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = {
@@ -68,9 +78,11 @@ async function sendMessageAsync({group, text, replyTo, userId}) {
         };
         if (member != userId) {
             updates['userPrivate/' + member + '/lastMessageTime'] = time;
+            const notif = {...notifBase, toUser: member}
+            notifs.push(notif);
         }
     })
-    return {success: true, updates}
+    return {success: true, updates, notifs}
 }
 
 exports.sendMessageAsync = sendMessageAsync;
