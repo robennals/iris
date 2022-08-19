@@ -1,94 +1,57 @@
 import React, { useEffect, useState } from 'react'
 import { FixedTouchable, FormInput, FormTitle, ScreenContentScroll, WideButton } from '../components/basics';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
-import { Picker, View, StyleSheet } from 'react-native';
+import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
 import { leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
-import { GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, pickImage } from '../components/photo';
+import { GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
+
+function MemberPreview({members, userId}) {
+    const member=members[userId];
+    return (
+        <View style={{flexDirection: 'row', height: 100}}>
+            <MemberPhotoIcon photoKey={member.photo} name={member.name} user={userId} thumb={false} size={80} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+            <View style={{marginTop: 0, marginLeft: 16}}>
+                <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 4}}>{member.name}</Text>
+                <Text>{member.bio}</Text>
+            </View>
+        </View>
+    )
+}
 
 export function GroupProfileScreen({navigation, route}) {
     const {group} = route.params;
-    const [oldName, setOldName] = useState('');
-    const [newName, setNewName] = useState(null);
-    const [oldIntro, setOldIntro] = useState('');
-    const [newIntro, setNewIntro] = useState(null);
-    const [members, setMembers] = useState('');
-    const [photoData, setPhotoData] = useState(null);
-    const [thumbData, setThumbData] = useState(null);
-    const [photo, setPhoto] = useState({});
-
-    console.log('group profile', {group, oldName, newName, members});
+    const [members, setMembers] = useState(null);
+    const [name, setName] = useState('');
+    const [questions, setQuestions] = useState('');
 
     useEffect(() => {
         var x = {};
-        watchData(x, ['group', group, 'name'], setOldName)
-        watchData(x, ['group', group, 'intro'], setOldIntro, '')
-
+        watchData(x, ['group', group, 'name'], setName)
         watchData(x, ['group', group, 'member'], setMembers)
-        watchData(x, ['group', group, 'photo'], setPhoto);
+        watchData(x, ['group', group, 'questions'], setQuestions, '');
 
         return () => internalReleaseWatchers(x)
     }, [group]);
 
-    useEffect(() => {
-        if (oldName) {
-            navigation.setOptions({title: oldName + ' - Profile'});
-        }
-    }, [oldName]);   
-
     if (!members) return null;
 
-    const meAdmin = members[getCurrentUser()].role == 'admin';
-
-    async function onSelectPhoto() {
-        const pickedImage = await pickImage();
-        const photoData = await resizeImageAsync({uri: pickedImage.uri, pickedImage, rotate: true, maxSize: 600});
-        const thumbData = await resizeImageAsync({uri: pickedImage.uri, pickedImage, rotate: true, maxSize: 80});
-        setPhotoData(photoData);
-        setThumbData(thumbData);
-    }
-
-    async function onClearPhoto() {
-        setPhotoData(null);
-        setThumbData(null);
-    }
+    console.log('groupProfile', questions);
 
     return (
         <ScreenContentScroll>
-            {meAdmin ?
-                <View>
-                    <FixedTouchable onPress={() => onSelectPhoto()}>
-                        <View style={{alignSelf: 'center', marginVertical: 16}}>
-                            {(photo.key || photoData) ?
-                                <GroupProfilePhotoPreview photoKey={photo.key} photoUser={photo.user} photoData={photoData} onClearPhoto={()=>onClearPhoto} />
-                            : 
-                                <GroupProfilePhotoPlaceholder />
-                            }
-                        </View>                        
-                    </FixedTouchable>
-                    <FormTitle title='Name of This Group'>
-                        <FormInput placeholder='name' value={newName || oldName} 
-                            onChangeText={setNewName}
-                        />            
-                    </FormTitle>
-                    <FormTitle title='Intro Message'>
-                        <FormInput placeholder='Shown to people before they join' value={newIntro || oldIntro} 
-                            onChangeText={setNewIntro} multiline
-                        />            
-                    </FormTitle>
+            <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 16, marginBottom: 8}}>{name}</Text>
 
-                    <WideButton style={{alignSelf: 'flex-start'}} progressText='Updating...'
-                        onPress={async ()=> {
-                            await updateGroupProfileAsync({group, name: newName, photoData, thumbData});
-                            navigation.goBack();
-                        }}>
-                        Update Group Profile
-                    </WideButton>
+            <Text style={{lineHeight: 20}}>{questions}</Text>
 
-                </View>
-            : null
-            }
+            <Text style={{fontSize: 18, fontWeight: 'bold', marginTop: 32, marginBottom: 16}}>Participants</Text>
+
+            {Object.keys(members || {}).map(m => 
+                <MemberPreview members={members} userId={m} />
+            )}
+
+
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
 
             <View style={{flexDirection: 'row'}}>

@@ -65,10 +65,10 @@ export function GroupProfilePhotoPreview({photoKey, photoUser, photoData, onClea
 }
 
 
-export function MemberPhotoIcon({photoKey, user, name, style, size = 40}) {
+export function MemberPhotoIcon({photoKey, user, name, style, size = 40, thumb=true}) {
   if (user && photoKey) {
         return (
-            <Image source={{uri: getUrlForImage(photoKey, user, true), cache: 'force-cache'}} 
+            <Image source={{uri: getUrlForImage(photoKey, user, thumb), cache: 'force-cache'}} 
                 style={[{width: size, height: size, borderRadius: size / 2, borderColor: 'white', borderWidth: StyleSheet.hairlineWidth}, style]} />
         )
   } else {

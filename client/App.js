@@ -129,7 +129,7 @@ export default function App() {
     joinOrCreate: {component: JoinOrCreateScreen, title: 'Join or Create a Group'},
     messagebox: {component: MessageBoxScreen, headerTitle: MessageBoxScreenHeader},
     profile: {component: ProfileScreen, title: 'User Profile'},
-    groupProfile: {component: GroupProfileScreen, title: 'Group Profile'},
+    groupProfile: {component: GroupProfileScreen, title: 'Conversation Info'},
     reportAbuse: {component: ReportAbuseScreen, title: 'Report Abuse'},
     notifs: {component: NotifScreen, title: 'Notifications'},
     photo: {component: PhotoScreen, title: 'Photo', noHeader: true},
