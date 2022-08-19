@@ -33,6 +33,6 @@ export const highlightColor = '#ffffdd'
 
 export const minTwoPanelWidth = 700
 
-export const version = 23
+export const version = 24
 
 export const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'];

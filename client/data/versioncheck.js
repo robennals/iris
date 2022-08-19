@@ -8,7 +8,7 @@ var latestVersion = null;
 var firstLoad = false;
 
 var x = {};
-watchData(x, ['special', 'versioncheck', 'sdk_43'], newVersion => {
+watchData(x, ['special', 'versioncheck', 'sdk_46'], newVersion => {
     latestVersion = newVersion;
     if (firstLoad) {
         reloadIfVersionChanged();

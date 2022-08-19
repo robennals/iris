@@ -104,7 +104,6 @@ export function GroupScreen({navigation, route}) {
     useEffect(() => {
         var x = {};        
         watchData(x, ['userPrivate', getCurrentUser(), 'group'], setGroupSet);
-        reloadIfVersionChanged();
         return () => internalReleaseWatchers(x);
     }, [group]);
 

@@ -84,7 +84,6 @@ export function ThreadScreen({navigation, route}){
 
     useEffect(() => {
         navigation.setOptions({title: title || ''});
-        reloadIfVersionChanged();
     }, [title])
 
     async function getAndUpdateReadTimeAsync() {

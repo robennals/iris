@@ -12,6 +12,7 @@ import { GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/p
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 import * as Notifications from 'expo-notifications';
+import { reloadIfVersionChanged } from '../data/versioncheck';
 
 
 function isGroupUnread(groupInfo) {
@@ -71,6 +72,9 @@ export class GroupList extends React.Component {
 
     async selectGroup(group) {
         const {navigation, singleScreen} = this.props;
+
+        reloadIfVersionChanged();
+
         this.setState({selected: group});
         // navigation.navigate('group', {group});
         if (singleScreen || Platform.OS == 'web') {           
