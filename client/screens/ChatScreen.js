@@ -141,8 +141,8 @@ function Message({messages, members, messageKey}) {
             <View style={myMessage ? styles.myMessage : styles.theirMessage}>
                 {myMessage ? null :
                     <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
-                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={16} style={{marginRight: 4}}/>
-                        <Text style={{fontWeight: 'bold'}}>{fromMember.name}</Text>
+                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
+                        <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
                     </View>
                 }
                 <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
