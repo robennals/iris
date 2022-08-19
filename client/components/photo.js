@@ -107,6 +107,17 @@ export function GroupMultiIcon({members, size = 40}) {
   }
 }
 
+export function GroupSideBySideIcon({members, size}) {
+  const keys = Object.keys(members);
+  return (
+    <View style={{flexDirection: 'row', marginLeft: size/8}}>
+      {keys.map(k => 
+        <MiniMemberPhoto members={members} user={k} size={size} style={{marginLeft: -size/8}} />
+      )}
+    </View>
+  )
+}
+
 export function GroupPhotoIcon({photo, name, style, size = 40}) {
     if (photo && photo.key) {
         return (

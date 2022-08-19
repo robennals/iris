@@ -8,7 +8,7 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
-import { GroupPhotoIcon } from '../components/photo';
+import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon } from '../components/photo';
 import { BottomFlatScroller, TitleBlinker } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
@@ -18,10 +18,12 @@ import { PhotoPromo } from '../components/profilephoto';
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
     const [name, setName] = useState('');
+    const [members, setMembers] = useState({});
 
     useEffect(() => {
         var x = {}
         watchData(x, ['group', group, 'name'], setName);
+        watchData(x, ['group', group, 'member'], setMembers);
 
         return () => internalReleaseWatchers(x);
     }, [group])
@@ -29,6 +31,8 @@ export function ChatScreenHeader({navigation, route}) {
     return (
         <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                {/* <GroupMultiIcon members={members} size={32} /> */}
+                <GroupSideBySideIcon members={members} size={32} />
                 <OneLineText style={{fontSize: 16, marginLeft: 8}}>
                     {name}
                 </OneLineText>
