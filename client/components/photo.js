@@ -70,7 +70,7 @@ export function MemberPhotoIcon({photoKey, user, name, style, size = 40, thumb=t
   if (user && photoKey) {
         return (
             <Image source={{uri: getUrlForImage(photoKey, user, thumb), cache: 'force-cache'}} 
-                style={[{width: size, height: size, borderRadius: size / 2, borderColor: 'white', borderWidth: StyleSheet.hairlineWidth}, style]} />
+                style={[{width: size, height: size, borderRadius: size / 2, borderColor: '#eee', borderWidth: StyleSheet.hairlineWidth}, style]} />
         )
   } else {
       return <MemberIcon name={name} style={style} size={size} />
