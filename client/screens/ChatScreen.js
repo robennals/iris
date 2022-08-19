@@ -8,7 +8,7 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
-import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon } from '../components/photo';
+import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { BottomFlatScroller, TitleBlinker } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
@@ -94,11 +94,13 @@ export function ChatScreen({navigation, route}) {
 
 function MessageList({group}) {
     const [messages, setMessages] = useState(null);
+    const [members, setMembers] = useState(null);
     const scrollRef = React.createRef();
 
     useEffect(() => {
         var x = {}
         watchData(x, ['group', group, 'message'], setMessages);
+        watchData(x, ['group', group, 'member'], setMembers);
 
         return () => internalReleaseWatchers(x);
     }, [group]);
@@ -112,20 +114,27 @@ function MessageList({group}) {
     return (
         <View style={{flex: 1}}>
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
-                ... sortedMessageKeys.map(k => ({key: k, item: <Message key={k} messages={messages} messageKey={k} />})),
+                ... sortedMessageKeys.map(k => ({key: k, item: <Message key={k} messages={messages} members={members} messageKey={k} />})),
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
         </View>
     )
 }
 
-function Message({messages, messageKey}) {
+function Message({messages, members, messageKey}) {
     const message=messages[messageKey];
     const myMessage = message.from == getCurrentUser();
+    const fromMember = members[message.from];
 
     return (
         <View style={myMessage ? styles.myMessageRow : styles.theirMessageRow}>
             <View style={myMessage ? styles.myMessage : styles.theirMessage}>
+                {myMessage ? null :
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={16} style={{marginRight: 4}}/>
+                        <Text style={{fontWeight: 'bold'}}>{fromMember.name}</Text>
+                    </View>
+                }
                 <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
             </View>
             <View style={{width: 64, height: 40, flexShrink: 0, color: 'red'}} />
@@ -163,12 +172,12 @@ const styles = StyleSheet.create({
     },
     myMessageText: {
         color: 'white',
-        fontSize: Platform.OS == 'web' ? 14 : 16,
+        fontSize: Platform.OS == 'web' ? 15 : 16,
         lineHeight: Platform.OS == 'web' ? undefined : 20
     },
     theirMessageText: {
         color: '#222',
-        fontSize: Platform.OS == 'web' ? 14 : 16,
+        fontSize: Platform.OS == 'web' ? 15 : 16,
         lineHeight: Platform.OS == 'web' ? undefined : 20
     },
     myMessageLink: {
