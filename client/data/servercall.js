@@ -145,6 +145,7 @@ export async function sendMessageAsync({group, text}) {
     return await callServerApiAsync('sendMessage', {group, text});
 }
 
-export async function makeChatRead({group}) {
-    return await callServerApiAsync('markChatRead', {group});
+export async function setProfilePhotoAsync({photoData, thumbData}) {
+    return await callServerApiAsync('setProfilePhoto', {photoData, thumbData});
 }
+

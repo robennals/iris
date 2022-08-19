@@ -12,6 +12,6 @@ export function NewMessageSound(){
             }
             setLastMessageTime(time);
         },[])
-    })
+    }, [])
     return null;
 }

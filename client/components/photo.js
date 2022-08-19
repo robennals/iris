@@ -6,6 +6,7 @@ import { FixedTouchable, GroupIcon, makePhotoDataUrl, MemberIcon } from './basic
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
 import { useCustomNavigation } from './shim';
+import { getCurrentUser } from '../data/fbutil';
 
 export async function pickImage() {
 
@@ -65,20 +66,45 @@ export function GroupProfilePhotoPreview({photoKey, photoUser, photoData, onClea
 
 
 export function MemberPhotoIcon({photoKey, user, name, style, size = 40}) {
-    if (user == 'highlight') {
-        return (
-            <View style={{width: size, height: size, justifyContent: 'space-around', alignItems: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: '#999', borderRadius: size / 2}}>
-                <FontAwesome name='star' size={size *0.8} color='#999' />
-            </View>
-        )
-    } else if (user && photoKey) {
+  if (user && photoKey) {
         return (
             <Image source={{uri: getUrlForImage(photoKey, user, true), cache: 'force-cache'}} 
-                style={{width: size, height: size, borderRadius: size / 2}} />
+                style={[{width: size, height: size, borderRadius: size / 2, borderColor: 'white', borderWidth: StyleSheet.hairlineWidth}, style]} />
         )
-    } else {
-        return <MemberIcon name={name} style={style} size={size} />
-    }
+  } else {
+      return <MemberIcon name={name} style={style} size={size} />
+  }
+}
+
+function MiniMemberPhoto({members, user, style, size}) {
+  if (user) {
+    return <MemberPhotoIcon photoKey={members[user].photo} user={user} name={members[user].name} style={style} size={size} />
+  } else {
+    return null;
+  }
+}
+
+export function GroupMultiIcon({members, size = 40}) {
+  const notMeMemberKeys = _.filter(Object.keys(members), k => k != getCurrentUser());
+  if (notMeMemberKeys.length == 1) {
+    return <MiniMemberPhoto members={members} user={notMeMemberKeys[0]} size={size} />
+  } else if (notMeMemberKeys.length == 2) {
+    return (
+      <View style={{width: size, height:size}}>
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[0]} size={size * 0.65} style={{position: 'absolute', left: 0, top: 0}} />
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[1]} size={size * 0.65} style={{position: 'absolute', right: 0, bottom: 0}} />
+      </View>
+    )  
+  } else if (notMeMemberKeys.length >= 3) {
+    return (
+      <View style={{width: size, height:size}}>
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[0]} size={size * 0.55} style={{position: 'absolute', left: 0, top: 0}}/>
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[1]} size={size * 0.55} style={{position: 'absolute', right: 0, top: 0}} />
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[2]} size={size * 0.55} style={{position: 'absolute', left: 0, bottom: 0}}/>
+        <MiniMemberPhoto members={members} user={notMeMemberKeys[3]} size={size * 0.55} style={{position: 'absolute', right: 0, bottom: 0}}/>
+      </View>
+    )  
+  }
 }
 
 export function GroupPhotoIcon({photo, name, style, size = 40}) {

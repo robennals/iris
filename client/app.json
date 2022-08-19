@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Iris",
+    "name": "Iris Talk",
     "slug": "iris-talk",
     "scheme": "iris-talk",
     "version": "1.0.5",
@@ -20,9 +20,9 @@
     "ios": {
       "buildNumber": "6",
       "supportsTablet": true,
-      "bundleIdentifier": "us.mix5",
+      "bundleIdentifier": "com.iris-talk",
       "associatedDomains": [
-        "applinks:mix5.us"
+        "applinks:iris-talk.com"
       ],
       "infoPlist": {
         "NSCameraUsageDescription": "This allows you to attach an image to your post",
@@ -34,7 +34,7 @@
       }
     },
     "android": {
-      "package": "us.mix5",
+      "package": "com.iris-talk",
       "versionCode": 6,
       "permissions": [],
       "icon": "./assets/icon.png",      
@@ -50,7 +50,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "mix5.us",
+              "host": "iris-talk.com",
               "pathPrefix": ".*"
             }
           ],

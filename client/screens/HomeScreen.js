@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { firstLine, FixedTouchable, GroupIcon, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
@@ -8,11 +8,19 @@ import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
 import { Ionicons } from '@expo/vector-icons';
-import { GroupPhotoIcon } from '../components/photo';
+import { GroupMultiIcon, GroupPhotoIcon } from '../components/photo';
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 
-function GroupPreview ({name, groupInfo, highlight, shrink}) {
+function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
+    const [members, setMembers] = useState(null);
+
+    useEffect(() => {
+        var x = {};
+        watchData(x, ['group', group, 'member'], setMembers);
+        return () => internalReleaseWatchers(x);
+    }, [group])
+
     const unread = (_.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0))
         && _.get(groupInfo, ['lastMessage', 'from']) != getCurrentUser();
     var summaryLine = '';
@@ -20,34 +28,24 @@ function GroupPreview ({name, groupInfo, highlight, shrink}) {
         summaryLine = groupInfo.lastMessage.fromName + ': ' + 
             firstLine(groupInfo.lastMessage.text)
     }
-    if (shrink) {
-        return (
-            <View style={[styles.shrinkGroupPreview, 
-                    highlight ? {backgroundColor: '#ddd'} : null]}>
-                <GroupPhotoIcon name={name} size={40} photo={groupInfo.photo} />
-                {/* <Text style={{fontSize: 10, color: '#666'}} numberOfLines={2}>{name}</Text> */}
-            </View>
-        )             
-    } else {
-        return (
-            <View style={[styles.groupPreview, 
-                    highlight ? {backgroundColor: '#eee'} : null]}>
-                <GroupPhotoIcon name={name} size={50} photo={groupInfo.photo} />
+    return (
+        <View style={[styles.groupPreview, 
+                highlight ? {backgroundColor: '#eee'} : null]}>
+            <GroupMultiIcon members={members || {}} name={name} size={50} photo={groupInfo.photo} />
 
-                {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
-                    <View style={styles.groupPreviewRight}>
-                        <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
-                            {name}
-                        </OneLineText>
-                        <OneLineText numberOfLines={1} style={{
-                                color: '#666', marginTop: 4,
-                                fontWeight: unread ? 'bold' : null}}>
-                            {summaryLine}
-                        </OneLineText>
-                    </View>
-            </View>
-        )
-    }
+            {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
+                <View style={styles.groupPreviewRight}>
+                    <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
+                        {name}
+                    </OneLineText>
+                    <OneLineText numberOfLines={1} style={{
+                            color: '#666', marginTop: 4,
+                            fontWeight: unread ? 'bold' : null}}>
+                        {summaryLine}
+                    </OneLineText>
+                </View>
+        </View>
+    )
 }
 
 
@@ -105,30 +103,16 @@ export class GroupList extends React.Component {
                     <View style={{height: 16}} />
                 : null}
 
-                {shrink ? 
-                    <View style={{alignSelf: 'center', marginTop: 16}}>
-                        <NotifIcon navigation={navigation} alwaysShow />
-                    </View>
-                : 
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, marginLeft: 16, marginRight: 6, marginBottom: 0}}>
-                        {/* <View style={{flexDirection: 'row'}}>
-                            <MemberIcon name={name} size={32} style={{marginRight: 8}} />
-                            <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
-                        </View> */}
-                        <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
-                        <NotifIcon navigation={navigation} alwaysShow />
-                    </View>
-                }
-                {shrink ? 
-                    <FixedTouchable onPress={() => navigation.goHome()}>
-                        <Ionicons name='ios-search' size={20} color='#999' 
-                            style={{alignSelf: 'center', paddingVertical: 16}} />
-                    </FixedTouchable>
-                :
-                    <SearchBox value={search} onChangeText={search => this.setState({search})} 
-                        style={{marginHorizontal: 16, marginBottom: 8}}
-                    />
-                    }   
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, marginLeft: 16, marginRight: 6, marginBottom: 0}}>
+                    {/* <View style={{flexDirection: 'row'}}>
+                        <MemberIcon name={name} size={32} style={{marginRight: 8}} />
+                        <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
+                    </View> */}
+                    <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
+                </View>
+                <SearchBox value={search} onChangeText={search => this.setState({search})} 
+                    style={{marginHorizontal: 16, marginBottom: 8}}
+                />
                 {sortedGroupKeys.map(group => 
                     <Catcher key={group}>
                         <FixedTouchable key={group} onPress={() => this.selectGroup(group)}>
@@ -150,7 +134,7 @@ export class GroupList extends React.Component {
                     <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : ('About ' + appName)}</Text>
                 </FixedTouchable>
 
-                {isMasterUser ? 
+                {isMasterUser() ? 
                     <FixedTouchable onPress={() => navigation.navigate('adminCreateGroup')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Group (admin)</Text>
                     </FixedTouchable>

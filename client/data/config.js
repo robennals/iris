@@ -31,7 +31,7 @@ export const baseBackgroundColor = '#fff'
 export const highlightColor = '#ffffdd'
 // export const baseBackgroundColor = '#f5f5f5';
 
-export const minTwoPanelWidth = 900
+export const minTwoPanelWidth = 700
 
 export const version = 23
 

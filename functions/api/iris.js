@@ -27,10 +27,15 @@ async function adminCreateGroupAsync({name, questions, people, userId}) {
     updates['group/' + group + '/name'] = name;
     updates['group/' + group + '/questions'] = questions;
 
+    const memberUids = _.map(members, member => member.uid);
+
+    const photos = await FBUtil.getMultiDataAsync(memberUids, m => ['userPrivate', m, 'photo'], null)
+        
     members.forEach(member => {
         const {uid, bio} = member;
         updates['group/' + group + '/member/' + uid + '/name'] = member.name;
         updates['group/' + group + '/member/' + uid + '/bio'] = bio;        
+        updates['group/' + group + '/member/' + uid + '/photo'] = photos[uid];
         updates['userPrivate/' + uid + '/group/' + group] = {name}
     })
 
@@ -93,3 +98,38 @@ function markChatReadAsync({group, userId}) {
     return {success: true, updates};
 }
 exports.markChatReadAsync = markChatReadAsync;
+
+async function setProfilePhotoAsync({photoData, thumbData, userId}) {
+    console.log('setProfilePhotoAsync', userId);
+
+    const photoKey = FBUtil.newKey();
+    const pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId, key: photoKey});
+    const pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId, key: photoKey});
+    const pGroups = FBUtil.getDataAsync(['userPrivate', userId, 'group']);
+
+    console.log('requested upload', photoKey);
+
+    const groups = await pGroups;
+
+    var updates = {};
+    updates['userPrivate/' + userId + '/photo'] = photoKey;
+
+    const groupKeys = Object.keys(groups);
+
+    const groupMemberEntry = await FBUtil.getMultiDataAsync(
+        groupKeys, 
+        g => ['group', g, 'member', userId]
+    )
+
+    console.log('groupKeys', groupKeys, groupMemberEntry);
+    _.forEach(groupKeys, g => {
+        if (groupMemberEntry[g]) {
+            updates['group/' + g + '/member/' + userId + '/photo'] = photoKey;
+        }
+    })
+
+    await pPhotoUpload; 
+    await pThumbUpload;
+    return {success: true, updates};
+}
+exports.setProfilePhotoAsync = setProfilePhotoAsync;

@@ -13,6 +13,7 @@ import { BottomFlatScroller, TitleBlinker } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
 import _ from 'lodash';
+import { PhotoPromo } from '../components/profilephoto';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -72,6 +73,7 @@ export function ChatScreen({navigation, route}) {
       <KeyboardSafeView style={{flex: 1}}>
         <HeaderSpaceView style={{flex:1 }}>
           <EnableNotifsBanner />
+          <PhotoPromo />
           <NewMessageSound />
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>

@@ -7,8 +7,14 @@ async function getDataAsync(path, fallback = {}) {
     const snap = await ref.once('value');
     return snap.val() || fallback;
 }
-
 exports.getDataAsync = getDataAsync;
+
+async function getMultiDataAsync(keys, pathFunc, fallback) {
+	const promises = _.map(keys, k => getDataAsync(pathFunc(k), fallback));
+	const values = await Promise.all(promises);
+	return _.zipObject(keys, values);
+}
+exports.getMultiDataAsync = getMultiDataAsync;
 
 async function setDataAsync(path, value) {
 	const pathString = _.join(path,'/');

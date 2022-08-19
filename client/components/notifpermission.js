@@ -72,7 +72,7 @@ export class EnableNotifsBanner extends React.Component {
         <FixedTouchable onPress={()=>this.setupNotifToken()}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
               backgroundColor: '#F3F7C0', 
-            //   borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
+              borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
               padding: 8, margin: 0}}>
             <Ionicons name='ios-notifications' size={30}/>
             <Text style={{marginHorizontal: 8, flex: 1}}>

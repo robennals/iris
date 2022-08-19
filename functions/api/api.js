@@ -86,6 +86,9 @@ async function apiActionAsync({action, components, params}) {
         case 'sendMessage': {
             return Iris.sendMessageAsync(params);
         }
+        case 'setProfilePhoto': {
+            return Iris.setProfilePhotoAsync(params);
+        }
         
 
         default: {
