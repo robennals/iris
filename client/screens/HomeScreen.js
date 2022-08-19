@@ -11,6 +11,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
+import * as Notifications from 'expo-notifications';
+
+
+function isGroupUnread(groupInfo) {
+    return (_.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0))
+        && _.get(groupInfo, ['lastMessage', 'from']) != getCurrentUser();
+}
 
 function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
     const [members, setMembers] = useState(null);
@@ -21,8 +28,8 @@ function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
         return () => internalReleaseWatchers(x);
     }, [group])
 
-    const unread = (_.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0))
-        && _.get(groupInfo, ['lastMessage', 'from']) != getCurrentUser();
+    const unread = isGroupUnread(groupInfo);
+
     var summaryLine = '';
     if (groupInfo.lastMessage) {
         summaryLine = groupInfo.lastMessage.fromName + ': ' + 
@@ -96,7 +103,11 @@ export class GroupList extends React.Component {
         }
         const sortedGroupKeys = _.sortBy(filteredGroupKeys, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
 
-        // console.log('groupSet', {groupSet, sortedGroupKeys, filteredGroupKeys});
+        if (Platform.OS != 'web') {
+            const unreadGroups = _.filter(groupKeys, k => isGroupUnread(groupSet[k]));
+            const unreadCount = unreadGroups.length;
+            Notifications.setBadgeCountAsync(unreadCount);
+        }
 
         return (
             <ScreenContentScroll>

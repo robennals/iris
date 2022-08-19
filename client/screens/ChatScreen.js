@@ -9,9 +9,9 @@ import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
-import { BottomFlatScroller, TitleBlinker } from '../components/shim';
+import { addFocusListener, BottomFlatScroller, removeFocusListener, TitleBlinker } from '../components/shim';
 import { setTitle } from '../components/shim';
-import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 
@@ -20,12 +20,22 @@ export function ChatScreenHeader({navigation, route}) {
     const [name, setName] = useState('');
     const [members, setMembers] = useState({});
 
+    function markThisChatRead() {
+        setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
+        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
+    }
+
     useEffect(() => {
         var x = {}
         watchData(x, ['group', group, 'name'], setName);
         watchData(x, ['group', group, 'member'], setMembers);
 
-        return () => internalReleaseWatchers(x);
+        addFocusListener(markThisChatRead);
+
+        return () => {
+            internalReleaseWatchers(x);
+            removeFocusListener(markThisChatRead);
+        }
     }, [group])
 
     return (

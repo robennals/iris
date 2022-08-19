@@ -216,3 +216,11 @@ export class BottomFlatScroller extends React.Component {
     }  
   }
 
+  export function addFocusListener(callback) {
+    return window.addEventListener('focus', callback);
+  }
+
+  export function removeFocusListener(callback) {
+    return window.removeEventListener('focus', callback);
+  }
+  

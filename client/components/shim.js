@@ -70,6 +70,9 @@ export class BottomFlatScroller extends React.Component {
 
 export function TitleBlinker() {return null};
 export function setTitle() {};
+export function addFocusListener() {};
+export function removeFocusListener() {};
+
 
 export async function playAlertSound() {
   const soundObject = new Audio.Sound();
