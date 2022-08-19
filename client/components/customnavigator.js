@@ -161,7 +161,7 @@ function urlForScreen(topScreen) {
 
 function setUrlFromNavState(navState) {
     const url = urlForNavState(navState);
-    console.log('setUrl', navState, url);
+    // console.log('setUrl', navState, url);
     historyPushState({state: navState, url})
 }
 

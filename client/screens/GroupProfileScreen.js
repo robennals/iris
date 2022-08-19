@@ -48,7 +48,7 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 18, fontWeight: 'bold', marginTop: 32, marginBottom: 16}}>Participants</Text>
 
             {Object.keys(members || {}).map(m => 
-                <MemberPreview members={members} userId={m} />
+                <MemberPreview key={m} members={members} userId={m} />
             )}
 
 
