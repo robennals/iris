@@ -72,12 +72,14 @@ export function MobileNavigator({screens, user, initialRouteName, linking}) {
 function getScreenStyle(navState, index, wide, screen) {
     if (!wide || screen == 'photo') {
         return {flex: 1, position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: index}
-    } else if (index == 0 & navState.length > 2) {
-        return {width: 49, flexGrow: 0, transition: 'width 1s'}
-    } else if (navState.length > 2) {
-        return {flex: index + 1, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', transition: 'width 1s'}
+    // } else if (index == 0 & navState.length > 2) {
+    //     return {width: 49, flexGrow: 0, transition: 'width 1s'}
+    // } else if (navState.length > 2) {
+    //     return {flex: index + 1, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', transition: 'width 1s'}
+    } else if (navState.length > 2 && index != 0 && index != navState.length - 1) {
+        return {display: 'none'}
     } else {
-        return {flex: index + 1, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', transition: 'width 1s'}
+        return {flex: index == 0 ? 1 : 2, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', transition: 'width 1s'}
     }
 }
 
