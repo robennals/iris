@@ -10,8 +10,8 @@ import { resizeImageAsync } from '../components/shim';
 function MemberPreview({members, userId}) {
     const member=members[userId];
     return (
-        <View style={{flexDirection: 'row', height: 100}}>
-            <MemberPhotoIcon photoKey={member.photo} name={member.name} user={userId} thumb={false} size={80} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+        <View style={{flexDirection: 'row', height: 150}}>
+            <MemberPhotoIcon photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
             <View style={{marginTop: 0, marginLeft: 16}}>
                 <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 4}}>{member.name}</Text>
                 <Text>{member.bio}</Text>
@@ -41,11 +41,12 @@ export function GroupProfileScreen({navigation, route}) {
 
     return (
         <ScreenContentScroll>
-            <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 16, marginBottom: 8}}>{name}</Text>
+            <View style={{marginHorizontal: 16}}>
+            <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 16, marginBottom: 8}}>{name}</Text>
 
             <Text style={{lineHeight: 20}}>{questions}</Text>
 
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginTop: 32, marginBottom: 16}}>Participants</Text>
+            <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {Object.keys(members || {}).map(m => 
                 <MemberPreview key={m} members={members} userId={m} />
@@ -62,6 +63,7 @@ export function GroupProfileScreen({navigation, route}) {
                         style={{alignSelf: 'flex-start'}}>
                     Report Abuse
                 </WideButton>
+            </View>
             </View>
         </ScreenContentScroll>
     )

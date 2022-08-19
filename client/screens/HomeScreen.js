@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
 import { Ionicons } from '@expo/vector-icons';
-import { GroupMultiIcon, GroupPhotoIcon } from '../components/photo';
+import { GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 
@@ -51,11 +51,12 @@ function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
 
 
 export class GroupList extends React.Component {
-    state = {groupSet: null, selected: null, search: '', name: null}
+    state = {groupSet: null, selected: null, search: '', name: null, photo: null}
 
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
         watchData(this, ['userPrivate', getCurrentUser(), 'name'], name => this.setState({name}));        
+        watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}));
     }
     async componentWillUnmount() {
         internalReleaseWatchers(this);
@@ -82,7 +83,7 @@ export class GroupList extends React.Component {
 
     render() {
         const {navigation, showSelected, shrink} = this.props;
-        const {groupSet, selected, search, name} = this.state;
+        const {groupSet, selected, search, name, photo} = this.state;
 
         if (!groupSet) {
             return null;
@@ -103,12 +104,13 @@ export class GroupList extends React.Component {
                     <View style={{height: 16}} />
                 : null}
 
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, marginLeft: 16, marginRight: 6, marginBottom: 0}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 8, marginLeft: 16, marginRight: 6}}>
                     {/* <View style={{flexDirection: 'row'}}>
                         <MemberIcon name={name} size={32} style={{marginRight: 8}} />
                         <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
                     </View> */}
                     <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
+                    <MemberPhotoIcon photoKey={photo} name={name} user={getCurrentUser()} size={32} />
                 </View>
                 <SearchBox value={search} onChangeText={search => this.setState({search})} 
                     style={{marginHorizontal: 16, marginBottom: 8}}

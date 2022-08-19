@@ -7,6 +7,7 @@ import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
 import { useCustomNavigation } from './shim';
 import { getCurrentUser } from '../data/fbutil';
+import _ from 'lodash';
 
 export async function pickImage() {
 
@@ -108,7 +109,9 @@ export function GroupMultiIcon({members, size = 40}) {
 }
 
 export function GroupSideBySideIcon({members, size}) {
-  const keys = Object.keys(members);
+  const keys = _.filter(Object.keys(members), k => k != getCurrentUser());
+
+  // const keys = Object.keys(members);
   return (
     <View style={{flexDirection: 'row', marginLeft: size/8}}>
       {keys.map(k => 

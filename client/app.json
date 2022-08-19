@@ -34,7 +34,7 @@
       }
     },
     "android": {
-      "package": "com.iris-talk",
+      "package": "us.mix5",
       "versionCode": 6,
       "permissions": [],
       "icon": "./assets/icon.png",      
