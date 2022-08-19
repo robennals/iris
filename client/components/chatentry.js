@@ -45,6 +45,8 @@ export function ChatEntryBox({group}) {
         return true;
     }
 
+    const isWeb = Platform.OS == 'web'
+
     return (
         <View style={{flexDirection: 'row', backgroundColor: 'white', 
                 borderTopWidth: StyleSheet.hairlineWidth, 
@@ -54,7 +56,7 @@ export function ChatEntryBox({group}) {
                 key={textKey}
                 value={text}
                 onChangeText={setText}
-                autoFocus={Platform.OS == 'web'}
+                autoFocus={isWeb}
                 placeholder='Type a message'
                 multiline
                 style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 
@@ -62,7 +64,7 @@ export function ChatEntryBox({group}) {
                     borderColor: '#ddd', padding: 8,
                     marginVertical: 8,
                     fontSize: 16, lineHeight: 20, flex: 1
-                }, {height}]}
+                }, {height: isWeb ? height : null}]}
                 onContentSizeChange={onContentSizeChange}
                 onKeyPress={onKeyPress}                
             />

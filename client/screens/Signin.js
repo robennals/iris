@@ -33,7 +33,7 @@ export class SignInScreen extends React.Component {
       this.setState({errorMessage: 'This is not a valid email address'});
     } else {
       this.setState({mode:'code'});
-      const data = await requestLoginCode({email});
+      const data = await requestLoginCode({email: email.toLowerCase().trim()});
       if (data.success != true) {
         // console.error('error requesting login code', data.message);
         this.setState({errorMessage: data.message});
@@ -46,7 +46,7 @@ export class SignInScreen extends React.Component {
     this.setState({signingIn: true});
 
     const email = this.state.email || this.props.email;
-    signinWithLoginCode({email, code, 
+    signinWithLoginCode({email: email.toLowerCase().trim(), code, 
       onError: errorMessage => this.setState({errorMessage, signingIn: false})
     })
   }
