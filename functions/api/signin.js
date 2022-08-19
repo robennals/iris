@@ -10,7 +10,7 @@ const hour_millis = 60*minute_millis;
 // TODO: Have proper email -> account lookup
 // TODO: Rate limit how often you can request a PIN for a given email
 async function requestLoginCode({email}) {
-  console.log('request login code', email);
+  console.log('request login code "' + email + '"');
 
   if (!email) {
     return {success: false, message: 'No email provided'};

@@ -14,6 +14,8 @@ import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
+import { Entypo } from '@expo/vector-icons';
+import { MessageTreePreview } from '../components/membersection';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -82,6 +84,19 @@ function NewMessageTracker({group}) {
 // }
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
+    const [messages, setMessages] = useState(null);
+    const [members, setMembers] = useState(null);
+    const [replyTo, setReplyTo] = useState(null);
+    const scrollRef = React.createRef();
+
+    useEffect(() => {
+        var x = {}
+        watchData(x, ['group', group, 'message'], setMessages);
+        watchData(x, ['group', group, 'member'], setMembers);
+
+        return () => internalReleaseWatchers(x);
+    }, [group]);
+
     return (
       <GroupContext.Provider value={{group}} >
       <KeyboardSafeView style={{flex: 1}}>
@@ -93,8 +108,8 @@ export function ChatScreen({navigation, route}) {
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <NotifBanner meeting={meeting} navigation={navigation} /> */}
             {/* <PhotoPopup />             */}
-            <MessageList group={group} />
-            <ChatEntryBox group={group} />
+            <MessageList group={group} messages={messages} members={members} onReply={setReplyTo} />
+            <ChatEntryBox group={group} messages={messages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} />
           </View>
         </HeaderSpaceView>
       </KeyboardSafeView>
@@ -102,42 +117,32 @@ export function ChatScreen({navigation, route}) {
     )
 }
 
-function MessageList({group}) {
-    const [messages, setMessages] = useState(null);
-    const [members, setMembers] = useState(null);
+function MessageList({group, messages, members, onReply}) {
     const scrollRef = React.createRef();
-
-    useEffect(() => {
-        var x = {}
-        watchData(x, ['group', group, 'message'], setMessages);
-        watchData(x, ['group', group, 'member'], setMembers);
-
-        return () => internalReleaseWatchers(x);
-    }, [group]);
 
     const messageKeys = Object.keys(messages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
 
-    // console.log('sortedMessageKeys', sortedMessageKeys);
-    // console.log('messages', messages);
-
     return (
         <View style={{flex: 1}}>
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
-                ... sortedMessageKeys.map(k => ({key: k, item: <Message key={k} messages={messages} members={members} messageKey={k} />})),
+                ... sortedMessageKeys.map(k => ({key: k, item: 
+                    <Message key={k} messages={messages} members={members} messageKey={k} onReply={onReply}/>})),
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
         </View>
     )
 }
 
-function Message({messages, members, messageKey}) {
+function Message({messages, members, messageKey, onReply}) {
     const message=messages[messageKey];
     const myMessage = message.from == getCurrentUser();
     const fromMember = members[message.from];
+    const [hover, setHover] = useState(false);
 
     return (
-        <View style={myMessage ? styles.myMessageRow : styles.theirMessageRow}>
+        <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
+            onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             <View style={myMessage ? styles.myMessage : styles.theirMessage}>
                 {myMessage ? null :
                     <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
@@ -145,9 +150,23 @@ function Message({messages, members, messageKey}) {
                         <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
                     </View>
                 }
+                {message.replyTo ?
+                    <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#ddd', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                        <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
+                        <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
+                    </View> 
+                : null}
                 <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
             </View>
-            <View style={{width: 64, height: 40, flexShrink: 0, color: 'red'}} />
+            <View style={{width: 64, flexShrink: 0}}>
+                {hover ? 
+                <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
+                    <FixedTouchable onPress={() => onReply(messageKey)}>
+                        <Entypo name='reply' size={24} color='#999' />
+                    </FixedTouchable>
+                </View>
+                : null}
+            </View>
         </View>
     )
 }
@@ -174,11 +193,13 @@ const styles = StyleSheet.create({
     myMessageRow: {
         flexDirection: 'row-reverse',
         justifyContent: 'flex-end',
-        alignSelf: 'flex-end'
+        alignSelf: 'flex-end',
+        alignItems: 'center',
     },
     theirMessageRow: {
         flexDirection: 'row',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        alignItems: 'center'
     },
     myMessageText: {
         color: 'white',
