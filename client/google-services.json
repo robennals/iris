@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "925533439545",
+    "firebase_url": "https://talkwell-default-rtdb.firebaseio.com",
+    "project_id": "talkwell",
+    "storage_bucket": "talkwell.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:925533439545:android:bebc093763d25c0f29afe8",
+        "android_client_info": {
+          "package_name": "net.talkwell"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "925533439545-2ud8ati1vqicnu3ipjvj9d3tv6shm04c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzAvHhLFSkoasB-nz0TsiqdPsoF4FVXqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "925533439545-2ud8ati1vqicnu3ipjvj9d3tv6shm04c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

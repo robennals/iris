@@ -40,7 +40,7 @@
       "icon": "./assets/icon.png",      
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "useNextNotificationsApi": true,
@@ -63,6 +63,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android_notif.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/pop_semiquiet.wav",
+          ]
+        }
+      ]
+    ]
   }
 }
