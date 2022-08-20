@@ -8,6 +8,17 @@ import { pickImage } from './photo';
 import { resizeImageAsync } from './shim';
 
 
+export async function chooseProfilePhotoAsync(setUploading) {
+    const bigPhoto = await pickImage();
+    setUploading(true);
+    const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
+    const thumbData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
+
+    await setProfilePhotoAsync({photoData, thumbData});
+    setUploading(false);
+}
+
+
 export function PhotoPromo() {
     const [photo, setPhoto] = useState('loading');
     const [uploading, setUploading] = useState(false);
@@ -16,20 +27,10 @@ export function PhotoPromo() {
         var x = {};
         watchData(x, ['userPrivate', getCurrentUser(), 'photo'], setPhoto, null);
     }, []);
-
-    async function chooseProfilePhoto() {
-      const bigPhoto = await pickImage();
-      setUploading(true);
-      const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
-      const thumbData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
-    
-      await setProfilePhotoAsync({photoData, thumbData});
-      setUploading(false);
-    }
     
     if (!photo) {
         return (
-            <FixedTouchable onPress={()=>chooseProfilePhoto()}>
+            <FixedTouchable onPress={()=>chooseProfilePhoto(setUploading)}>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
                   backgroundColor: '#F3F7C0', 
                   borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 

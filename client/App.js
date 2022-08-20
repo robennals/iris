@@ -39,6 +39,7 @@ import { appName } from './data/config';
 import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreateGroup';
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 import { playAlertSound } from './components/alertping';
+import { MyProfileScreen } from './screens/MyProfileScreen';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -159,6 +160,7 @@ export default function App() {
     outsiderThread: {component: OutsiderThreadScreen, headerTitle: OutsiderThreadScreenHeader},
     digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
     adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
+    myProfile: {component: MyProfileScreen, title: 'My Profile'}
   }
 
 

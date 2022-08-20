@@ -114,16 +114,35 @@ export function ChatScreen({navigation, route}) {
     )
 }
 
+function MoreButton({showCount, messageCount, onMore}) {
+    if (showCount < messageCount) {
+        return (
+            <FixedTouchable onPress={onMore} >
+                <View style={{alignSelf: 'center', borderColor: '#ddd', borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 12, paddingVertical: 6}}>
+                    <Text>Show More Messages</Text>
+                </View>
+            </FixedTouchable>
+        )
+    } else {
+        return null;
+    }
+}
+
 function MessageList({group, messages, members, onReply}) {
     const scrollRef = React.createRef();
+    const [showCount, setShowCount] = useState(20);
 
     const messageKeys = Object.keys(messages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
+    // const shownMessageKeys = sortedMessageKeys.slice(-showCount);
+    const shownMessageKeys = sortedMessageKeys;
 
     return (
         <View style={{flex: 1}}>
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
-                ... sortedMessageKeys.map(k => ({key: k, item: 
+                // {key: 'more', item: 
+                    // <MoreButton showCount={showCount} messageCount={sortedMessageKeys.length} onMore={() => setShowCount(showCount+40)} />},
+                ... shownMessageKeys.map(k => ({key: k, item: 
                     <Message key={k} messages={messages} members={members} messageKey={k} onReply={onReply}/>})),
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
@@ -152,8 +171,8 @@ function Message({messages, members, messageKey, onReply}) {
             {popup ? 
                 <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
             : null}
-            <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}}>
-                <View style={myMessage ? styles.myMessage : styles.theirMessage}>
+            <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1}}>
+                <View style={myMessage ? styles.myMessage : styles.theirMessage} >
                     {myMessage ? null :
                         <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
                             <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
@@ -170,7 +189,7 @@ function Message({messages, members, messageKey, onReply}) {
                 </View>
             </FixedTouchable>
 
-            <View style={{width: 100, flexShrink: 0}}>
+            <View style={{width: 64, flexShrink: 0}}>
                 {hover ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
                     <FixedTouchable onPress={() => onReply(messageKey)}>

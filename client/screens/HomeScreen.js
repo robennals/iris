@@ -125,7 +125,9 @@ export class GroupList extends React.Component {
                         <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
                     </View> */}
                     <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
-                    <MemberPhotoIcon photoKey={photo} name={name} user={getCurrentUser()} size={32} />
+                    <FixedTouchable onPress={() => navigation.navigate('myProfile')}>
+                        <MemberPhotoIcon photoKey={photo} name={name} user={getCurrentUser()} size={32} />
+                    </FixedTouchable>
                 </View>
                 <SearchBox value={search} onChangeText={search => this.setState({search})} 
                     style={{marginHorizontal: 16, marginBottom: 8}}

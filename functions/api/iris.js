@@ -36,6 +36,7 @@ async function adminCreateGroupAsync({name, questions, people, userId}) {
         updates['group/' + group + '/member/' + uid + '/name'] = member.name;
         updates['group/' + group + '/member/' + uid + '/bio'] = bio;        
         updates['group/' + group + '/member/' + uid + '/photo'] = photos[uid];
+        updates['userPrivate/' + uid + '/name'] = member.name;
         updates['userPrivate/' + uid + '/group/' + group] = {name}
     })
 

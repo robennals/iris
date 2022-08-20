@@ -8,6 +8,7 @@ import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import * as Haptics from 'expo-haptics';
+import {FlashList} from '@shopify/flash-list';
 
 export function getCurrentDomain(){ 
     return appDomain
@@ -61,6 +62,7 @@ export class BottomFlatScroller extends React.Component {
         <FlatList inverted initialNumToRender={20}
           style={{flex: 1, /* maxHeight: height */}}
           keyboardDismissMode='on-drag'
+          // estimatedItemSize={78}
           data={data.slice().reverse()}
           renderItem={basicRenderItem}
           onContentSizeChange={(width, height) => this.setState({height})}

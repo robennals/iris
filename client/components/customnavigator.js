@@ -155,7 +155,10 @@ function urlForScreen(topScreen) {
         path = '/' + topScreen.params.group
     } else if (topScreen.screen == 'adminCreateGroup') {
         path = '/adminCreateGroup'
+    } else if (topScreen.screen == 'myProfile') {
+        path = '/myProfile'
     }
+
     return '/' + topScreen.screen + path;
 }
 
@@ -222,6 +225,11 @@ function navStateFromCurrentUrl() {
             {screen: 'home'},
             {screen: 'adminCreateGroup'}
         ]
+        case 'myProfile': return [
+            {screen: 'home'},
+            {screen: 'myProfile'}
+        ]
+
 
         default: return [{screen: 'home', params: {}}]
     }
