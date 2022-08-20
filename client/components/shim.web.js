@@ -223,4 +223,6 @@ export class BottomFlatScroller extends React.Component {
   export function removeFocusListener(callback) {
     return window.removeEventListener('focus', callback);
   }
-  
+
+  export function ModalMenu() {return null}
+  export function vibrate() {}

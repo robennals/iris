@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { NewMessageSound } from '../components/alertping';
 import { FixedTouchable, HeaderSpaceView, OneLineText } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
@@ -9,13 +9,12 @@ import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
-import { addFocusListener, BottomFlatScroller, removeFocusListener, TitleBlinker } from '../components/shim';
+import { addFocusListener, BottomFlatScroller, ModalMenu, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo } from '@expo/vector-icons';
-import { MessageTreePreview } from '../components/membersection';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -134,30 +133,45 @@ function MessageList({group, messages, members, onReply}) {
     )
 }
 
+
 function Message({messages, members, messageKey, onReply}) {
     const message=messages[messageKey];
     const myMessage = message.from == getCurrentUser();
     const fromMember = members[message.from];
     const [hover, setHover] = useState(false);
+    const [popup, setPopup] = useState(false);
 
     return (
+        // <Swipeable renderLeftActions={() =>
+        //     <View style={{justifyContent: 'space-around', padding: 8, alignItems: myMessage ? 'flex-end' : 'flex-start'}}>
+        //     <Entypo name='reply' size={24} color='#999' />
+        //     </View>
+        // }
+        //     onSwipeableWillOpen={() => onReply(messageKey)}
+        // >
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
-            <View style={myMessage ? styles.myMessage : styles.theirMessage}>
-                {myMessage ? null :
-                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
-                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
-                        <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
-                    </View>
-                }
-                {message.replyTo ?
-                    <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#ddd', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                        <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
-                        <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
-                    </View> 
-                : null}
-                <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
-            </View>
+            {popup ? 
+                <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
+            : null}
+            <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}}>
+                <View style={myMessage ? styles.myMessage : styles.theirMessage}>
+                    {myMessage ? null :
+                        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                            <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
+                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
+                        </View>
+                    }
+                    {message.replyTo ?
+                        <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
+                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
+                        </View> 
+                    : null}
+                    <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
+                </View>
+            </FixedTouchable>
+
             <View style={{width: 64, flexShrink: 0}}>
                 {hover ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
@@ -168,8 +182,26 @@ function Message({messages, members, messageKey, onReply}) {
                 : null}
             </View>
         </View>
+        // </Swipeable>
     )
 }
+
+
+function MessagePopup({messageKey, onReply, onClose}) {
+    var actions = [];
+    actions.push({id: 'reply', label: 'Reply'});
+
+    return <ModalMenu items={actions} onClose={onClose} onSelect={async id => {
+        switch (id) {
+            case 'reply': 
+                onClose();
+                return onReply(messageKey)
+            default:
+                onClose();
+        }
+    }} />
+}
+      
 
 const styles = StyleSheet.create({
     myMessage: {

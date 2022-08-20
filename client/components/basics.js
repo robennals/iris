@@ -199,8 +199,12 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
   }
 }
 
-export function FixedTouchable({onPress, style, children}) {
-    return <TouchableOpacity onPress={onPress} style={style}>{children}</TouchableOpacity>
+export function FixedTouchable({onPress, onLongPress, dummy, style, children}) {
+  if (dummy) {
+    return <View>{children}</View>
+  } else {
+    return <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={style}>{children}</TouchableOpacity>
+  }
 }
 
 export function ScreenContentScroll({children, contentOffset, scrollRef, style}) {

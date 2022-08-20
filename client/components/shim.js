@@ -1,11 +1,13 @@
 import React from 'react';
-import {View, FlatList} from 'react-native';
+import {View, FlatList, Text} from 'react-native';
 import { appDomain } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
 import {Audio} from 'expo-av';
 import { Catcher } from './catcher';
-
+import Modal from 'react-native-modal';
+import { FixedTouchable } from './basics';
+import * as Haptics from 'expo-haptics';
 
 export function getCurrentDomain(){ 
     return appDomain
@@ -86,3 +88,26 @@ export async function playAlertSound() {
   }  
 }
 
+export function ModalMenu({items, onSelect, onClose}) {
+  return (
+    <Modal style={{justifyContent: 'flex-end'}} 
+        isVisible onBackdropPress={onClose} >
+      <View>
+        {items.map(i => 
+          <FixedTouchable key={i.id} onPress={() => {
+            onSelect(i.id);
+            // onClose()
+          }}>
+            <View style={{backgroundColor: '#fff', borderRadius: 16, padding: 8, alignItems: 'center', margin: 4}}>
+              <Text style={{fontSize: 20}}>{i.label}</Text>
+            </View>
+          </FixedTouchable>
+        )}
+      </View>
+    </Modal>
+  )
+}
+
+export function vibrate(){
+  Haptics.selectionAsync();
+}
