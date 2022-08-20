@@ -27,20 +27,21 @@ export function forceReload() {
 }
 
 export async function expoReload() {
-    console.log('checking for new expo update');
-    const newUpdate = await Updates.checkForUpdateAsync();
-    if (newUpdate) {
-      console.log('new update available');
-      const {isNew} = await Updates.fetchUpdateAsync();
-      if (isNew) {
-        console.log('reloading');
-        await Updates.reloadAsync();
-      } else {
-        console.log('loaded update is not new');
-      }
-    } else {
-      console.log('no new update available');
-    }
+  // HACK: Commenting out all of this since it maybe caused a crash
+    // console.log('checking for new expo update');
+    // const newUpdate = await Updates.checkForUpdateAsync();
+    // if (newUpdate) {
+    //   console.log('new update available');
+    //   const {isNew} = await Updates.fetchUpdateAsync();
+    //   if (isNew) {
+    //     console.log('reloading');
+    //     await Updates.reloadAsync();
+    //   } else {
+    //     console.log('loaded update is not new');
+    //   }
+    // } else {
+    //   console.log('no new update available');
+    // }
 }
 
 export async function reloadIfVersionChanged(){

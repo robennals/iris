@@ -3,7 +3,7 @@
     "name": "Iris Talk",
     "slug": "iris-talk",
     "scheme": "iris-talk",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/icon.png",
@@ -18,7 +18,7 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "6",
+      "buildNumber": "7",
       "supportsTablet": true,
       "bundleIdentifier": "com.iris-talk",
       "associatedDomains": [
