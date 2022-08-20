@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AppLoading from 'expo-app-loading';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { onFirebaseAuthStatechanged } from './data/fbutil';
+import { internalReleaseWatchers, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
 import { SignInScreen } from './screens/Signin';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, CommonActions, useNavigationContainerRef } from '@react-navigation/native';
@@ -38,6 +38,7 @@ import { DigestFreqScreen } from './screens/DigestFreqScreen';
 import { appName } from './data/config';
 import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreateGroup';
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
+import { playAlertSound } from './components/alertping';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -68,6 +69,8 @@ Notifications.setNotificationHandler({
 
 SplashScreen.preventAutoHideAsync();
 
+var global_lastMessageTime = 0;
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [gotAuth, setGotAuth] = useState(false);
@@ -90,6 +93,22 @@ export default function App() {
       setupServerTokenWatch(user);
     }
   }, [user])
+
+  useEffect(() => {
+    var x = {};
+    console.log('useEffect', user);
+    global_lastMessageTime = 0;
+    if (user) {
+      watchData(x, ['userPrivate', user, 'lastMessageTime'], async time => {
+        console.log('lastMessageTime ', {time, global_lastMessageTime});
+        if (global_lastMessageTime && global_lastMessageTime != time) {
+          await playAlertSound();
+        }
+        global_lastMessageTime = time;
+      })
+    }
+    return () => internalReleaseWatchers(x);
+  }, [user]);
 
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {

@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser, watchData } from '../data/fbutil';
-import { playAlertSound } from './shim';
+import {Audio} from 'expo-av';
 
-export function NewMessageSound(){ 
-    const [lastMessageTime, setLastMessageTime] = useState(0);
-    useEffect(() => {
-        var x = {};
-        watchData(x, ['userPrivate', getCurrentUser(), 'lastMessageTime'], time => {
-            if (lastMessageTime && time != lastMessageTime) {
-                playAlertSound();
-            }
-            setLastMessageTime(time);
-        },[])
-    }, [])
-    return null;
-}
+
+var global_soundObject = null;
+
+export async function playAlertSound() {
+    // return;
+    console.log('play sound');
+    try {
+      if (!global_soundObject) {
+        global_soundObject = new Audio.Sound();
+        // await global_soundObject.setVolumeAsync(0.5);
+        // await global_soundObject.setVolumeAsync(1);
+        await global_soundObject.loadAsync(require('../assets/pop_semiquiet.mp3'));
+      }
+      await global_soundObject.playAsync();
+      // await soundObject.unloadAsync();
+    } catch (error) {
+    }  
+  }
+

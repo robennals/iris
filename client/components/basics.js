@@ -201,7 +201,7 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
 
 export function FixedTouchable({onPress, onLongPress, dummy, style, children}) {
   if (dummy) {
-    return <View>{children}</View>
+    return <View style={{flex: 1}}>{children}</View>
   } else {
     return <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={style}>{children}</TouchableOpacity>
   }

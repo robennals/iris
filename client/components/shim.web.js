@@ -205,16 +205,7 @@ export class BottomFlatScroller extends React.Component {
     }
   }
 
-  export async function playAlertSound() {
-    // return;
-    const soundObject = new Audio.Sound();
-    try {
-      await soundObject.loadAsync(require('../assets/pop.mp3'));
-      await soundObject.playAsync();
-      await soundObject.unloadAsync();
-    } catch (error) {
-    }  
-  }
+  var global_soundObject = null;
 
   export function addFocusListener(callback) {
     return window.addEventListener('focus', callback);

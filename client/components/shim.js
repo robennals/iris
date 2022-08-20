@@ -76,18 +76,6 @@ export function addFocusListener() {};
 export function removeFocusListener() {};
 
 
-export async function playAlertSound() {
-  const soundObject = new Audio.Sound();
-  try {
-    await soundObject.loadAsync(require('../assets/pop.mp3'));
-    await soundObject.playAsync();
-    await soundObject.unloadAsync();
-    // Your sound is playing!
-  } catch (error) {
-    // An error occurred!
-  }  
-}
-
 export function ModalMenu({items, onSelect, onClose}) {
   return (
     <Modal style={{justifyContent: 'flex-end'}} 

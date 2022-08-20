@@ -102,10 +102,8 @@ export function ChatScreen({navigation, route}) {
         <HeaderSpaceView style={{flex:1 }}>
           <EnableNotifsBanner />
           <PhotoPromo />
-          <NewMessageSound />
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
-            {/* <NotifBanner meeting={meeting} navigation={navigation} /> */}
             {/* <PhotoPopup />             */}
             <MessageList group={group} messages={messages} members={members} onReply={setReplyTo} />
             <ChatEntryBox group={group} messages={messages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} />
@@ -172,7 +170,7 @@ function Message({messages, members, messageKey, onReply}) {
                 </View>
             </FixedTouchable>
 
-            <View style={{width: 64, flexShrink: 0}}>
+            <View style={{width: 100, flexShrink: 0}}>
                 {hover ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
                     <FixedTouchable onPress={() => onReply(messageKey)}>
