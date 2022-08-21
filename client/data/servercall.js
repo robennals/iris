@@ -141,8 +141,8 @@ export async function adminCreateGroupAsync({name, questions, people}) {
     return await callServerApiAsync('adminCreateGroup', {name, questions, people});
 }
 
-export async function sendMessageAsync({group, text, replyTo}) {
-    return await callServerApiAsync('sendMessage', {group, text, replyTo});
+export async function sendMessageAsync({messageKey, group, text, replyTo}) {
+    return await callServerApiAsync('sendMessage', {messageKey, group, text, replyTo});
 }
 
 export async function setProfilePhotoAsync({photoData, thumbData}) {

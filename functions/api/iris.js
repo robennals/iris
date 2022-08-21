@@ -48,7 +48,7 @@ async function adminCreateGroupAsync({name, questions, people, userId}) {
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
 
 // TODO: Send notification to other group members on mobile
-async function sendMessageAsync({group, text, replyTo, userId}) {
+async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
@@ -58,7 +58,7 @@ async function sendMessageAsync({group, text, replyTo, userId}) {
         return {success: false, message: 'access denied'};
     }
     var updates = {};
-    const key = FBUtil.newKey();
+    const key = messageKey || FBUtil.newKey();
     const time = Date.now();
     const fromName = members[userId].name;
     updates['group/' + group + '/message/' + key] = {

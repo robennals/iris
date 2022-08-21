@@ -14,7 +14,7 @@ import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, FontAwesome } from '@expo/vector-icons';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -84,6 +84,7 @@ function NewMessageTracker({group}) {
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
     const [messages, setMessages] = useState(null);
+    const [localMessages, setLocalMessages] = useState({});
     const [members, setMembers] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
     const scrollRef = React.createRef();
@@ -92,9 +93,12 @@ export function ChatScreen({navigation, route}) {
         var x = {}
         watchData(x, ['group', group, 'message'], setMessages);
         watchData(x, ['group', group, 'member'], setMembers);
+        watchData(x, ['userPrivate', getCurrentUser(), 'localMessage', group], setLocalMessages);
 
         return () => internalReleaseWatchers(x);
     }, [group]);
+
+    const allMessages = messages ? {...localMessages, ...messages} : {};
 
     return (
       <GroupContext.Provider value={{group}} >
@@ -105,8 +109,8 @@ export function ChatScreen({navigation, route}) {
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} messages={messages} members={members} onReply={setReplyTo} />
-            <ChatEntryBox group={group} messages={messages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} />
+            <MessageList group={group} messages={allMessages} members={members} onReply={setReplyTo} />
+            <ChatEntryBox group={group} messages={allMessages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} />
           </View>
         </HeaderSpaceView>
       </KeyboardSafeView>
@@ -186,6 +190,9 @@ function Message({messages, members, messageKey, onReply}) {
                         </View> 
                     : null}
                     <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
+                    {message.pending ?
+                        <FontAwesome name='clock-o' size={14} style={{position: 'absolute', right:-4, bottom: -4, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 2, borderRadius: 8}}/> 
+                    : null}
                 </View>
             </FixedTouchable>
 

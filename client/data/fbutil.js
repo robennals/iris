@@ -1,12 +1,12 @@
 import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
-import { getDatabase, ref, onValue, off, update, get, set, once } from "firebase/database";
+import { getDatabase, ref, onValue, off, update, get, set, once, serverTimestamp, push } from "firebase/database";
 import _ from 'lodash';
 
 const database = getDatabase();
 
 export function newKey() {
-	return ref(database).push().key;
+	return push(ref(database)).key;
 }
 
 var global_currentUser = null;
@@ -111,3 +111,7 @@ export function releaseWatcher(path, func) {
     const ref = refForPath(path);
     off(ref, 'value', func);
 }
+
+export function getFirebaseServerTimestamp(){
+    return serverTimestamp();    
+} 
