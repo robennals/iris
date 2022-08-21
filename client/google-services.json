@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "925533439545",
-    "firebase_url": "https://talkwell-default-rtdb.firebaseio.com",
-    "project_id": "talkwell",
-    "storage_bucket": "talkwell.appspot.com"
+    "project_number": "859886276868",
+    "firebase_url": "https://iris-talk-default-rtdb.firebaseio.com",
+    "project_id": "iris-talk",
+    "storage_bucket": "iris-talk.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:925533439545:android:bebc093763d25c0f29afe8",
+        "mobilesdk_app_id": "1:859886276868:android:a0d3839b3399f9e6c28051",
         "android_client_info": {
-          "package_name": "net.talkwell"
+          "package_name": "us.mix5"
         }
       },
       "oauth_client": [
         {
-          "client_id": "925533439545-2ud8ati1vqicnu3ipjvj9d3tv6shm04c.apps.googleusercontent.com",
+          "client_id": "859886276868-8dtl2ifquu91kho0egqn2oudvad4c6n4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBzAvHhLFSkoasB-nz0TsiqdPsoF4FVXqY"
+          "current_key": "AIzaSyCqrUDSXp_JjlggNBODAFsThhTjq2ygaAU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "925533439545-2ud8ati1vqicnu3ipjvj9d3tv6shm04c.apps.googleusercontent.com",
+              "client_id": "859886276868-8dtl2ifquu91kho0egqn2oudvad4c6n4.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

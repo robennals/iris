@@ -24,6 +24,9 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply}) 
     }
 
     async function onSubmit() {
+        if (!text) {
+            return;
+        }
         setInProgress(true);
         // setText('');
         // setTextKey(textKey+1);

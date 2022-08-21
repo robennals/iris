@@ -33,8 +33,8 @@ function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
 
     var summaryLine = '';
     if (groupInfo.lastMessage) {
-        summaryLine = groupInfo.lastMessage.fromName + ': ' + 
-            firstLine(groupInfo.lastMessage.text)
+        summaryLine = _.get(groupInfo,['lastMessage','fromName'],'') + ': ' + 
+            firstLine(_.get(groupInfo,['lastMessage','text'],''))
     }
     return (
         <View style={[styles.groupPreview, 
