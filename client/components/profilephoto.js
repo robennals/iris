@@ -30,7 +30,7 @@ export function PhotoPromo() {
     
     if (!photo) {
         return (
-            <FixedTouchable onPress={()=>chooseProfilePhoto(setUploading)}>
+            <FixedTouchable onPress={()=>chooseProfilePhotoAsync(setUploading)}>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
                   backgroundColor: '#F3F7C0', 
                   borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
@@ -39,7 +39,7 @@ export function PhotoPromo() {
                 <Text style={{marginHorizontal: 8, flex: 1}}>
                   <Text style={{fontWeight: 'bold'}}>Choose a Profile Photo</Text> to show others who you are.
                 </Text>
-                <WideButton style={{margin: 0}} onPress={()=>chooseProfilePhoto()} disabled={uploading} progressText='Uploading...' alwaysActive>Choose Photo</WideButton>                
+                <WideButton style={{margin: 0}} onPress={()=>chooseProfilePhotoAsync(setUploading)} disabled={uploading} progressText='Uploading...' alwaysActive>Choose Photo</WideButton>                
               </View>
           </FixedTouchable>
         )

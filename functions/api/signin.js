@@ -68,7 +68,7 @@ async function requestLoginCode({email}) {
 }
 
 
-const uid_reviewer = 'hTIKb4WUzCfXWAksf43D45nbbGg2';
+const uid_reviewer = 'Pc9LHyQEOCerYcx3RcxCeKEwxLG3';
 const email_reviewer = 'reviewer@iris-talk.com'
 const pin_reviewer = 847632;
 

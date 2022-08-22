@@ -1,7 +1,7 @@
 import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { FixedTouchable, ScreenContentScroll, WideButton } from '../components/basics';
+import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../components/basics';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
 import { firebaseSignOut, getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil'
@@ -51,6 +51,7 @@ export function MyProfileScreen({navigation}) {
             <WideButton style={{alignSelf: 'center'}} onPress={() => signOut()}>
                 Sign Out
             </WideButton>
+            <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:acount@iris-talk.com'>account@iris-talk.com</Link></Text>
             
         </ScreenContentScroll>
     )

@@ -191,7 +191,10 @@ function Message({messages, members, messageKey, onReply}) {
                     : null}
                     <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
                     {message.pending ?
-                        <FontAwesome name='clock-o' size={14} style={{position: 'absolute', right:-4, bottom: -4, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 2, borderRadius: 8}}/> 
+                        <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
+                                position: 'absolute', right: -4, bottom: -4}}>
+                            <FontAwesome name='clock-o' size={14} /> 
+                        </View>
                     : null}
                 </View>
             </FixedTouchable>
