@@ -166,7 +166,7 @@ export function FormTitle({title, children}) {
   )
 }
 
-export function FormInput({autoFocus, onFocus, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, style}) {
+export function FormInput({autoFocus, onFocus, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, onSubmitEditing, style}) {
   const textBoxStyle = {
     backgroundColor: 'white',
     padding: 8,
@@ -184,6 +184,7 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
       value = {value}
       maxLength = {maxLength}
       autoFocus={autoFocus}
+      onSubmitEditing={onSubmitEditing}
       onChangeText={onChangeText}/>
   } else {
     return <TextInput placeholder={placeholder} style={style || textBoxStyle}
@@ -193,6 +194,7 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
       underlineColorAndroid='transparent'
       textAlign = {textAlign}
       defaultValue = {defaultValue}
+      onSubmitEditing = {onSubmitEditing}
       value = {value}
       onFocus = {onFocus}
       onChangeText={onChangeText}/>

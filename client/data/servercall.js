@@ -55,10 +55,11 @@ async function callServerApiAsync(action, params) {
     }
 }
 
-export async function requestLoginCode({email}) {
+export async function requestLoginCode({email, createUser=false}) {
     console.log('requestLoginCode', email, getCurrentDomain());
   
-    const fetchUrl = getApiPrefix() + 'requestLoginCode?email=' + encodeURIComponent(email.toLowerCase());
+    const fetchUrl = getApiPrefix() + 'requestLoginCode?email=' + encodeURIComponent(email.toLowerCase()) 
+        + (createUser ? '&createUser=true' : '');
     console.log('fetchUrl', fetchUrl);
     const response = await fetch(fetchUrl);
     const data = await response.json();

@@ -9,7 +9,7 @@ const hour_millis = 60*minute_millis;
 
 // TODO: Have proper email -> account lookup
 // TODO: Rate limit how often you can request a PIN for a given email
-async function requestLoginCode({email}) {
+async function requestLoginCode({email, createUser}) {
   console.log('request login code "' + email + '"');
 
   if (!email) {
@@ -19,9 +19,11 @@ async function requestLoginCode({email}) {
   const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
   var uid = _.findKey(userEmails, userEmail => userEmail == email)
 
-  if (!uid) {
+  if (!uid && createUser) {
     uid = await FBUtil.createUser(email);
     console.log('new user', uid);
+  } else if (!uid) {
+    return {success: false, errorType:'no account', message: 'No account exists with email \'' + email + '\'. Make sure you use the email address that was invited to a conversation.'}
   }
 
   const lastPIN = await FBUtil.getDataAsync(['special','loginPIN', uid]);

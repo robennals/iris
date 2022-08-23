@@ -24,19 +24,23 @@ export function validateEmail(email) {
 }
 
 export class SignInScreen extends React.Component {
-  state = {email: null, code: null, name: null, mode: null, signingIn: false, errorMessage: null};
+  state = {email: null, code: null, name: null, mode: null, signingIn: false, errorMessage: null, inProgress: false};
 
   async sendLoginCode(email){
+    console.log('sendLoginCode', email);
     if (!email) {
       this.setState({errorMessage: 'You must provide an email address to log in'})
     } else if (!validateEmail(email)) {
-      this.setState({errorMessage: 'This is not a valid email address'});
+      this.setState({errorMessage: "'"+email+"' is not a valid email address"});
     } else {
-      this.setState({mode:'code'});
+      this.setState({inProgress: true});
       const data = await requestLoginCode({email: email.toLowerCase().trim()});
+      this.setState({inProgress: false});
       if (data.success != true) {
         // console.error('error requesting login code', data.message);
         this.setState({errorMessage: data.message});
+      } else {
+        this.setState({mode:'code'});
       }
     }
   }
@@ -52,7 +56,7 @@ export class SignInScreen extends React.Component {
   }
 
   render() {
-    const {signingIn, errorMessage} = this.state;
+    const {signingIn, errorMessage, inProgress} = this.state;
     const email = this.state.email || this.props.email;
     const code = this.state.code || this.props.code;
     const mode = this.state.mode || (this.props.code ? 'code' : 'start');
@@ -75,12 +79,18 @@ export class SignInScreen extends React.Component {
                         keyboardType='email-address'
                         autoCompleteType='email'
                         defaultValue = {email}
+                        onSubmitEditing = {() => this.sendLoginCode(email)}
                         onChangeText={email => this.setState({email, mode: 'start'})}/>
                   </View>
                 </View>
-                <WideButton part='submit' onPress={() => this.sendLoginCode(email)} progressText='Sending Login Email...'>
-                  Log In / Sign Up
+                <WideButton part='submit' onPress={() => this.sendLoginCode(email)} alwaysActive disabled={inProgress} progressText='Sending Login Email...'>
+                  Log In
                 </WideButton>
+
+                {/* <View style={{margin: 16}}>
+                    <Text style={{color: '#666'}}>To use {appName} you must if you have been invited to a group conversation by a community.
+                    </Text>
+                </View> */}
 
                 <View style={{margin: 16}}>
                     <Text style={{color: '#666'}}>
