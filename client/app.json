@@ -3,7 +3,7 @@
     "name": "Iris Talk",
     "slug": "iris-talk",
     "scheme": "iris-talk",
-    "version": "1.0.6",
+    "version": "1.0.8",
     "icon": "./assets/icon_ios2_noalpha.png",
     "splash": {
       "image": "./assets/icon.png",
@@ -19,7 +19,7 @@
     ],
     "ios": {
       "icon": "./assets/icon_ios2_noalpha.png",
-      "buildNumber": "7",
+      "buildNumber": "8",
       "supportsTablet": true,
       "bundleIdentifier": "com.iris-talk",
       "associatedDomains": [
@@ -36,7 +36,7 @@
     },
     "android": {
       "package": "us.mix5",
-      "versionCode": 7,
+      "versionCode": 8,
       "permissions": [],
       "icon": "./assets/icon.png",      
       "googleServicesFile": "./google-services.json",
