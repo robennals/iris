@@ -13,6 +13,10 @@
         ".read": true
       }
     },
+    "community": {
+      ".read": true,
+      ".write": false
+    },
     "group": {
       "$group": {
         ".write": false,

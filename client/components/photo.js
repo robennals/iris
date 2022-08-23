@@ -129,8 +129,25 @@ export function GroupPhotoIcon({photo, name, style, size = 40}) {
                     borderWidth: StyleSheet.hairlineWidth, borderColor: '#eee'}} />
         )
     } else {
-        return <GroupIcon name={name} style={style} size={size} />
+        return (
+          <View style={{width: size, height: size, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: size/8, alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={{fontSize: size/2,color: '#666'}}>?</Text>
+          </View>
+        )
     }
+}
+
+export function CommunityPhotoIcon({photoKey, photoUser, style, size = 40}) {
+  if (!photoKey || !photoUser) {  
+    return <View style={{width: size, height: size, borderRadius: size/8, 
+      borderWidth: StyleSheet.hairlineWidth, borderColor: '#eee'}} />
+  } else {
+    return (
+      <Image source={{uri: getUrlForImage(photoKey, photoUser, true), cache: 'force-cache'}}
+          style={{...style, width: size, height: size, borderRadius: size/8,
+            borderWidth: StyleSheet.hairlineWidth, borderColor: '#eee'}} />
+    )
+  }
 }
 
 export function PhotoPreview({photoKey, photoUser, photoData, onClearPhoto}) {

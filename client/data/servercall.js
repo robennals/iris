@@ -150,3 +150,7 @@ export async function setProfilePhotoAsync({photoData, thumbData}) {
     return await callServerApiAsync('setProfilePhoto', {photoData, thumbData});
 }
 
+export async function createOrUpdateCommunityAsync({community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics}) {
+    return await callServerApiAsync('createOrUpdateCommunity', {
+        community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics});
+}

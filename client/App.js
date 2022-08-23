@@ -40,6 +40,10 @@ import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreate
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 import { playAlertSound } from './components/alertping';
 import { MyProfileScreen } from './screens/MyProfileScreen';
+import { AdminCreateOrEditCommunity, AdminCreateOrEditCommunityScreen } from './screens/AdminCreateOrEditCommunity';
+import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScreen';
+import { CommunityProfileScreen } from './screens/CommunityProfile';
+import { IntakeScreen } from './screens/IntakeScreen';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -76,8 +80,13 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [gotAuth, setGotAuth] = useState(false);
   const [notif, setNotif] = useState(null);
+  const [initialUrl, setInitialUrl] = useState(null);
   const notificationListener = useRef();
   const responseListener = useRef();
+
+  useEffect(() => {
+    Linking.getInitialURL().then(initialUrl => setInitialUrl(initialUrl));
+  }, []);
 
   useEffect(() => {
     console.log('initial setup');
@@ -97,7 +106,6 @@ export default function App() {
 
   useEffect(() => {
     var x = {};
-    console.log('useEffect', user);
     global_lastMessageTime = 0;
     if (user) {
       watchData(x, ['userPrivate', user, 'lastMessageTime'], async time => {
@@ -160,12 +168,22 @@ export default function App() {
     outsiderThread: {component: OutsiderThreadScreen, headerTitle: OutsiderThreadScreenHeader},
     digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
     adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
-    myProfile: {component: MyProfileScreen, title: 'My Profile'}
+    myProfile: {component: MyProfileScreen, title: 'My Profile'},
+    createCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Create Community'},    
+    editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
+    community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
+    communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
   }
 
+  console.log('intialUrl', initialUrl);
 
-  if (!gotAuth) {
+  const parsedUrl = initialUrl ? parseUrl(initialUrl) : {};
+  console.log('parsedUrl', initialUrl, parsedUrl);
+
+  if (!gotAuth || !initialUrl) {
     return null;
+  } else if (!user && parsedUrl.screen == 'community') {
+    return <IntakeScreen community={parseUrl.param} />
   } else if (!user) {
     return <SignInScreen/>
   } else {
@@ -175,6 +193,14 @@ export default function App() {
       </SafeAreaProvider>
     )
   }
+}
+
+function parseUrl(url) {
+  const {hostname, path, queryParms} = Linking.parse(url);
+  const parts = path.split('/');
+  const screen = parts[0];
+  const param = parts[1];
+  return {screen, param};
 }
 
 const styles = StyleSheet.create({

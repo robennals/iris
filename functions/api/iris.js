@@ -134,3 +134,24 @@ async function setProfilePhotoAsync({photoData, thumbData, userId}) {
     return {success: true, updates};
 }
 exports.setProfilePhotoAsync = setProfilePhotoAsync;
+
+async function createOrUpdateCommunityAsync({community, photoKey, photoUser, photoData, thumbData, name, info, questions, topics, userId}) {
+    const newPhotoKey = photoKey || FBUtil.newKey();
+
+    var pPhotoUpload; var pThumbUpload;
+    if (photoData) {
+        pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId, key: newPhotoKey});
+        pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId, key: newPhotoKey});    
+    }
+
+    const communityKey = community || FBUtil.newKey();
+    var updates = {};
+    updates['community/' + communityKey] = {
+        name, info, questions, topics, photoKey: newPhotoKey, photoUser: photoUser || userId
+    }
+
+    await pPhotoUpload;
+    await pThumbUpload;
+    return {success: true, updates, result: {communityKey, photoKey}};
+}
+exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;

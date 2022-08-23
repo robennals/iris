@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { firstLine, FixedTouchable, GroupIcon, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
 import { appName, baseColor, minTwoPanelWidth } from '../data/config';
@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
 import { Ionicons } from '@expo/vector-icons';
-import { GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/photo';
+import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 import * as Notifications from 'expo-notifications';
@@ -39,7 +39,7 @@ function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
     return (
         <View style={[styles.groupPreview, 
                 highlight ? {backgroundColor: '#eee'} : null]}>
-            <GroupMultiIcon members={members || {}} name={name} size={50} photo={groupInfo.photo} />
+            <GroupMultiIcon members={members || {}} name={name} size={60} photo={groupInfo.photo} />
 
             {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
                 <View style={styles.groupPreviewRight}>
@@ -56,56 +56,92 @@ function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
     )
 }
 
+function CommunityPreview({community, name, communityInfo, highlight}) {
+    const unread = isGroupUnread(communityInfo);
+
+    var summaryLine = '';
+    if (communityInfo.lastMessage) {
+        summaryLine = _.get(communityInfo,['lastMessage','fromName'],'') + ': ' + 
+            firstLine(_.get(communityInfo,['lastMessage','text'],''))
+    }
+    return (
+        <View style={[styles.groupPreview, 
+                highlight ? {backgroundColor: '#eee'} : null]}>
+            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={60} />
+
+            <View style={styles.groupPreviewRight}>
+                <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
+                    {name}
+                </OneLineText>
+                <OneLineText numberOfLines={1} style={{
+                        color: '#666', marginTop: 4,
+                        fontWeight: unread ? 'bold' : null}}>
+                    {summaryLine}
+                </OneLineText>
+            </View>
+        </View>
+    )
+}
+
 
 
 export class GroupList extends React.Component {
-    state = {groupSet: null, selected: null, search: '', name: null, photo: null}
+    state = {groupSet: null, communitySet: {}, selected: null, search: '', name: null, photo: null}
 
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
         watchData(this, ['userPrivate', getCurrentUser(), 'name'], name => this.setState({name}));        
         watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}));
+        if (isMasterUser()) {
+            watchData(this, ['community'], communitySet => this.setState({communitySet}));
+        } else {
+            watchData(this, ['userPrivate', getCurrentUser(), 'community'], communitySet => this.setState({communitySet}));
+        }
     }
     async componentWillUnmount() {
         internalReleaseWatchers(this);
     }
 
-    async selectGroup(group) {
+    async selectGroupOrCommunity(k) {
+        const {communitySet} = this.state;
         const {navigation, singleScreen} = this.props;
-
         reloadIfVersionChanged();
 
-        this.setState({selected: group});
-        // navigation.navigate('group', {group});
+        const thingType = communitySet[k] ? 'community' : 'group';
+
+        this.setState({selected: k});
         if (singleScreen || Platform.OS == 'web') {           
-            navigation.navigate('group', {group});
+            navigation.navigate(thingType, {[thingType]: k});
         } else {
             navigation.reset({
                 index: 1,
                 routes: [
                     { name: 'home'},
-                    { name: 'pgroup', params: {group}}
+                    { name: thingType, params: {[thingType]: k}}
                 ],
             })
         }
-        setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
+        setDataAsync(['userPrivate', getCurrentUser(), thingType, k, 'readTime'], Date.now());
         setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
     }
 
     render() {
         const {navigation, showSelected, shrink} = this.props;
-        const {groupSet, selected, search, name, photo} = this.state;
+        const {groupSet, communitySet, selected, search, name, photo} = this.state;
 
         if (!groupSet) {
             return null;
         }
 
         const groupKeys = Object.keys(groupSet || {});
+        const communityKeys = Object.keys(communitySet || {});
         var filteredGroupKeys = groupKeys;
+        var filteredCommunityKeys = communityKeys;
         if (search) {
             filteredGroupKeys = _.filter(groupKeys, k => searchMatches(groupSet[k].name, search))
+            filteredCommunityKeys = _.filter(communityKeys, k => searchMatches(communitySet[k].name, search));
         }
-        const sortedGroupKeys = _.sortBy(filteredGroupKeys, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
+        const sortedGroupAndCommunityKeys = _.sortBy({...filteredGroupKeys, ...filteredCommunityKeys}, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
 
         if (Platform.OS != 'web') {
             const unreadGroups = _.filter(groupKeys, k => isGroupUnread(groupSet[k]));
@@ -132,13 +168,20 @@ export class GroupList extends React.Component {
                 <SearchBox value={search} onChangeText={search => this.setState({search})} 
                     style={{marginHorizontal: 16, marginBottom: 8}}
                 />
-                {sortedGroupKeys.map(group => 
-                    <Catcher key={group}>
-                        <FixedTouchable key={group} onPress={() => this.selectGroup(group)}>
-                            <GroupPreview group={group} name={groupSet[group].name}
-                                highlight={selected == group && showSelected}
-                                groupInfo={groupSet[group]} shrink={shrink}
-                            />
+                {sortedGroupAndCommunityKeys.map(k => 
+                    <Catcher key={k}>
+                        <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
+                            {!communitySet[k] ?
+                                <GroupPreview group={k} name={groupSet[k].name}
+                                    highlight={selected == k && showSelected}
+                                    groupInfo={groupSet[k]} shrink={shrink}
+                                />
+                            : 
+                                <CommunityPreview community={k} name={communitySet[k].name}
+                                    highlight={selected == k && showSelected}
+                                    communityInfo={communitySet[k]} 
+                                />
+                            }
                         </FixedTouchable>
                     </Catcher>
                 )}
@@ -157,9 +200,13 @@ export class GroupList extends React.Component {
                     <FixedTouchable onPress={() => navigation.navigate('adminCreateGroup')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Group (admin)</Text>
                     </FixedTouchable>
-                :
-                    null
-                }
+                :null}
+                {isMasterUser() ? 
+                    <FixedTouchable onPress={() => navigation.navigate('createCommunity')}>
+                        <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Community (admin)</Text>
+                    </FixedTouchable>
+                :null}
+
 
                 {/* TODO: Bring back link to app once app is available */}
                 {/* {Platform.OS == 'web' && !shrink ?
@@ -205,7 +252,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
     },
     groupPreview: {
-        maxWidth: 500, marginHorizontal: 8, padding: 8, marginVertical: 0, backgroundColor: 'white',
+        maxWidth: 500, marginHorizontal: 8, padding: 8, marginVertical: 4, backgroundColor: 'white',
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 8,

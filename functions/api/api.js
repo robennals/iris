@@ -89,6 +89,9 @@ async function apiActionAsync({action, components, params}) {
         case 'setProfilePhoto': {
             return Iris.setProfilePhotoAsync(params);
         }
+        case 'createOrUpdateCommunity': {
+            return Iris.createOrUpdateCommunityAsync(params);
+        }
         
 
         default: {

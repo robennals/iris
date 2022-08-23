@@ -153,11 +153,12 @@ function urlForScreen(topScreen) {
         path = '/' + topScreen.params.group + '/' + topScreen.params.subgroup + '/' + topScreen.params.rootKey
     } else if (topScreen.screen == 'messagebox') {
         path = '/' + topScreen.params.group
-    } else if (topScreen.screen == 'adminCreateGroup') {
-        path = '/adminCreateGroup'
-    } else if (topScreen.screen == 'myProfile') {
-        path = '/myProfile'
+    } else if (topScreen.screen == 'community') {
+        path = '/' + topScreen.params.community;
+    } else if (topScreen.screen == 'editCommunity') {
+        path = '/' + topScreen.params.community;
     }
+
 
     return '/' + topScreen.screen + path;
 }
@@ -229,6 +230,19 @@ function navStateFromCurrentUrl() {
             {screen: 'home'},
             {screen: 'myProfile'}
         ]
+        case 'createCommunity': return [
+            {screen: 'home'},
+            {screen: 'createCommunity'}
+        ]
+        case 'community': return [
+            {screen: 'home'},
+            {screen: 'community', params: {community: parts[2]}}
+        ]
+        case 'editCommunity': return [
+            {screen: 'home'},
+            {screen: 'editCommunity', params: {community: parts[2]}}
+        ]
+
 
 
         default: return [{screen: 'home', params: {}}]
