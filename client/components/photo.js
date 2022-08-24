@@ -137,13 +137,13 @@ export function GroupPhotoIcon({photo, name, style, size = 40}) {
     }
 }
 
-export function CommunityPhotoIcon({photoKey, photoUser, style, size = 40}) {
+export function CommunityPhotoIcon({photoKey, photoUser, style, thumb=true, size = 40}) {
   if (!photoKey || !photoUser) {  
     return <View style={{width: size, height: size, borderRadius: size/8, 
       borderWidth: StyleSheet.hairlineWidth, borderColor: '#eee'}} />
   } else {
     return (
-      <Image source={{uri: getUrlForImage(photoKey, photoUser, true), cache: 'force-cache'}}
+      <Image source={{uri: getUrlForImage(photoKey, photoUser, thumb), cache: 'force-cache'}}
           style={{...style, width: size, height: size, borderRadius: size/8,
             borderWidth: StyleSheet.hairlineWidth, borderColor: '#eee'}} />
     )

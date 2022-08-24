@@ -1,12 +1,14 @@
 import React from 'react';
 import { useContext } from "react";
 import { findDOMNode } from 'react-dom';
-import { ScrollView } from 'react-native';
+import { ScrollView, View, Text} from 'react-native';
 import { appDomain, appName, localWebDomain } from "../data/config";
-import { parsePhotoDataUri } from "./basics";
+import { FixedTouchable, HoverView, parsePhotoDataUri } from "./basics";
 import { Catcher } from './catcher';
 import { AppContext } from "./context";
 import {Audio} from 'expo-av';
+import { Entypo } from '@expo/vector-icons';
+import { querystringDecode } from '@firebase/util';
 
 
 export function getCurrentDomain() {
@@ -217,3 +219,79 @@ export class BottomFlatScroller extends React.Component {
 
   export function ModalMenu() {return null}
   export function vibrate() {}
+
+
+function findCurrentLabel(items, id) {
+  const item = _.find(items, i => i.id == id);
+  return _.get(item,'label', '');
+}
+
+
+export function PopupSelector({value, items, style, onSelect}) {
+  return (
+    <View style={{marginHorizontal: 16, marginVertical: 4}}>
+      <select value={value} onChange={e => onSelect(e.target.value)} style={{
+          backgroundColor: 'white', padding: 8, borderColor: '#ddd', borderWidth: 1, 
+          borderRadius: 8, flex: 1}}>
+            {items.map(item => 
+              <option key={item.id} value={item.id}>{item.label}</option>
+            )}
+      </select>
+    </View>
+  )
+}
+
+// export function PopupSelector({value, items, placeholder, style, textStyle, onSelect}) {
+//   const currentLabel = findCurrentLabel(items, value) || placeholder;
+
+//   return (
+//     <PopupMenu items={items} onSelect={onSelect} popStyle={{top: 34}} textStyle={{fontSize: 20}}>
+//       <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderColor: '#ddd', borderRadius: 8, borderWidth: 1, margin: 4, 
+//           marginHorizontal: 16, flex: 1, padding: 8}}>
+//         <Text>
+//           {currentLabel}
+//         </Text>    
+//         <Entypo name='chevron-down' size={20} />
+//       </View>
+//     </PopupMenu>
+//   )
+// }
+
+
+
+// export class PopupMenu extends React.Component {
+//   state = {}
+//   render() {
+//     const {children, items, inverted, popStyle, textStyle, hasArrow, arrowStyle, onSelect} = this.props;
+//     const {shown} = this.state;
+//     return (
+//       <View>
+//         <FixedTouchable onPress={(() => this.setState({shown: !shown}))}>
+//           {children}
+//         </FixedTouchable>
+//         {shown ? 
+//           <View style={{position: 'absolute', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+//               backgroundColor: 'white', zIndex: 10,
+//               ...popStyle, flexShrink: 0}}>
+//             {hasArrow ? 
+//               <TopArrow style={{position: 'absolute', top: -10, right: 6, ...arrowStyle}} />
+//             : null}
+//             {items.map(i =>
+//               <FixedTouchable key={i.id} onPress={() => {onSelect(i.id); this.setState({shown: false})}} > 
+//                 <HoverView
+//                   style={{paddingHorizontal: 8, paddingVertical: 4, flexShrink: 0, 
+//                       backgroundColor: 'white', borderBottomColor: '#ddd', 
+//                       borderBottomWidth: StyleSheet.hairlineWidth}}
+//                   hoverStyle={{backgroundColor: inverted ? '#222' :'#f5f5f5'}}
+//                   >
+//                   <Text numberOfLines={1} style={{flexShrink: 0, 
+//                         color: '#666', ...textStyle}}>{i.label}</Text> 
+//                 </HoverView>
+//               </FixedTouchable>
+//             )}
+//           </View>
+//         : null }
+//       </View>
+//     )
+//   }
+// }

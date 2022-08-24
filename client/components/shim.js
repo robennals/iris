@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, FlatList, Text} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity} from 'react-native';
 import { appDomain } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
@@ -100,4 +100,45 @@ export function ModalMenu({items, onSelect, onClose}) {
 
 export function vibrate(){
   Haptics.selectionAsync();
+}
+
+function findCurrentLabel(items, id) {
+  const item = _.find(items, i => i.id == id);
+  return _.get(item,'label', '');
+}
+
+export class PopupSelector extends React.Component {
+  state = {}
+  render() {
+    const {value, items, style, placeholder, onSelect} = this.props;
+    const currentLabel = findCurrentLabel(items, value) || placeholder;
+    return (
+      <PopupMenu items={items} onSelect={onSelect} >
+        <View style={{borderColor: '#ddd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, borderWidth: StyleSheet.hairlineWidth, ...style}}>
+          <Text style={{fontSize: 20}}>
+            {currentLabel}
+          </Text>
+        </View>
+      </PopupMenu>
+    )
+  }
+}
+
+export class PopupMenu extends React.Component {
+  state = {shown: false}
+  render() {
+    const {children, items, onSelect} = this.props;
+    const {shown} = this.state;
+    return (
+      <View>
+        <TouchableOpacity onPress={() => this.setState({shown: true})}>
+          {children}
+        </TouchableOpacity>
+        {shown ?  
+          <ModalMenu items={items} onClose={()=>this.setState({shown: false})}
+                onSelect={id => {onSelect(id); this.setState({shown: false})}} />
+        : null }
+      </View>
+    )
+  }
 }

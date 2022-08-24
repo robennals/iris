@@ -183,7 +183,7 @@ export default function App() {
   if (!gotAuth || !initialUrl) {
     return null;
   } else if (!user && parsedUrl.screen == 'community') {
-    return <IntakeScreen community={parseUrl.param} />
+    return <IntakeScreen community={parsedUrl.param} />
   } else if (!user) {
     return <SignInScreen/>
   } else {

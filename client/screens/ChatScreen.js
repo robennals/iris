@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         marginVertical: 4,
         marginHorizontal: 8,
+        maxWidth: 550,
         flexShrink: 1
     },
     theirMessage: {
@@ -247,6 +248,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         marginVertical: 4,
         marginHorizontal: 8,
+        maxWidth: 550,
         flexShrink: 1
     },
     myMessageRow: {
@@ -263,12 +265,12 @@ const styles = StyleSheet.create({
     myMessageText: {
         color: 'white',
         fontSize: Platform.OS == 'web' ? 15 : 16,
-        lineHeight: Platform.OS == 'web' ? undefined : 20
+        lineHeight: Platform.OS == 'web' ? 20 : 21
     },
     theirMessageText: {
         color: '#222',
         fontSize: Platform.OS == 'web' ? 15 : 16,
-        lineHeight: Platform.OS == 'web' ? undefined : 20
+        lineHeight: Platform.OS == 'web' ? 20 : 21
     },
     myMessageLink: {
         color: 'white',

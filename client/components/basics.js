@@ -332,3 +332,21 @@ export function getFirstMatch(list, func) {
   }
   return null;
 }
+
+export class HoverView extends React.Component {
+  state = {};
+
+  render() {
+    const {children, style, hoverStyle} = this.props;
+    const {hover} = this.state;
+
+    return (
+      <View style={[style, hover ? hoverStyle : null]}
+        onMouseOver={() => this.setState({hover: true})}
+        onMouseLeave={() => this.setState({hover: false})}
+      >
+        {children}
+      </View>
+    )
+  }
+}
