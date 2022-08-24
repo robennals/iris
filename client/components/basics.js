@@ -166,7 +166,7 @@ export function FormTitle({title, children}) {
   )
 }
 
-export function FormInput({autoFocus, onFocus, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, onSubmitEditing, style}) {
+export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, onSubmitEditing, style}) {
   const textBoxStyle = {
     backgroundColor: 'white',
     padding: 8,
@@ -184,6 +184,7 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
       value = {value}
       maxLength = {maxLength}
       autoFocus={autoFocus}
+      onFocus={onFocus} onBlur={onBlur}
       onSubmitEditing={onSubmitEditing}
       onChangeText={onChangeText}/>
   } else {
@@ -196,7 +197,7 @@ export function FormInput({autoFocus, onFocus, value, maxLength, textContentType
       defaultValue = {defaultValue}
       onSubmitEditing = {onSubmitEditing}
       value = {value}
-      onFocus = {onFocus}
+      onFocus = {onFocus} onBlur={onBlur}
       onChangeText={onChangeText}/>
   }
 }
@@ -350,3 +351,14 @@ export class HoverView extends React.Component {
     )
   }
 }
+
+export function validateEmail(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).trim().toLowerCase());
+}
+
+const nameRegex = /^\s*([A-Za-z.]{2,}([.,] |[-']| ))+([A-Za-z. ])*[A-Za-z]{2,}\.?\s*$/
+export function validateName(name) {
+  return name.match(nameRegex);
+}
+

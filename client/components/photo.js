@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { FixedTouchable, GroupIcon, makePhotoDataUrl, MemberIcon } from './basics';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
-import { useCustomNavigation } from './shim';
+import { resizeImageAsync, useCustomNavigation } from './shim';
 import { getCurrentUser } from '../data/fbutil';
 import _ from 'lodash';
 
@@ -180,6 +180,35 @@ export function MessagePhoto({photoKey, photoUser}) {
     )
 }
 
+export function PhotoPicker({photoKey, photoUser, photoData, size=200, borderRatio=2, prompt='Profile Photo', onChoosePhoto}) {
+  async function choosePhotoAsync() {
+      const bigPhoto = await pickImage();
+      const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
+      const thumbData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
+
+      onChoosePhoto({photoData, thumbData});
+  }
+
+  return (
+  <FixedTouchable onPress={() => choosePhotoAsync()}>
+      <View style={{width: size, height: size}}>
+          {photoKey || photoData ? 
+              <Image source={{uri: photoData ? makePhotoDataUrl(photoData) : getUrlForImage(photoKey, photoUser)}} 
+                  style={{width: size, height: size, borderRadius: size/borderRatio, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}
+              />
+          :
+              <View style={{width: size, height: size, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: size/borderRatio, alignItems: 'center', justifyContent: 'center'}}>
+                  <Text style={{fontSize: size/8,color: '#666'}}>{prompt}</Text>
+              </View>
+          }
+          <View style={{width: size/5, height: size/5, borderRadius: size/10, backgroundColor: '#ddd', position: 'absolute', right: size/25, bottom: size/25, alignItems: 'center', justifyContent: 'center'}}>                        
+              <Entypo name='camera' size={size/8} />
+          </View>
+      </View>
+  </FixedTouchable>
+  )
+}
+
 export function getUrlForFile(path) {
 	const pathAsParam = encodeURIComponent(path);
 	return 'https://firebasestorage.googleapis.com/v0/b/iris-talk.appspot.com/o/' + pathAsParam + '?alt=media';
@@ -188,3 +217,4 @@ export function getUrlForFile(path) {
 export function getUrlForImage(photoKey, photoUser, thumb=false) {
 	return getUrlForFile((thumb ? 'thumb/' : 'image/') + photoUser + '/' + photoKey + '.jpeg');
 }
+

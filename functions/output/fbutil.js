@@ -58,6 +58,16 @@ async function createUser(email) {
 }
 exports.createUser = createUser;
 
+async function getOrCreateUserAsync(email) {
+	const userEmails = await getDataAsync(['special','userEmail']);
+	var uid = _.findKey(userEmails, userEmail => userEmail == email)
+  
+	if (!uid && createUser) {
+	  uid = await createUser(email);
+	}
+	return uid;
+}
+exports.getOrCreateUserAsync = getOrCreateUserAsync;
 
 function createLoginToken(uid) {
 	return admin.auth().createCustomToken(uid);

@@ -155,3 +155,31 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
     return {success: true, updates, result: {communityKey, photoKey}};
 }
 exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;
+
+async function submitCommunityFormAsync({community, photoData, thumbData, name, email, answers, selectedTopics, userId}) {
+    console.log('submit communityForm', {community, name, email, answers, selectedTopics});
+
+    var uid = userId;
+    if (!uid) {
+        uid = await FBUtil.getOrCreateUserAsync(email);      
+    }
+
+    const newPhotoKey = FBUtil.newKey();
+    var pPhotoUpload; var pThumbUpload;
+    if (photoData) {
+        pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId: uid, key: newPhotoKey});
+        pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId: uid, key: newPhotoKey});    
+    }
+
+    const key = FBUtil.newKey();
+    var updates = {};
+    const confirmed = userId ? true : false
+    updates['intake/' + community + '/' + key] = {
+        user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time: Date.now(), confirmed
+    }
+
+    return {success: true, updates}
+}
+exports.submitCommunityFormAsync = submitCommunityFormAsync;
+
+

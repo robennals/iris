@@ -1,6 +1,6 @@
 import React from 'react';
 import {Platform, View, Text, Image, StyleSheet, Linking, TextInput, ScrollView} from 'react-native';
-import { Link, FormInput, FixedTouchable, ScreenContentScroll, WideButton, LogoHeader } from '../components/basics';
+import { Link, FormInput, FixedTouchable, ScreenContentScroll, WideButton, LogoHeader, validateEmail } from '../components/basics';
 import { requestLoginCode, signinWithLoginCode } from '../data/servercall';
 import { appName, appDomain, baseColor } from '../data/config';
 
@@ -16,11 +16,6 @@ function ErrorMessage({errorMessage}) {
   } else {
     return null;
   }
-}
-
-export function validateEmail(email) {
-  var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).trim().toLowerCase());
 }
 
 export class SignInScreen extends React.Component {

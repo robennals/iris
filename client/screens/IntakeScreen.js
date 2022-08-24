@@ -1,13 +1,20 @@
+import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { FormInput, FormTitle, makePhotoDataUrl, ScreenContentScroll } from '../components/basics';
-import { CommunityPhotoIcon, getUrlForImage } from '../components/photo';
+import { FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, ScreenContentScroll, validateEmail, validateName, WideButton } from '../components/basics';
+import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
-import { watchData } from '../data/fbutil';
+import { baseColor, highlightColor } from '../data/config';
+import { getCurrentUser, watchData } from '../data/fbutil';
+import { submitCommunityFormAsync } from '../data/servercall';
+
+
+const name_label = 'Full Name';
+const email_label = 'Email Address';
 
 const basicQuestions = [
-    {question: 'What is your full name?', answerType: 'name'},
-    {question: 'What is your email?', answerType: 'email'}
+    {question: name_label, answerType: 'name'},
+    {question: email_label, answerType: 'email'}
 ]
 
 function parseQuestions(questions) {
@@ -20,7 +27,7 @@ function parseQuestions(questions) {
         if (answerText.trim().toLowerCase() == 'text') {
             answerType = 'text'
         } else {
-            answerType = 'options'            
+            answerType = 'options'
             options = answerText.split(',').map(x => x.trim());
         }
         return {question, answerType, options};
@@ -28,22 +35,62 @@ function parseQuestions(questions) {
     return [...basicQuestions, ...parsedQuestions];
 }
 
+function splitFirst(text, sep) {
+    const index = text.indexOf(sep);
+    const first = text.slice(0, index);
+    const rest = text.slice(index + sep.length);
+    return [first, rest]
+}
+
+function parseTopics(topicsTxt) {
+    const topicList = topicsTxt.trim().split('#').filter(x=>x);
+    const parsedTopics = topicList.map(ttxt => {
+        const [title,rest] = splitFirst(ttxt, '\n');
+        const questions = rest.split('*').filter(x=>x).map(x => x.trim());
+        return {title: title.trim(), questions}
+    })
+    return parsedTopics;
+}
+
+function ValidationWarning({children}) {
+    return <Text style={{marginBottom: 8, marginHorizontal: 16, color: 'red'}}>{children}</Text>
+}
+
+function ValidateAnswer({answerType, answer}) {
+    if (answerType == 'email' && answer && !validateEmail(answer)) {
+        return <ValidationWarning>Invalid email address</ValidationWarning>
+    } else if (answerType == 'name' && answer && !validateName(answer)) {
+        return <ValidationWarning>Please enter the real name you are generally known by. It will only be shown to community admins and other members of your small discussion group.</ValidationWarning>
+    }
+    return null;
+}
+
 function QuestionAnswer({question, answer, onChangeAnswer}) {
+    const [focus, setFocus] = useState(false);
     const atype = question.answerType;
     if (question.answerType == 'options') {
         const items = question.options.map(option => ({label: option, id: option}));
         // return <PopupSelector value={answer} items={[{id: 'hello', label: 'Hello'}]} />
         return (
-            <PopupSelector width={200} value={answer || 'choose'} 
-                onSelect={onChangeAnswer} 
+            <PopupSelector width={200} value={answer || 'choose'}
+                onSelect={onChangeAnswer}
                 items={[{id:'choose', label: 'Choose an option'},...items]} />
         )
     } else {
-        return <FormInput 
-            autocomplete={atype == 'text' ? null : atype} 
-            keyboardType={atype == 'email' ? 'email-address' : null}
-            textContentType={atype == 'email' ? 'emailAddress' : (atype == 'name' ? 'name' : null)}
-            onChangeText={onChangeAnswer} />
+        return (
+            <View>
+                <FormInput
+                    onFocus={() => setFocus(true)}
+                    onBlur={() => setFocus(false)}
+                    autocomplete={atype == 'text' ? null : atype}
+                    keyboardType={atype == 'email' ? 'email-address' : null}
+                    textContentType={atype == 'email' ? 'emailAddress' : (atype == 'name' ? 'name' : null)}
+                    onChangeText={onChangeAnswer} />
+                {focus ? null :
+                    <ValidateAnswer answerType={atype} answer={answer} />
+                }
+            </View>
+        )
     }
 }
 
@@ -57,9 +104,89 @@ function Question({question, answer, onChangeAnswer}) {
     )
 }
 
+
+const shadowStyle = {
+    shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.5, elevation: 3}
+
+function Topic({topic, selected, onChangeSelected}) {
+
+    return (
+        <View style={{marginHorizontal: 16, marginVertical: 4}}>
+            <FixedTouchable onPress={() => onChangeSelected(!selected)}>
+                <View style={{flexDirection: 'row', alignItems: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 8, borderRadius: 8,
+                    ... selected ? shadowStyle : {}
+                    }}>
+                    {/* <MaterialIcons color='#666' name={selected ? 'check-box' : 'check-box-outline-blank'} size={40} /> */}
+                    <View style={{width: 40, height: 40,
+                            alignItems: 'center', justifyContent: 'center',
+                            backgroundColor: selected ? baseColor : 'white',
+                            borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 20,
+                            }}>
+                        {selected ?
+                            <Entypo name='check' size={30} style={{marginTop: 4, color: 'white'}} />
+                        : null}
+
+                    </View>
+                    <View style={{marginLeft: 12}}>
+                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>
+                        {topic.questions.map(question =>
+                            <Text key={question} style={{color: '#666'}}>{question}</Text>
+                        )}
+                    </View>
+                </View>
+            </FixedTouchable>
+        </View>
+    )
+
+}
+
+
+function ConfirmScreen({community, email}) {
+    const [info, setInfo] = useState(null);
+    useEffect(() => {
+        var x = {};
+        watchData(x, ['community', community], setInfo);
+    }, [community])
+
+    if (!info) return null;
+
+    return (
+        <ScreenContentScroll>
+            <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
+                <CommunityPhotoIcon photoKey={info.photoKey} photoUser={info.photoUser} thumb={false} size={64} />
+                <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{info.name}</Text>
+            </View>
+            <View style={{margin: 16}}>
+                {getCurrentUser() ? 
+                    <View>
+                        <Text style={{fontWeight: 'bold', fontSize: 24, marginBottom: 8}}>Look out for an Email Soon</Text>
+                        <Text style={{color: '#666'}}>
+                            We will send you an email once we've added you to a discussion group.
+                        </Text>
+                    </View> 
+                :
+                    <View>
+                        <Text style={{fontWeight: 'bold', fontSize: 24, marginBottom: 8}}>Check your Email to Confirm</Text>
+                        <Text style={{color: '#666'}}>We just sent a confirmation email to <Text style={{fontWeight: 'bold'}}>{email}</Text>. Click the link in that message to confirm your sign up.
+                        </Text>
+                    </View>
+                }
+            </View>
+
+        </ScreenContentScroll>
+    )
+}
+
+
 export function IntakeScreen({community}) {
     const [info, setInfo] = useState(null);
     const [answers, setAnswers] = useState({});
+    const [selectedTopics, setSelectedTopics] = useState({});
+    const [photoData, setPhotoData] = useState(null);
+    const [thumbData, setThumbData] = useState(null);
+    const [inProgress, setInProgress] = useState(false);
+    const [confirmed, setConfirmed] = useState(false);
 
     useEffect(() => {
         var x = {};
@@ -71,8 +198,26 @@ export function IntakeScreen({community}) {
     if (!info) return null;
 
     const questions = parseQuestions(info.questions);
+    const topics = parseTopics(info.topics);
     // console.log('questions', questions);
-    // console.log('answers', answers);
+    console.log('answers', answers);
+    console.log('topics', topics, selectedTopics);
+
+    async function onSubmit() {
+        const name = answers[name_label];
+        const email = answers[email_label];
+        setInProgress(true);
+        await submitCommunityFormAsync({community, photoData, thumbData, name, email, answers, selectedTopics});
+        setConfirmed(true);
+    }
+
+    console.log('stuff', answers, answers.email, answers.name, photoData);
+
+    // return <ConfirmScreen community={community} email='hello@world.com' />
+
+    if (confirmed) {
+        return <ConfirmScreen community={community} email={answers[email_label]} />
+    }
 
     return (
         <ScreenContentScroll>
@@ -83,10 +228,34 @@ export function IntakeScreen({community}) {
             <View style={{margin: 16}}>
                 <Text style={{color: '#666'}}>{info.info}</Text>
             </View>
-            <View style={{borderTopColor: '#ddd', marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth}} />
-            {questions.map(q => 
+            <View style={{borderTopColor: '#ddd', marginVertical: 16, borderTopWidth: StyleSheet.hairlineWidth}} />
+            <View style={{margin: 16}}>
+                <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>About You</Text>
+                <Text style={{color: '#666'}}>This information is used to help match you with people to talk with. It will only be shared with community admins and members of your chat groups.</Text>
+
+            </View>
+            <View style={{margin: 16, alignSelf: 'center'}}>
+                <PhotoPicker photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
+            </View>
+            {questions.map(q =>
                 <Question key={q.question} question={q} answer={answers[q.question]} onChangeAnswer={answer => setAnswers({...answers, [q.question]: answer})} />
             )}
+            <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
+            <View style={{margin: 16}}>
+                <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>What Topics would you like to Discuss?</Text>
+                <Text style={{color: '#666'}}>Choosing more topics increases the chance of a good match.</Text>
+            </View>
+            {topics.map(topic =>
+                <Topic key={topic.title} topic={topic}
+                    selected={selectedTopics[topic.title]}
+                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topic.title]: selected})}
+                />
+            )}
+            <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!answers[email_label] || !answers[name_label] || !thumbData || inProgress}>
+                {inProgress ? 'Submitting...' : 'Submit'}
+            </WideButton>
+
         </ScreenContentScroll>
     )
 }

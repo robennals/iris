@@ -17,6 +17,10 @@
       ".read": true,
       ".write": false
     },
+    "intake": {
+      ".read": "root.child('special').child('master').child(author.uid).exists()",
+      ".write": false
+    },
     "group": {
       "$group": {
         ".write": false,
