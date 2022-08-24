@@ -308,7 +308,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
                         <View style={getScreenStyle(padState, i, wide, screen)}>
                             <ScreenHeader navigation={navigation(i)} screens={screens} screen={screen} 
                                 params={params} options={options} navState={navState} index={i} wide={wide} />
-                            <Catcher>
+                            <Catcher style={{flex: 1}}>
                             {React.createElement(screens[screen].component, {
                                 navigation: navigation(i), 
                                 route: {params: {...params, alwaysShow: true}}, 
