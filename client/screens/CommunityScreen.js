@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { FixedTouchable, OneLineText, ScreenContentScroll } from '../components/basics';
+import { FixedTouchable, OneLineText, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
@@ -33,16 +33,16 @@ export function CommunityScreenHeader({navigation, route, children}) {
 }
 
 
-export function CommunityScreen({route}) {
+export function CommunityScreen({navigation, route}) {
     const {community} = route.params;
     const [role, setRole] = useState(null);
 
     useEffect(() => {
         var x = {};
         watchData(x, ['userPrivate', getCurrentUser(), 'community', community, 'role'], setRole, false)
-    }, community)
+    }, [community])
 
-    console.log('communityScreen' ,)
+    console.log('communityScreen', community)
 
     if (role == null) {
         return null;
@@ -67,6 +67,7 @@ export function CommunityScreen({route}) {
             <Text>
                 Soon this screen will allow community members to express interest in new topics.
             </Text>
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communitySignups', {community})}>See Signups</WideButton>
             </View>
         </ScreenContentScroll>
     )

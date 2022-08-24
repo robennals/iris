@@ -362,3 +362,47 @@ export function validateName(name) {
   return name.match(nameRegex);
 }
 
+
+export const name_label = 'Full Name';
+export const email_label = 'Email Address';
+
+const basicQuestions = [
+  {question: name_label, answerType: 'name'},
+  {question: email_label, answerType: 'email'}
+]
+
+export function parseQuestions(questions) {
+  const questionList = questions.trim().split('\n');
+  const parsedQuestions = questionList.map(qtext => {
+      // console.log('qtext', qtext);
+      const [question, answerText] = qtext.split(':');
+      var answerType;
+      var options;
+      if (answerText.trim().toLowerCase() == 'text') {
+          answerType = 'text'
+      } else {
+          answerType = 'options'
+          options = answerText.split(',').map(x => x.trim());
+      }
+      return {question, answerType, options};
+  })
+  return [...basicQuestions, ...parsedQuestions];
+}
+
+export function splitFirst(text, sep) {
+  const index = text.indexOf(sep);
+  const first = text.slice(0, index);
+  const rest = text.slice(index + sep.length);
+  return [first, rest]
+}
+
+export function parseTopics(topicsTxt) {
+  const topicList = topicsTxt.trim().split('#').filter(x=>x);
+  const parsedTopics = topicList.map(ttxt => {
+      const [title,rest] = splitFirst(ttxt, '\n');
+      const questions = rest.split('*').filter(x=>x).map(x => x.trim());
+      return {title: title.trim(), questions}
+  })
+  return parsedTopics;
+}
+

@@ -18,7 +18,7 @@
       ".write": false
     },
     "intake": {
-      ".read": "root.child('special').child('master').child(author.uid).exists()",
+      ".read": "root.child('special').child('master').child(auth.uid).exists()",
       ".write": false
     },
     "group": {

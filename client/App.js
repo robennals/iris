@@ -44,6 +44,7 @@ import { AdminCreateOrEditCommunity, AdminCreateOrEditCommunityScreen } from './
 import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScreen';
 import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
+import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySignups';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -60,7 +61,8 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     groupProfile: 'groupProfile/:group',
     notifs: 'notifs',
     messagebox: 'messagebox/:group',
-    digestFreq: 'digestFreq'
+    digestFreq: 'digestFreq',
+    community: 'community/:community'
   }
 }}
 
@@ -173,6 +175,7 @@ export default function App() {
     editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
     community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
     communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
+    communitySignups: {component: CommunitySignupsScreen, title: 'Signups'}
   }
 
   console.log('intialUrl', initialUrl);

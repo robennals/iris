@@ -1,56 +1,13 @@
 import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, ScreenContentScroll, validateEmail, validateName, WideButton } from '../components/basics';
+import { email_label, FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, validateEmail, validateName, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
 import { getCurrentUser, watchData } from '../data/fbutil';
 import { submitCommunityFormAsync } from '../data/servercall';
 
-
-const name_label = 'Full Name';
-const email_label = 'Email Address';
-
-const basicQuestions = [
-    {question: name_label, answerType: 'name'},
-    {question: email_label, answerType: 'email'}
-]
-
-function parseQuestions(questions) {
-    const questionList = questions.trim().split('\n');
-    const parsedQuestions = questionList.map(qtext => {
-        // console.log('qtext', qtext);
-        const [question, answerText] = qtext.split(':');
-        var answerType;
-        var options;
-        if (answerText.trim().toLowerCase() == 'text') {
-            answerType = 'text'
-        } else {
-            answerType = 'options'
-            options = answerText.split(',').map(x => x.trim());
-        }
-        return {question, answerType, options};
-    })
-    return [...basicQuestions, ...parsedQuestions];
-}
-
-function splitFirst(text, sep) {
-    const index = text.indexOf(sep);
-    const first = text.slice(0, index);
-    const rest = text.slice(index + sep.length);
-    return [first, rest]
-}
-
-function parseTopics(topicsTxt) {
-    const topicList = topicsTxt.trim().split('#').filter(x=>x);
-    const parsedTopics = topicList.map(ttxt => {
-        const [title,rest] = splitFirst(ttxt, '\n');
-        const questions = rest.split('*').filter(x=>x).map(x => x.trim());
-        return {title: title.trim(), questions}
-    })
-    return parsedTopics;
-}
 
 function ValidationWarning({children}) {
     return <Text style={{marginBottom: 8, marginHorizontal: 16, color: 'red'}}>{children}</Text>

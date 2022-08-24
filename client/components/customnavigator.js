@@ -157,8 +157,9 @@ function urlForScreen(topScreen) {
         path = '/' + topScreen.params.community;
     } else if (topScreen.screen == 'editCommunity') {
         path = '/' + topScreen.params.community;
+    } else if (topScreen.screen == 'communitySignups') {
+        path = '/' + topScreen.params.community;
     }
-
 
     return '/' + topScreen.screen + path;
 }
@@ -242,6 +243,10 @@ function navStateFromCurrentUrl() {
             {screen: 'home'},
             {screen: 'editCommunity', params: {community: parts[2]}}
         ]
+        case 'communitySignups': return [
+            {screen: 'home'},
+            {screen: 'communitySignups', params: {community: parts[2]}}
+        ]
 
 
 
@@ -303,11 +308,13 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
                         <View style={getScreenStyle(padState, i, wide, screen)}>
                             <ScreenHeader navigation={navigation(i)} screens={screens} screen={screen} 
                                 params={params} options={options} navState={navState} index={i} wide={wide} />
+                            <Catcher>
                             {React.createElement(screens[screen].component, {
                                 navigation: navigation(i), 
                                 route: {params: {...params, alwaysShow: true}}, 
                                 shrink: getShrink(padState, i), 
                                 key: screen})}
+                            </Catcher>
                         </View>
                     </AppContext.Provider>
                 )}
