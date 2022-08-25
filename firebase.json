@@ -26,7 +26,9 @@
       {"source": "/notifs/**", "destination": "/jsindex.html"},
       {"source": "/digestFreq", "destination": "/jsindex.html"},
       {"source": "/joinOrCreate", "destination": "/jsindex.html"},
-      {"source": "/adminCreateGroup", "destination": "/jsindex.html"}
+      {"source": "/adminCreateGroup", "destination": "/jsindex.html"},
+      {"source": "/community/**", "destination": "/jsindex.html"},
+      {"source": "/**", "destination": "/jsindex.html"}
     ]
   },
   "emulators": {

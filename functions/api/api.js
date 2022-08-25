@@ -95,6 +95,9 @@ async function apiActionAsync({action, components, params}) {
         case 'submitCommunityForm': {
             return Iris.submitCommunityFormAsync(params);
         }
+        case 'confirm': {
+            return Iris.confirmSignupAsync(params);
+        }
         
 
         default: {

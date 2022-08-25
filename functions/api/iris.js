@@ -1,7 +1,8 @@
 const FBUtil = require('../output/fbutil');
 const _ = require('lodash');
 const Email = require('../output/email');
-
+const FS = require('fs');
+const Mustache = require('mustache');
 
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;
@@ -199,3 +200,15 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
 exports.submitCommunityFormAsync = submitCommunityFormAsync;
 
 
+async function confirmSignupAsync({community, intake}) {
+    const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
+
+    const template = FS.readFileSync('template/confirmsuccess.html').toString();
+    const html = Mustache.render(template, {communityName});
+
+    var updates = {};
+    updates['intake/' + community + '/' + intake + '/confirmed'] = true;
+    return {success: true, updates, html};
+}
+
+exports.confirmSignupAsync = confirmSignupAsync;
