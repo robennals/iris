@@ -1,5 +1,6 @@
 const FBUtil = require('../output/fbutil');
 const _ = require('lodash');
+const Email = require('../output/email');
 
 
 async function createMemberAsync(person, userEmails) {
@@ -164,6 +165,8 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
         uid = await FBUtil.getOrCreateUserAsync(email);      
     }
 
+    const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
+
     const newPhotoKey = FBUtil.newKey();
     var pPhotoUpload; var pThumbUpload;
     if (photoData) {
@@ -178,7 +181,20 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
         user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time: Date.now(), confirmed
     }
 
-    return {success: true, updates}
+    var emails = [];
+    if (!userId) {
+        const {HtmlBody, TextBody} = Email.renderEmail('confirm', {
+            name, communityName, community, intakeKey: key
+        })
+        emails.push({
+            To: name + '<' + email + '>',
+            From: 'Iris Talk <confirm@iris-talk.com>',
+            Subject: 'Action Required: Confirm your Signup',
+            HtmlBody, TextBody
+        })
+    }
+
+    return {success: true, updates, emails}
 }
 exports.submitCommunityFormAsync = submitCommunityFormAsync;
 

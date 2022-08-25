@@ -1,0 +1,11 @@
+Hi {{name}}
+
+Please confirm that you wish to join {{communityName}} by clicking the following link.
+
+https://iris-talk.com/confirm/{{community}}/{{intakeKey}}
+
+
+Since you were not logged in when you filled in the signup form, we need you to
+confirm that the sign up was actually from you.
+
+If you did not sign up for {{communityName}} please contact us at contact@iris-talk.com.

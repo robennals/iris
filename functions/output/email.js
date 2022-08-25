@@ -2,6 +2,8 @@ const keys = require('./keys');
 const postmark = require('postmark');
 const _ = require('lodash');
 const client = new postmark.Client(keys.postmark);
+const Mustache = require('mustache');
+const FS = require('fs');
 
 
 function postMarkSendEmail(email) {
@@ -26,6 +28,16 @@ function postMarkSendBatchEmails({emails}){
 		return true;
 	})
 }
+
+function renderEmail(template, templateData) {
+	const htmlTemplate = FS.readFileSync('template/' + template + '.html').toString();
+	const textTemplate = FS.readFileSync('template/' + template + '.text').toString();
+	const HtmlBody = Mustache.render(htmlTemplate, templateData);
+	const TextBody = Mustache.render(textTemplate, templateData);
+	return {HtmlBody, TextBody}
+}
+exports.renderEmail = renderEmail;
+
 
 
 exports.sendEmail = postMarkSendEmail;
