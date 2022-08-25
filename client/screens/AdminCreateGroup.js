@@ -50,6 +50,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const [topic, setTopic] = useState('choose');
     const [selectedMembers, setSelectedMembers] = useState({});
     const [method, setMethod] = useState(null);
+    const [privateName, setPrivateName] = useState(null);
 
     useEffect(() => {
         var x = {};
@@ -76,12 +77,14 @@ export function AdminCreateGroupScreen({navigation, route}) {
 
     async function onCreateGroupClicked() {
         setInProgress(true);
-        await adminCreateGroupAsync({name, questions, people});
-        setConfirm('Created group "' + name + '" with ' + people.length + ' members' + '\n' + confirm)
-        setName('');
-        setQuestions('');
-        setTsv('');
-        setInProgress(false);
+        const picked = Object.keys(selectedMembers).filter(x => selectedMembers[x]).map(k => intake[k]);
+        await adminCreateGroupAsync({community, topic, privateName, people, picked});
+        setConfirm('Created group "' + topic + '" with ' + memberCount + ' members' + '\n' + confirm)
+        // setName('');
+        // setQuestions('');
+        // setTsv('');
+        // setInProgress(false);
+        navigation.goBack();
     }
     
     const topics = parseTopics(communityInfo.topics);
@@ -89,6 +92,9 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const topicItems = [{id: 'choose', label: 'Choose a Topic'}, ... topics.map(t => ({id: t.title, label: t.title}))]
     const questionTitles = questions.map(q => q.question).filter(x => x != name_label && x != email_label);
     const intakeKeysForTopic = Object.keys(intake).filter(k => intake[k].selectedTopics[topic] || topic == 'choose');
+
+    const memberCount = people.length + Object.keys(selectedMembers).filter(k => selectedMembers[k]).length;
+    console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})
 
     return (
         <View>
@@ -100,6 +106,11 @@ export function AdminCreateGroupScreen({navigation, route}) {
             <FormTitle title='Topic'>
                 <PopupSelector width={200} value={topic || 'choose'} items={topicItems} onSelect={setTopic} />
             </FormTitle>
+
+            <FormTitle title='Private Name'>
+                <FormInput value={privateName || ''} style={textBoxStyle} onChangeText={setPrivateName} placeholder='Name only seen by admin, to disguish different groups for same topic' />
+            </FormTitle>
+
 
             <FormTitle title='Member Selection Method'>
                 <PopupSelector value={method || 'signups'} items={[{id: 'signups', label: 'Signups'}, {id: 'tsv', label: 'Tab Separated Values'}]} 
@@ -119,8 +130,8 @@ export function AdminCreateGroupScreen({navigation, route}) {
                     <ScrollView style={{height: 400, marginHorizontal: 16, marginVertical: 8, borderColor: '#ddd', borderRadius: 8, borderWidth: StyleSheet.hairlineWidth, padding: 8}}>
                         {intakeKeysForTopic.map(k => 
                             <IntakeMember key={k} intake={intake[k]} questionTitles={questionTitles} 
-                                selected={selectedMembers[intake[k].email]} 
-                                onSelect={selected => setSelectedMembers({...selectedMembers, [intake[k].email]: selected})} />
+                                selected={selectedMembers[k]} 
+                                onSelect={selected => setSelectedMembers({...selectedMembers, [k]: selected})} />
                         )}
                     </ScrollView>
                 </FormTitle>
@@ -140,10 +151,9 @@ export function AdminCreateGroupScreen({navigation, route}) {
                 )}
             </FormTitle>
 
-            <WideButton alwaysActive onPress={onCreateGroupClicked} style={{alignSelf: 'flex-start'}} disabled={people.length == 0 || !name || inProgress}>Create Group</WideButton>
-            {confirm ? 
-                <Text style={{marginHorizontal: 16, marginVertical: 8, borderColor: '#666', color: '#666'}}>{confirm}</Text>
-            :null}
+            <WideButton alwaysActive onPress={onCreateGroupClicked} style={{alignSelf: 'flex-start'}} disabled={!topic || !privateName || inProgress || (memberCount <= 1)}>
+                {inProgress ? 'Creating Group...' : 'Create Group' }
+            </WideButton>
 
         </View>
     )

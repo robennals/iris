@@ -28,18 +28,7 @@
     "group": {
       "$group": {
         ".write": false,
-        ".read": "data.child('member').child(auth.uid).exists()",
-      	"name": {
-          ".read": true,
-          ".write": false
-        },
-        "photo": {
-          ".read": true,
-          ".write": false
-        },
-        "memberMsg": {
-          ".indexOn": ["time"]
-        }
+        ".read": "data.child('member').child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",
       }
     },
     "groupAdmin": {

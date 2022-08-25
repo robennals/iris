@@ -6,43 +6,58 @@ const Mustache = require('mustache');
 
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;
-    var uid = _.findKey(userEmails, userEmail => userEmail == email)
+    var user = _.findKey(userEmails, userEmail => userEmail == email)
 
-    if (uid) {
-        console.log('found existing user ' + uid + ' for ' + email);
-        return {uid, name, bio}
+    if (user) {
+        console.log('found existing user ' + user + ' for ' + email);
+        const photoKey = await FBUtil.getDataAsync(['userPrivate', m, 'photo'], null);
+        return {user, name, bio, photoKey}
     } else {
-        uid = await FBUtil.createUser(email);
-        console.log('created new user ' + uid + ' - ' + email);
-        return {uid, name, bio};        
+        user = await FBUtil.createUser(email);
+        console.log('created new user ' + user + ' - ' + email);
+        return {user, name, bio};        
     }
 }
 
-async function adminCreateGroupAsync({name, questions, people, userId}) {
-    console.log('adminCreateGroupAsync', name, questions, people);
+async function adminCreateGroupAsync({community, topic, privateName, people, picked}) {
+    console.log('adminCreateGroupAsync', community, topic, privateName, people, picked);
+    // return {success: false, message: 'Not completed yet'};
+
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     const group = FBUtil.newKey();
     
     const pMembers = _.map(people, person => createMemberAsync(person, userEmails));
-    const members = await Promise.all(pMembers);
+    const members = [...picked, ...await Promise.all(pMembers)];
+
+    console.log('members', members);
+
+    const time = Date.now();
+    const lastMessage = {text: 'Group Created', time}
+
     var updates = {};
-    updates['group/' + group + '/name'] = name;
-    updates['group/' + group + '/questions'] = questions;
+    updates['group/' + group + '/name'] = topic;
+    updates['group/' + group + '/community'] = community;
+    updates['group/' + group + '/privateName'] = privateName;
+    updates['adminCommunity/' + community + '/group/' + group + '/name'] = topic;
+    updates['adminCommunity/' + community + '/group/' + group + '/community'] = community;
+    updates['adminCommunity/' + community + '/group/' + group + '/privateName'] = privateName;
+    updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
 
-    const memberUids = _.map(members, member => member.uid);
-
-    const photos = await FBUtil.getMultiDataAsync(memberUids, m => ['userPrivate', m, 'photo'], null)
-        
     members.forEach(member => {
-        const {uid, bio} = member;
-        updates['group/' + group + '/member/' + uid + '/name'] = member.name;
-        updates['group/' + group + '/member/' + uid + '/bio'] = bio;        
-        updates['group/' + group + '/member/' + uid + '/photo'] = photos[uid];
-        updates['userPrivate/' + uid + '/name'] = member.name;
-        updates['userPrivate/' + uid + '/group/' + group] = {name}
+        const {user, name, bio, photoKey, answers} = member;
+        const userData = {
+            name, bio: bio || null, photo: photoKey || null, answers: answers || null
+        }
+        updates['group/' + group + '/member/' + user] = userData;
+        updates['adminCommunity/' + community + '/group/' + group + '/member/' + user] = userData;
+
+        updates['userPrivate/' + user + '/name'] = name;
+        updates['userPrivate/' + user + '/group/' + group] = {name:topic, lastMessage, community}
     })
 
-    // console.log('updates', updates);
+    console.log('updates', updates);
+
+    // return {success: false, message: 'Not completed yet'};
 
     return {success: true, updates, data: {group}}
 }

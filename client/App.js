@@ -198,7 +198,10 @@ export default function App() {
 }
 
 function parseUrl(url) {
-  const {hostname, path, queryParms} = Linking.parse(url);
+  const {hostname, path, queryParms} = Linking.parse(url || '');
+  if (!path) {
+    return {screen: 'ome', param: null}
+  }
   const parts = path.split('/');
   const screen = parts[0];
   const param = parts[1];

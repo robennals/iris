@@ -11,8 +11,10 @@ export function isGroupUnread(groupInfo) {
 }
 
 
-export function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
+export function GroupPreview ({group, groupInfo, highlight, allCommunities}) {
     const [members, setMembers] = useState(null);
+
+    const name = groupInfo.name;
 
     useEffect(() => {
         var x = {};
@@ -24,9 +26,10 @@ export function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
 
     var summaryLine = '';
     if (groupInfo.lastMessage) {
-        summaryLine = _.get(groupInfo,['lastMessage','fromName'],'') + ': ' + 
-            firstLine(_.get(groupInfo,['lastMessage','text'],''))
+        const prefix = groupInfo.lastMessage.fromName ? groupInfo.lastMessage.fromName + ': ' : '';
+        summaryLine = prefix + firstLine(_.get(groupInfo,['lastMessage','text'],''))
     }
+    const communityInfo = _.get(allCommunities,groupInfo.community,null);
     return (
         <View style={[styles.groupPreview, 
                 highlight ? {backgroundColor: '#eee'} : null]}>
@@ -34,11 +37,17 @@ export function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
 
             {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
                 <View style={styles.groupPreviewRight}>
-                    <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
+                    {communityInfo ? 
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={12} />
+                            <Text style={{fontSize: 13, marginLeft: 3, marginBottom: 2, color: '#666'}}>{communityInfo.name}</Text>
+                        </View>
+                    : null}
+                    <OneLineText style={{fontSize: 18, fontWeight: unread ? 'bold' : null}}>
                         {name}
                     </OneLineText>
                     <OneLineText numberOfLines={1} style={{
-                            color: '#666', marginTop: 4,
+                            color: '#666', marginTop: 1,
                             fontWeight: unread ? 'bold' : null}}>
                         {summaryLine}
                     </OneLineText>

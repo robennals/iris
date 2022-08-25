@@ -138,8 +138,8 @@ export async function reportMemberAsync({group, member, block}) {
     return await callServerApiAsync('blockMember', {group, member, block});
 }
 
-export async function adminCreateGroupAsync({name, questions, people}) {
-    return await callServerApiAsync('adminCreateGroup', {name, questions, people});
+export async function adminCreateGroupAsync({community, topic, privateName, people, picked}) {
+    return await callServerApiAsync('adminCreateGroup', {community, topic, privateName, people, picked});
 }
 
 export async function sendMessageAsync({messageKey, group, text, replyTo}) {

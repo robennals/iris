@@ -21,18 +21,36 @@ export function GroupScreenHeader({navigation, route, children}) {
     const {group} = route.params;
     const [name, setName] = useState('');
     const [photo, setPhoto] = useState(null);
+    const [community, setCommunity] = useState(null);
+    const [communityInfo, setCommunityInfo] = useState(null);
 
     useEffect(() => {
         var x = {}
         watchData(x, ['group', group, 'name'], setName);
         watchData(x, ['group', group, 'photo'], setPhoto);
-
+        watchData(x, ['group', group, 'community'], setCommunity);
         return () => internalReleaseWatchers(x);
     }, [group])
+
+    useEffect(() => {
+        var x = {};
+        if (community) {
+            watchData(x, ['community', community], setCommunityInfo);
+        }
+        return () => internalReleaseWatchers(x);
+    }, [community])
+
+    console.log('stuff', {community, communityInfo});
 
     return (
         <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                {communityInfo ? 
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={12} />
+                        <Text style={{fontSize: 10, marginLeft: 2, marginBottom: 2, color: '#666'}}>{communityInfo.name}</Text>
+                    </View>
+                : null}
                 <GroupPhotoIcon photo={photo} name={name} size={28} style={{opacity: (name && photo) ? 1 : 0}}/>
                 <OneLineText style={{fontSize: 16, marginLeft: 8}}>
                     {name}

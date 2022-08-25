@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text } from 'react-native'
-import { TextInput } from 'react-native-gesture-handler'
+import { StyleSheet, Text, TextInput } from 'react-native'
 import { email_label, name_label, parseQuestions, parseTopics, ScreenContentScroll } from '../components/basics'
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import _ from 'lodash';

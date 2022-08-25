@@ -8,7 +8,7 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
-import { GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
+import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { addFocusListener, BottomFlatScroller, ModalMenu, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
@@ -20,6 +20,8 @@ export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
     const [name, setName] = useState('');
     const [members, setMembers] = useState({});
+    const [community, setCommunity] = useState(null);
+    const [communityInfo, setCommunityInfo] = useState(null);
 
     function markThisChatRead() {
         setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
@@ -30,6 +32,7 @@ export function ChatScreenHeader({navigation, route}) {
         var x = {}
         watchData(x, ['group', group, 'name'], setName);
         watchData(x, ['group', group, 'member'], setMembers);
+        watchData(x, ['group', group, 'community'], setCommunity, null);
 
         addFocusListener(markThisChatRead);
 
@@ -39,14 +42,38 @@ export function ChatScreenHeader({navigation, route}) {
         }
     }, [group])
 
+    useEffect(() => {
+        var x = {};
+        if (community) {
+            watchData(x, ['community', community], setCommunityInfo);
+        }
+        return () => internalReleaseWatchers(x);
+    }, [community])
+
     return (
         <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
                 {/* <GroupMultiIcon members={members} size={32} /> */}
-                <GroupSideBySideIcon members={members} size={32} />
-                <OneLineText style={{fontSize: 16, marginLeft: 8}}>
-                    {name}
-                </OneLineText>
+                <GroupSideBySideIcon members={members} size={36} />
+                <View style={{marginLeft: 8}}>
+                    {/* {communityInfo ? 
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
+                            <Text style={{fontSize: 11, marginLeft: 3, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>
+                        </View>
+                    : null} */}
+                    <OneLineText style={{fontSize: 20, fontWeight: 'bold'}}>
+                        {name}
+                    </OneLineText>
+                    {communityInfo ? 
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text>
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
+                            <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
+                        </View>
+                    : null}
+
+                </View>
             </View>
         </FixedTouchable>
     )

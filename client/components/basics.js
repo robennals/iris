@@ -182,6 +182,7 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
       defaultValue = {defaultValue} multiline={multiline}
       // textAlign = {textAlign}
       value = {value}
+      placeholderTextColor = '#666'
       maxLength = {maxLength}
       autoFocus={autoFocus}
       onFocus={onFocus} onBlur={onBlur}

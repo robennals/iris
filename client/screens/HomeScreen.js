@@ -47,12 +47,14 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 
 
 export class GroupList extends React.Component {
-    state = {groupSet: null, communitySet: {}, selected: null, search: '', name: null, photo: null}
+    state = {groupSet: null, communitySet: {}, selected: null, search: '', name: null, photo: null, allCommunities: {}}
 
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
         watchData(this, ['userPrivate', getCurrentUser(), 'name'], name => this.setState({name}));        
         watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}));
+        watchData(this, ['community'], allCommunities => this.setState({allCommunities}));
+
         if (isMasterUser()) {
             watchData(this, ['community'], communitySet => this.setState({communitySet}));
         } else {
@@ -88,7 +90,7 @@ export class GroupList extends React.Component {
 
     render() {
         const {navigation, showSelected, shrink} = this.props;
-        const {groupSet, communitySet, selected, search, name, photo} = this.state;
+        const {groupSet, communitySet, selected, search, name, photo, allCommunities} = this.state;
 
         if (!groupSet) {
             return null;
@@ -134,6 +136,7 @@ export class GroupList extends React.Component {
                         <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
                             {!communitySet[k] ?
                                 <GroupPreview group={k} name={groupSet[k].name}
+                                    allCommunities={allCommunities}
                                     highlight={selected == k && showSelected}
                                     groupInfo={groupSet[k]} shrink={shrink}
                                 />
@@ -157,11 +160,11 @@ export class GroupList extends React.Component {
                     <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : ('About ' + appName)}</Text>
                 </FixedTouchable>
 
-                {isMasterUser() ? 
+                {/* {isMasterUser() ? 
                     <FixedTouchable onPress={() => navigation.navigate('adminCreateGroup')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Group (admin)</Text>
                     </FixedTouchable>
-                :null}
+                :null} */}
                 {isMasterUser() ? 
                     <FixedTouchable onPress={() => navigation.navigate('createCommunity')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Create Community (admin)</Text>
