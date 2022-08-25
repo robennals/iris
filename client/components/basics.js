@@ -228,6 +228,23 @@ export function ScreenContentScroll({children, contentOffset, scrollRef, style})
     )
 }
 
+export function ScreenContentNoScroll({children, contentOffset, scrollRef, style}) {
+  return (
+    <HeaderSpaceView style={{flex: 1}}>
+      <StatusBar style='dark'/>
+      <View style={{flex: 1, backgroundColor: 'white', ... style}}>
+          {/* <View style={{marginTop: 8}} />     */}
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
+          <View style={{maxWidth: 600, paddingBottom: 200, flex: 1, alignItems: 'stretch'}}>
+            {children}
+          </View>
+        </View>
+      </View>
+    </HeaderSpaceView>
+  )
+}
+
+
 export function HeaderSpaceView({children, style={}}) {
     if (Platform.OS != 'ios') {
         return <View style={[style, {flex: 1}]}>{children}</View>

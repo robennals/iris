@@ -13,48 +13,9 @@ import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
 import * as Notifications from 'expo-notifications';
 import { reloadIfVersionChanged } from '../data/versioncheck';
+import { GroupPreview, isGroupUnread } from '../components/grouppreview';
 
 
-function isGroupUnread(groupInfo) {
-    return (_.get(groupInfo,'readTime', 0) < _.get(groupInfo, ['lastMessage', 'time'], 0))
-        && _.get(groupInfo, ['lastMessage', 'from']) != getCurrentUser();
-}
-
-function GroupPreview ({group, name, groupInfo, highlight, shrink}) {
-    const [members, setMembers] = useState(null);
-
-    useEffect(() => {
-        var x = {};
-        watchData(x, ['group', group, 'member'], setMembers);
-        return () => internalReleaseWatchers(x);
-    }, [group])
-
-    const unread = isGroupUnread(groupInfo);
-
-    var summaryLine = '';
-    if (groupInfo.lastMessage) {
-        summaryLine = _.get(groupInfo,['lastMessage','fromName'],'') + ': ' + 
-            firstLine(_.get(groupInfo,['lastMessage','text'],''))
-    }
-    return (
-        <View style={[styles.groupPreview, 
-                highlight ? {backgroundColor: '#eee'} : null]}>
-            <GroupMultiIcon members={members || {}} name={name} size={60} photo={groupInfo.photo} />
-
-            {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
-                <View style={styles.groupPreviewRight}>
-                    <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
-                        {name}
-                    </OneLineText>
-                    <OneLineText numberOfLines={1} style={{
-                            color: '#666', marginTop: 4,
-                            fontWeight: unread ? 'bold' : null}}>
-                        {summaryLine}
-                    </OneLineText>
-                </View>
-        </View>
-    )
-}
 
 function CommunityPreview({community, name, communityInfo, highlight}) {
     const unread = isGroupUnread(communityInfo);

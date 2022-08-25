@@ -13,6 +13,10 @@
         ".read": true
       }
     },
+    "adminCommunity": {
+      ".read": "root.child('special').child('master').child(auth.uid).exists()",
+      ".write": false
+    },
     "community": {
       ".read": true,
       ".write": false

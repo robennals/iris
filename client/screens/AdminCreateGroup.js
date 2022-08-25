@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { FormInput, FormTitle, WideButton } from '../components/basics';
 import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';
+import { internalReleaseWatchers, watchData } from '../data/fbutil';
+import { CommunityPhotoIcon } from '../components/photo';
 
-export function AdminCreateGroupScreen({navigation}) {
+export function AdminCreateGroupScreen({navigation, route}) {
+    const {community} = route.params;
     const [tsv, setTsv] = useState('');
     const [name, setName] = useState('');
     const [questions, setQuestions] = useState('');
     const [confirm, setConfirm] = useState('');
     const [inProgress, setInProgress] = useState(false);
+    const [communityInfo, setCommunityInfo] = useState(null);
+    const [intake, setIntake] = useState(null);
+
+    useEffect(() => {
+        var x = {};
+        watchData(x, ['community', community], setCommunityInfo);
+        watchData(x, ['intake', community], setIntake);
+        return () => internalReleaseWatchers();
+    }, [community])
+
+    if (!community || !communityInfo) return null;
 
     const textBoxStyle = {
         backgroundColor: 'white',
@@ -38,6 +52,11 @@ export function AdminCreateGroupScreen({navigation}) {
     
     return (
         <View>
+            <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
+                <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} thumb={false} size={64} />
+                <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{communityInfo.name}</Text>
+            </View>
+
             <FormTitle title='Group Name'>
                 <TextInput value={name} onChangeText={setName} style={textBoxStyle} />
             </FormTitle>

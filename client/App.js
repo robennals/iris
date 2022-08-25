@@ -45,6 +45,7 @@ import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScree
 import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
 import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySignups';
+import { CommunityGroupsScreen } from './screens/CommunityGroups';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -54,14 +55,8 @@ const prefix = Linking.createURL('/');
 const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
   initialRouteName: 'home',
   screens: {
-    join: 'join/:group',
     group: 'group/:group',
-    thread: 'thread/:group/:rootKey',
-    profile: 'profile/:group/:member',
     groupProfile: 'groupProfile/:group',
-    notifs: 'notifs',
-    messagebox: 'messagebox/:group',
-    digestFreq: 'digestFreq',
     community: 'community/:community'
   }
 }}
@@ -175,7 +170,8 @@ export default function App() {
     editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
     community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
     communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
-    communitySignups: {component: CommunitySignupsScreen, title: 'Signups'}
+    communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
+    communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'}
   }
 
   console.log('intialUrl', initialUrl);

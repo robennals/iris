@@ -124,133 +124,57 @@ function ScreenHeader({navigation, screens, screen, params, options, navState, i
     )
 }
 
-function urlForNavState(navState) {
+function urlForNavState(navState, linking) {
     const topScreen = navState[navState.length - 1];
-    return urlForScreen(topScreen);
+    return urlForScreen(topScreen, linking);
 }
 
-function urlForScreen(topScreen) {
- 
+function urlForScreen(topScreen, linking) {
+    const format = linking.config.screens[topScreen.screen];
     if (topScreen.screen == 'home') {
         return '/'
     }
-
     var path = '';
-    if (topScreen.screen == 'group') {
-        path = '/' + topScreen.params.group;
-    } else if (topScreen.screen == 'groupProfile') {
-        path = '/' + topScreen.params.group;
-    } else if (topScreen.screen == 'leaveGroup') {
-        path = '/' + topScreen.params.group;
-    } else if (topScreen.screen == 'profile') {
-        path = '/' + topScreen.params.group + '/' + topScreen.params.member;
-    } else if (topScreen.screen == 'thread') {
-        const selected = topScreen.params.messageKey ? ('?selected=' + topScreen.params.messageKey) : '';
-        path = '/' + topScreen.params.group + '/' + topScreen.params.rootKey + selected;
-    } else if (topScreen.screen == 'join') {
-        path = '/' + topScreen.params.group;        
-    } else if (topScreen.screen == 'outsiderThread') {
-        path = '/' + topScreen.params.group + '/' + topScreen.params.subgroup + '/' + topScreen.params.rootKey
-    } else if (topScreen.screen == 'messagebox') {
-        path = '/' + topScreen.params.group
-    } else if (topScreen.screen == 'community') {
-        path = '/' + topScreen.params.community;
-    } else if (topScreen.screen == 'editCommunity') {
-        path = '/' + topScreen.params.community;
-    } else if (topScreen.screen == 'communitySignups') {
-        path = '/' + topScreen.params.community;
+    if (format) {
+        const partKeys = format.split('/:').slice(1);
+        const parts = partKeys.map(k => topScreen.params[k]);
+        path = '/' + _.join(parts, '/');
     }
-
     return '/' + topScreen.screen + path;
 }
 
-function setUrlFromNavState(navState) {
-    const url = urlForNavState(navState);
+
+function setUrlFromNavState(navState, linking) {
+    const url = urlForNavState(navState, linking);
     // console.log('setUrl', navState, url);
     historyPushState({state: navState, url})
 }
 
-function navStateFromCurrentUrl() {
+function navStateFromCurrentUrl(linking) {
     const path = window.location.pathname;
     const parts = path.split('/');
     const screen = parts[1];
-    switch(screen) {
-        case 'group': return [{screen: 'home'}, {screen: 'group', params: {group: parts[2]}}];
-        case 'groupProfile': return [
-            {screen: 'home'}, 
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'groupProfile', params: {group: parts[2]}}
-        ];
-        case 'leaveGroup': return [
-            {screen: 'home'}, 
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'leaveGroup', params: {group: parts[2]}}
-        ];
-        case 'messagebox': return [
-            {screen: 'home'}, 
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'messagebox', params: {group: parts[2]}}
-        ];
-        case 'profile': return [
-            {screen: 'home'}, 
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'profile', params: {group: parts[2], member: parts[3]}}
-        ];
-        case 'join': return [{screen: 'home'}, {screen: 'join', params: {group: parts[2]}}];
-        case 'thread': return [
-            {screen: 'home'}, 
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'thread', params: {group: parts[2], rootKey: parts[3]}}
-        ];
-        case 'notifs': return [
-            {screen: 'home'}, 
-            {screen: 'notifs'}
-        ];
-        case 'joinOrCreate': return [
-            {screen: 'home'}, 
-            {screen: 'joinOrCreate'}
+    const format = linking.config.screens[screen];
+    if (!screen) {
+        return [
+            {screen: 'home', params: {}}
         ]
-        case 'about': return [
-            {screen: 'home'}, 
-            {screen: 'about'}
-        ]
-        case 'outsiderThread': return [
+    }
+    if (!format) {
+        return [
             {screen: 'home'},
-            {screen: 'group', params: {group: parts[2]}},
-            {screen: 'outsiderThread', params: {group: parts[2], subgroup: parts[3], rootKey: parts[4]}}
+            {screen}
         ]
-        case 'digestFreq': return [
-            {screen: 'home'}, 
-            {screen: 'digestFreq'}
-        ]
-        case 'adminCreateGroup': return [
+    } else {
+        const partKeys = format.split('/:').slice(1);
+        var params = {};
+        _.forEach(partKeys, (k,i) => {
+            params[k] = parts[i+2];
+        })
+        return [
             {screen: 'home'},
-            {screen: 'adminCreateGroup'}
+            {screen, params}
         ]
-        case 'myProfile': return [
-            {screen: 'home'},
-            {screen: 'myProfile'}
-        ]
-        case 'createCommunity': return [
-            {screen: 'home'},
-            {screen: 'createCommunity'}
-        ]
-        case 'community': return [
-            {screen: 'home'},
-            {screen: 'community', params: {community: parts[2]}}
-        ]
-        case 'editCommunity': return [
-            {screen: 'home'},
-            {screen: 'editCommunity', params: {community: parts[2]}}
-        ]
-        case 'communitySignups': return [
-            {screen: 'home'},
-            {screen: 'communitySignups', params: {community: parts[2]}}
-        ]
-
-
-
-        default: return [{screen: 'home', params: {}}]
     }
 }
 
@@ -260,14 +184,15 @@ function convertNavStack(navStack) {
     return newRoutes;
 }
 
+
 export function WebNavigator({screens, user, initialRouteName, linking}) {
-    const [navState, setNavState] = useState(navStateFromCurrentUrl());
+    const [navState, setNavState] = useState(navStateFromCurrentUrl(linking));
     const {width} = useWindowDimensions();
     const wide = width > minTwoPanelWidth;
 
     function updateNavState(newNavState) {
         setNavState(newNavState);
-        setUrlFromNavState(newNavState);
+        setUrlFromNavState(newNavState, linking);
     }
 
     const navigation = index => ({
@@ -304,7 +229,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
             {/* <NotifLine navigation={navigation(0)} /> */}
             <View style={{flexDirection: 'row', flex: 1}}>
                 {padState.map(({screen, params, options}, i) =>
-                    <AppContext.Provider value={{user, navigation: navigation(i)}} key={urlForScreen({screen, params, options})}>
+                    <AppContext.Provider value={{user, navigation: navigation(i)}} key={urlForScreen({screen, params}, linking)}>
                         <View style={getScreenStyle(padState, i, wide, screen)}>
                             <ScreenHeader navigation={navigation(i)} screens={screens} screen={screen} 
                                 params={params} options={options} navState={navState} index={i} wide={wide} />

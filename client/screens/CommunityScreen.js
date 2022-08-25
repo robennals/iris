@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, OneLineText, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
@@ -56,8 +56,8 @@ export function CommunityScreen({navigation, route}) {
 
     return (
         <ScreenContentScroll>
-            <View style={{margin: 16}}>
-            <Text>Not much here yet.</Text>
+            <View style={{margin: 16, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, padding: 16}}>
+                <Text style={{fontSize: 20, fontWeight: 'bold'}}>Admin Controls</Text>
             <Text>
                 Send the URL of this page to a non-member so they can fill out the intake questionairre.
             </Text>
@@ -68,6 +68,7 @@ export function CommunityScreen({navigation, route}) {
                 Soon this screen will allow community members to express interest in new topics.
             </Text>
             <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communitySignups', {community})}>See Signups</WideButton>
+            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communityGroups', {community})}>See Groups</WideButton>
             </View>
         </ScreenContentScroll>
     )
