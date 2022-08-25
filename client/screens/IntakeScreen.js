@@ -67,7 +67,6 @@ const shadowStyle = {
     shadowOpacity: 0.5, elevation: 3}
 
 function Topic({topic, selected, onChangeSelected}) {
-
     return (
         <View style={{marginHorizontal: 16, marginVertical: 4}}>
             <FixedTouchable onPress={() => onChangeSelected(!selected)}>
@@ -83,7 +82,6 @@ function Topic({topic, selected, onChangeSelected}) {
                         {selected ?
                             <Entypo name='check' size={30} style={{marginTop: 4, color: 'white'}} />
                         : null}
-
                     </View>
                     <View style={{marginLeft: 12}}>
                         <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>

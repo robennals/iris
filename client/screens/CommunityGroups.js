@@ -23,7 +23,7 @@ export function CommunityGroupsScreen({navigation, route}) {
 
     return (
         <ScreenContentScroll>
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={()=>navigation.navigate('adminCreateGroup', {community})}>New Group</WideButton>
+            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={()=>navigation.navigate('adminCreateGroup', {community})}>New Group</WideButton>
             <ScrollView>
                 {sortedGroupKeys.map(k => 
                     <GroupPreview k={k} group={k} groupInfo={groupSet[k]} />

@@ -57,7 +57,10 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
   screens: {
     group: 'group/:group',
     groupProfile: 'groupProfile/:group',
-    community: 'community/:community'
+    community: 'community/:community',
+    communityGroups: 'communityGroups/:community',
+    communitySignups: 'communitySignups/:community',
+    adminCreateGroup: 'adminCreateGroup/:community'
   }
 }}
 
