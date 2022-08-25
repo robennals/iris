@@ -62,16 +62,24 @@ export function ChatScreenHeader({navigation, route}) {
                             <Text style={{fontSize: 11, marginLeft: 3, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>
                         </View>
                     : null} */}
+                    {communityInfo ? 
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            {/* <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text> */}
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
+                            <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
+                        </View>
+                    : null}
+
                     <OneLineText style={{fontSize: 20, fontWeight: 'bold'}}>
                         {name}
                     </OneLineText>
-                    {communityInfo ? 
+                    {/* {communityInfo ? 
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text>
                             <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
                             <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
                         </View>
-                    : null}
+                    : null} */}
 
                 </View>
             </View>

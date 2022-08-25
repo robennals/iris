@@ -13,12 +13,14 @@ export function isGroupUnread(groupInfo) {
 
 export function GroupPreview ({group, groupInfo, highlight, allCommunities}) {
     const [members, setMembers] = useState(null);
+    const [remoteName, setRemoteName] = useState(null);
 
     const name = groupInfo.name;
 
     useEffect(() => {
         var x = {};
         watchData(x, ['group', group, 'member'], setMembers);
+        watchData(x, ['group', group, 'name'], setRemoteName);
         return () => internalReleaseWatchers(x);
     }, [group])
 
@@ -46,6 +48,11 @@ export function GroupPreview ({group, groupInfo, highlight, allCommunities}) {
                     <OneLineText style={{fontSize: 18, fontWeight: unread ? 'bold' : null}}>
                         {name}
                     </OneLineText>
+                    {/* {communityInfo ? 
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in {communityInfo.name}</Text>                        
+                        </View>
+                    : null} */}
                     <OneLineText numberOfLines={1} style={{
                             color: '#666', marginTop: 1,
                             fontWeight: unread ? 'bold' : null}}>

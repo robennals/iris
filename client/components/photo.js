@@ -115,7 +115,7 @@ export function GroupSideBySideIcon({members, size}) {
   return (
     <View style={{flexDirection: 'row', marginLeft: size/8}}>
       {keys.map(k => 
-        <MiniMemberPhoto key={k} members={members} user={k} size={size} style={{marginLeft: -size/8}} />
+        <MiniMemberPhoto key={k} members={members} user={k} size={size} style={{marginLeft: -size/4}} />
       )}
     </View>
   )
