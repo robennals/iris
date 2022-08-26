@@ -15,9 +15,16 @@
         "buildType": "apk"
       }
     },
-    "production": {}
+    "production": {
+
+    }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascApiKeyId": "QY695YF4PY",
+        "ascApiKeyPath": "./authkey.p8"
+      }
+    }
   }
 }

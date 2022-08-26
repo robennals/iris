@@ -81,17 +81,21 @@ export default function App() {
   const [gotAuth, setGotAuth] = useState(false);
   const [notif, setNotif] = useState(null);
   const [initialUrl, setInitialUrl] = useState(null);
+  const [loadStatus, setLoadStatus] = useState('Authenticating...');
   const notificationListener = useRef();
   const responseListener = useRef();
 
   useEffect(() => {
+    // TODO: Make this not fail on IOS - Is it because I haven't linked a domain?
     Linking.getInitialURL().then(initialUrl => setInitialUrl(initialUrl));
+    setLoadStatus(loadStatus + ' : Got URL');
   }, []);
 
   useEffect(() => {
-    console.log('initial setup');
+    // console.log('initial setup');
     onFirebaseAuthStatechanged(async fbUser => {
       setUser(fbUser && fbUser.uid)
+      setLoadStatus(loadStatus + ' : Got Auth...');
       setGotAuth(true);
       await SplashScreen.hideAsync();
     })
@@ -100,6 +104,7 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
+      setLoadStatus(loadStatus + ' : setup access token');
       setupServerTokenWatch(user);
     }
   }, [user])
@@ -177,13 +182,16 @@ export default function App() {
     communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'}
   }
 
-  console.log('intialUrl', initialUrl);
+  // console.log('intialUrl', initialUrl);
 
-  const parsedUrl = initialUrl ? parseUrl(initialUrl) : {};
+  const parsedUrl = initialUrl ? parseUrl(initialUrl || '') : {};
   console.log('parsedUrl', initialUrl, parsedUrl);
 
-  if (!gotAuth || !initialUrl) {
-    return null;
+  if (!gotAuth) {
+    return <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}><Text>Authenticating...</Text></View>
+  // } else if (!initialUrl) {
+  //   return <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}><Text>Starting up...</Text></View>
+    // return null;
   } else if (!user && parsedUrl.screen == 'community') {
     return <IntakeScreen community={parsedUrl.param} />
   } else if (!user) {
@@ -198,14 +206,19 @@ export default function App() {
 }
 
 function parseUrl(url) {
-  const {hostname, path, queryParms} = Linking.parse(url || '');
-  if (!path) {
-    return {screen: 'ome', param: null}
-  }
-  const parts = path.split('/');
-  const screen = parts[0];
-  const param = parts[1];
-  return {screen, param};
+  try {
+    const {path} = Linking.parse(url || '');
+    if (!path) {
+      return {screen: 'home', param: null}
+    }
+    const parts = path.split('/');
+    const screen = parts[0];
+    const param = parts[1];
+    return {screen, param};
+  } catch (e) {
+    console.log('bad url ', url);
+    return {screen: 'home', param: null}
+  } 
 }
 
 const styles = StyleSheet.create({

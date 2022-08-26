@@ -191,6 +191,7 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
   } else {
     return <TextInput placeholder={placeholder} style={style || textBoxStyle}
       textContentType={textContentType} multiline={multiline}
+      placeholderTextColor = '#666'
       keyboardType={keyboardType}
       autoCompleteType={autoCompleteType}
       underlineColorAndroid='transparent'
