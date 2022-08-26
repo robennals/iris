@@ -37,7 +37,7 @@ export function GroupProfileScreen({navigation, route}) {
 
     if (!members) return null;
 
-    console.log('groupProfile', questions);
+    // console.log('groupProfile', questions);
 
     return (
         <ScreenContentScroll>
