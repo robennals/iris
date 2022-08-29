@@ -61,11 +61,13 @@ exports.createUser = createUser;
 async function getOrCreateUserAsync(email) {
 	const userEmails = await getDataAsync(['special','userEmail']);
 	var uid = _.findKey(userEmails, userEmail => userEmail == email)
+	var created = false;
   
 	if (!uid && createUser) {
 	  uid = await createUser(email);
+	  created = true;
 	}
-	return uid;
+	return {uid, created};
 }
 exports.getOrCreateUserAsync = getOrCreateUserAsync;
 

@@ -177,8 +177,11 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
     console.log('submit communityForm', {community, name, email, answers, selectedTopics});
 
     var uid = userId;
+    var created = false;
     if (!uid) {
-        uid = await FBUtil.getOrCreateUserAsync(email);      
+        const result = await FBUtil.getOrCreateUserAsync(email);      
+        uid = result.uid;
+        created = result.created;
     }
 
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
@@ -195,6 +198,10 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
     const confirmed = userId ? true : false
     updates['intake/' + community + '/' + key] = {
         user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time: Date.now(), confirmed
+    }
+    if (userId || created) {
+        updates['userPrivate/' + uid + '/photo'] = newPhotoKey;
+        updates['userPrivate/' + uid + '/name'] = name;
     }
 
     var emails = [];

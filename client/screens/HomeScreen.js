@@ -98,7 +98,7 @@ export class GroupList extends React.Component {
 
         const groupKeys = Object.keys(groupSet || {});
         const communityKeys = Object.keys(communitySet || {});
-        var filteredGroupKeys = groupKeys;
+        var filteredGroupKeys = _.filter(groupKeys, k => groupSet[k].name);
         var filteredCommunityKeys = communityKeys;
         if (search) {
             filteredGroupKeys = _.filter(groupKeys, k => searchMatches(groupSet[k].name, search))
