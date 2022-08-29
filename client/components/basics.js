@@ -64,6 +64,7 @@ export function toBool(val) {
 }
 
 export function searchMatches(text, search) {
+  if (!text || !search) return false;
   return searchNormalize(text).indexOf(searchNormalize(search)) != -1;
 }
 

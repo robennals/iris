@@ -98,6 +98,9 @@ async function apiActionAsync({action, components, params}) {
         case 'confirm': {
             return Iris.confirmSignupAsync(params);
         }
+        case 'adminCommand': {
+            return Iris.adminCommandAsync(params);
+        }
         
 
         default: {

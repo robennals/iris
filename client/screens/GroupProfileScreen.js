@@ -37,6 +37,8 @@ export function GroupProfileScreen({navigation, route}) {
 
     if (!members) return null;
 
+    const filteredMemberKeys = Object.keys(members || {}).filter(k => k != 'zzz_irisbot');
+
     // console.log('groupProfile', questions);
 
     return (
@@ -48,7 +50,7 @@ export function GroupProfileScreen({navigation, route}) {
 
             <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
-            {Object.keys(members || {}).map(m => 
+            {filteredMemberKeys.map(m => 
                 <MemberPreview key={m} members={members} userId={m} />
             )}
 

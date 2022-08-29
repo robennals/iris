@@ -123,6 +123,7 @@ export function ChatScreen({navigation, route}) {
     const [members, setMembers] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
     const scrollRef = React.createRef();
+    const chatInputRef = React.createRef();
 
     useEffect(() => {
         var x = {}
@@ -132,6 +133,11 @@ export function ChatScreen({navigation, route}) {
 
         return () => internalReleaseWatchers(x);
     }, [group]);
+
+    function onReply(messageKey) {
+        setReplyTo(messageKey);
+        chatInputRef?.current?.focus();
+    }
 
     const allMessages = messages ? {...localMessages, ...messages} : {};
 
@@ -144,8 +150,8 @@ export function ChatScreen({navigation, route}) {
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} messages={allMessages} members={members} onReply={setReplyTo} />
-            <ChatEntryBox group={group} messages={allMessages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} />
+            <MessageList group={group} messages={allMessages} members={members} onReply={onReply} />
+            <ChatEntryBox group={group} messages={allMessages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
           </View>
         </HeaderSpaceView>
       </KeyboardSafeView>
@@ -210,29 +216,32 @@ function Message({messages, members, messageKey, onReply}) {
             {popup ? 
                 <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
             : null}
-            <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1}}>
-                <View style={myMessage ? styles.myMessage : styles.theirMessage} >
-                    {myMessage ? null :
-                        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
-                            <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
-                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
-                        </View>
-                    }
-                    {message.replyTo ?
-                        <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
-                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
-                        </View> 
-                    : null}
-                    <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
-                    {message.pending ?
-                        <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
-                                position: 'absolute', right: -4, bottom: -4}}>
-                            <FontAwesome name='clock-o' size={14} /> 
-                        </View>
-                    : null}
-                </View>
-            </FixedTouchable>
+            <View style={{flexShrink: 1}}>
+            {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
+                <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1, maxWidth: 550}}>
+                    <View style={myMessage ? styles.myMessage : styles.theirMessage} >
+                        {myMessage ? null :
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                                <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
+                                <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
+                            </View>
+                        }
+                        {message.replyTo ?
+                            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
+                                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
+                            </View> 
+                        : null}
+                        <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
+                        {message.pending ?
+                            <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
+                                    position: 'absolute', right: -4, bottom: -4}}>
+                                <FontAwesome name='clock-o' size={14} /> 
+                            </View>
+                        : null}
+                    </View>
+                </FixedTouchable>
+            </View>
 
             <View style={{width: 64, flexShrink: 0}}>
                 {hover ? 
@@ -274,7 +283,9 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         marginHorizontal: 8,
         maxWidth: 550,
-        flexShrink: 1
+        flexShrink: 1,
+        flexGrow: 0,
+        flexBasis: 'auto'
     },
     theirMessage: {
         backgroundColor: '#F3F3F4',
@@ -284,7 +295,10 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         marginHorizontal: 8,
         maxWidth: 550,
-        flexShrink: 1
+        flexShrink: 1,
+        flexGrow: 0,
+        flexBasis: 'auto'
+        // flexGrow: 0
     },
     myMessageRow: {
         flexDirection: 'row-reverse',

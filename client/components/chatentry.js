@@ -5,7 +5,7 @@ import { getCurrentUser, getFirebaseServerTimestamp, newKey, SERVER_TIMESTAMP, s
 import { sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
 
-export function ChatEntryBox({group, messages, members, replyTo, onClearReply}) {
+export function ChatEntryBox({group, messages, members, replyTo, onClearReply, chatInputRef}) {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
@@ -63,7 +63,7 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply}) 
             {replyTo ? 
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', 
                         paddingLeft: 8, marginTop: 8, marginBottom: 4, borderLeftColor: '#ddd', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                    <View>
+                    <View style={{flex: 1}}>
                         <Text style={{fontSize: 12, marginBottom: 4}}>Replying to <Text style={{fontWeight: 'bold'}}>{members[messages[replyTo].from].name}</Text></Text>
                         <OneLineText style={{color: '#666'}}>{messages[replyTo].text}</OneLineText>
                     </View>
@@ -75,6 +75,7 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply}) 
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextInput // disabled={inProgress} 
                     key={textKey}
+                    ref={chatInputRef}
                     value={text}
                     onChangeText={setText}
                     autoFocus={isWeb}

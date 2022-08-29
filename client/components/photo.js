@@ -86,7 +86,7 @@ function MiniMemberPhoto({members, user, style, size}) {
 }
 
 export function GroupMultiIcon({members, size = 40}) {
-  const notMeMemberKeys = _.filter(Object.keys(members), k => k != getCurrentUser());
+  const notMeMemberKeys = _.filter(Object.keys(members), k => !shouldIgnoreMember(k));
   if (notMeMemberKeys.length == 1) {
     return <MiniMemberPhoto members={members} user={notMeMemberKeys[0]} size={size} />
   } else if (notMeMemberKeys.length == 2) {
@@ -108,8 +108,16 @@ export function GroupMultiIcon({members, size = 40}) {
   }
 }
 
+function shouldIgnoreMember(member) {
+  if (member == getCurrentUser()) {
+    return true;
+  } else if (member == 'zzz_irisbot') {
+    return true;
+  }
+}
+
 export function GroupSideBySideIcon({members, size}) {
-  const keys = _.filter(Object.keys(members), k => k != getCurrentUser());
+  const keys = _.filter(Object.keys(members), k => !shouldIgnoreMember(k));
 
   // const keys = Object.keys(members);
   return (

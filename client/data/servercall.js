@@ -159,3 +159,9 @@ export async function submitCommunityFormAsync({community, photoData, thumbData,
     return await callServerApiAsync('submitCommunityForm', {
         community, photoData, thumbData, name, email, answers, selectedTopics});
 }
+
+export async function adminCommandAsync({command, params}) {
+    return await callServerApiAsync('adminCommand', {
+        command, params
+    })
+}

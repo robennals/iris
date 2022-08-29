@@ -98,13 +98,17 @@ export class GroupList extends React.Component {
 
         const groupKeys = Object.keys(groupSet || {});
         const communityKeys = Object.keys(communitySet || {});
+        // var filteredGroupKeys = groupKeys;
         var filteredGroupKeys = _.filter(groupKeys, k => groupSet[k].name);
         var filteredCommunityKeys = communityKeys;
         if (search) {
             filteredGroupKeys = _.filter(groupKeys, k => searchMatches(groupSet[k].name, search))
             filteredCommunityKeys = _.filter(communityKeys, k => searchMatches(communitySet[k].name, search));
         }
-        const sortedGroupAndCommunityKeys = _.sortBy({...filteredGroupKeys, ...filteredCommunityKeys}, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
+        const filteredGroupAndCommunityKeys = [...filteredGroupKeys, ...filteredCommunityKeys];
+        const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
+
+        // console.log('keys', {filteredGroupKeys, filteredCommunityKeys, sortedGroupAndCommunityKeys, groupSet})
 
         if (Platform.OS != 'web') {
             const unreadGroups = _.filter(groupKeys, k => isGroupUnread(groupSet[k]));

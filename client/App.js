@@ -46,6 +46,7 @@ import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
 import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySignups';
 import { CommunityGroupsScreen } from './screens/CommunityGroups';
+import { AdminCommandScreen } from './screens/AdminCmd';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -179,7 +180,8 @@ export default function App() {
     community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
     communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
     communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
-    communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'}
+    communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
+    adminCommand: {component: AdminCommandScreen, title: 'Admin Command'}
   }
 
   // console.log('intialUrl', initialUrl);

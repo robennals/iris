@@ -19,8 +19,64 @@ async function createMemberAsync(person, userEmails) {
     }
 }
 
+
+function botMessageAsync({group, text, time, updates}) {
+    const key = FBUtil.newKey();
+    updates['/group/' + group + '/message/' + key] = {
+        text, time, from: 'zzz_irisbot'
+    }
+}
+
+function splitFirst(text, sep) {
+    const index = text.indexOf(sep);
+    const first = text.slice(0, index);
+    const rest = text.slice(index + sep.length);
+    return [first, rest]
+  }
+  
+
+function parseTopics(topicsTxt) {
+    const topicList = topicsTxt.trim().split('#').filter(x=>x);
+    const parsedTopics = topicList.map(ttxt => {
+        const [title,rest] = splitFirst(ttxt, '\n');
+        const questions = rest.split('*').filter(x=>x).map(x => x.trim());
+        return {title: title.trim(), questions}
+    })
+    return parsedTopics;
+}
+
+const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
+
+async function writeIntroMessagesAsync({community, group, topic, members, updates}) {
+    const memberNames = members.map(m => m.name);
+    const memberAnds = AndFormat.format(memberNames);
+    const time = Date.now();
+
+    updates['/group/' + group + '/member/zzz_irisbot/name'] = 'Irisbot';
+
+    var timeIncrement = 0;
+    const firstMessageText = 'This is a private conversation about ' + topic 
+        + ' between ' + memberAnds
+        + '.\nHere are some questions to get you started:'
+    botMessageAsync({group, text: firstMessageText, time, updates});
+
+    console.log('firstMessage', firstMessageText);
+
+    const topicsTxt = await FBUtil.getDataAsync(['community', community, 'topics']);
+    console.log('topicsTxt', community, topicsTxt);
+    const topics = parseTopics(topicsTxt);
+    const selectedTopic = _.find(topics, t => t.title == topic);
+    if (selectedTopic) {
+        selectedTopic.questions.forEach(question => {
+            timeIncrement++;
+            botMessageAsync({group, text: question, time: time+timeIncrement, updates});
+        })
+    }
+}
+
+
 async function adminCreateGroupAsync({community, topic, privateName, people, picked}) {
-    console.log('adminCreateGroupAsync', community, topic, privateName, people, picked);
+    console.log('adminCreateGroupAsync', community, topic, privateName);
     // return {success: false, message: 'Not completed yet'};
 
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
@@ -29,7 +85,7 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
     const pMembers = _.map(people, person => createMemberAsync(person, userEmails));
     const members = [...picked, ...await Promise.all(pMembers)];
 
-    console.log('members', members);
+    // console.log('members', members);
 
     const time = Date.now();
     const lastMessage = {text: 'Group Created', time}
@@ -42,6 +98,8 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
     updates['adminCommunity/' + community + '/group/' + group + '/community'] = community;
     updates['adminCommunity/' + community + '/group/' + group + '/privateName'] = privateName;
     updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
+
+    await writeIntroMessagesAsync({community, group, members, topic, updates});
 
     members.forEach(member => {
         const {user, name, bio, photoKey, answers} = member;
@@ -234,3 +292,13 @@ async function confirmSignupAsync({community, intake}) {
 }
 
 exports.confirmSignupAsync = confirmSignupAsync;
+
+
+async function adminCommandAsync({command, params, userId}) {
+    const paramList = params.trim().split('\n').map(x => x.trim()).filter(x => x);
+    console.log('adminCommand', command, paramList);
+
+    return {success: true}
+}
+
+exports.adminCommandAsync = adminCommandAsync;
