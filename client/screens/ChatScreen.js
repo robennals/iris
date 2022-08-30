@@ -187,8 +187,10 @@ function MessageList({group, messages, members, onReply}) {
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
                 // {key: 'more', item: 
                     // <MoreButton showCount={showCount} messageCount={sortedMessageKeys.length} onMore={() => setShowCount(showCount+40)} />},
-                ... shownMessageKeys.map(k => ({key: k, item: 
-                    <Message key={k} messages={messages} members={members} messageKey={k} onReply={onReply}/>})),
+                ... shownMessageKeys.map((k,idx) => ({key: k, item: 
+                    <Message key={k} messages={messages} members={members} 
+                        messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
+                        onReply={onReply}/>})),
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
         </View>
@@ -196,12 +198,19 @@ function MessageList({group, messages, members, onReply}) {
 }
 
 
-function Message({messages, members, messageKey, onReply}) {
-    const message=messages[messageKey];
+function Message({messages, members, messageKey, prevMessageKey, nextMessageKey, onReply}) {
+    const message = messages[messageKey];
+    const prevMessage = messages[prevMessageKey] ?? {};
+    const nextMessage = messages[nextMessageKey] ?? {};
     const myMessage = message.from == getCurrentUser();
     const fromMember = members[message.from];
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
+
+    const samePrevAuthor = !myMessage && message.from == prevMessage.from;
+    const sameNextAuthor = !myMessage && message.from == nextMessage.from;
+    const prevAlsoMe = myMessage && prevMessage.from == getCurrentUser();
+    const nextAlsoMe = myMessage && nextMessage.from == getCurrentUser();
 
     return (
         // <Swipeable renderLeftActions={() =>
@@ -219,8 +228,13 @@ function Message({messages, members, messageKey, onReply}) {
             <View style={{flexShrink: 1}}>
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1, maxWidth: 550}}>
-                    <View style={myMessage ? styles.myMessage : styles.theirMessage} >
-                        {myMessage ? null :
+                    <View style={[myMessage ? styles.myMessage : styles.theirMessage, 
+                            samePrevAuthor ? {marginTop: 1, borderTopLeftRadius: 4} : {}, 
+                            sameNextAuthor ? {marginBottom: 1, borderBottomLeftRadius: 4} : {},
+                            prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
+                            nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {}
+                         ]} >
+                        {myMessage || samePrevAuthor ? null :
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
                                 <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
                                 <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
@@ -288,7 +302,7 @@ const styles = StyleSheet.create({
         flexBasis: 'auto'
     },
     theirMessage: {
-        backgroundColor: '#F3F3F4',
+        backgroundColor: '#eee',
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 16,
