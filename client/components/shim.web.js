@@ -9,6 +9,7 @@ import { AppContext } from "./context";
 import {Audio} from 'expo-av';
 import { Entypo } from '@expo/vector-icons';
 import { querystringDecode } from '@firebase/util';
+import { getFirebaseNotifTokenAsync } from '../data/fbutil';
 
 
 export function getCurrentDomain() {
@@ -295,3 +296,20 @@ export function PopupSelector({value, items, style, onSelect}) {
 //     )
 //   }
 // }
+
+export async function requestNotifPermission() {
+  const notifStatus = await Notification.requestPermission();
+  return (notifStatus == 'granted');
+}
+
+export async function checkIfNotifsGranted() {
+  return Notification.permission == 'granted';
+}
+
+export async function checkIfNotifsDenied() {
+  return Notification.permission != 'default' && Notification.permission != 'granted';
+}
+
+export async function getNotifToken() {
+  return await getFirebaseNotifTokenAsync();
+}

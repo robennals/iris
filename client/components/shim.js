@@ -9,6 +9,8 @@ import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import * as Haptics from 'expo-haptics';
 import {FlashList} from '@shopify/flash-list';
+import * as Notifications from 'expo-notifications';
+
 
 export function getCurrentDomain(){ 
     return appDomain
@@ -142,3 +144,22 @@ export class PopupMenu extends React.Component {
     )
   }
 }
+
+export async function requestNotifPermission() {
+  const notifStatus = await Notifications.requestPermissionsAsync();
+  if (_.get(notifStatus, 'status') == 'granted') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export async function checkIfNotifsGranted() {
+  const notifStatus = await Notifications.getPermissionsAsync();
+  return (_.get(notifStatus, 'status') == 'granted');
+}
+
+export async function getNotifToken() {
+  return (await Notifications.getExpoPushTokenAsync()).data;
+}
+

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, Linking, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Image, Linking, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { appIcon, appName, appSlogan, baseBackgroundColor, baseColor } from '../data/config';
 import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
@@ -260,6 +260,19 @@ export function HeaderSpaceView({children, style={}}) {
     }
 }
   
+export function MinorButton({onPress, children, style=null, innerStyle=null}) {
+  return (
+    <FixedTouchable onPress={onPress} >
+      <View style={[{padding: 7, borderRadius: 8, borderColor: '#999', 
+            borderWidth: StyleSheet.hairlineWidth, marginHorizontal: 8, 
+            alignItems: 'center'},style]}>
+        <Text style={{color: '#666', fontWeight: 'bold', marginHorizontal: 12, ...innerStyle}}>
+          {children}
+        </Text>
+      </View>
+    </FixedTouchable>
+  )
+}
 
 export function WideButton({onPress, children, progressText, disabled, alwaysActive, style, innerStyle}){
   const [clicked, setClicked] = useState(false);

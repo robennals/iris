@@ -187,6 +187,9 @@ function MessageList({group, messages, members, onReply}) {
             <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
                 // {key: 'more', item: 
                     // <MoreButton showCount={showCount} messageCount={sortedMessageKeys.length} onMore={() => setShowCount(showCount+40)} />},
+                {key: 'space', item: 
+                    <View style={{height: 16}} />
+                },
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
                     <Message key={k} messages={messages} members={members} 
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}

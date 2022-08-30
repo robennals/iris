@@ -98,4 +98,8 @@ async function uploadBase64Image({base64data, isThumb = false, userId, key}) {
 }
 exports.uploadBase64Image = uploadBase64Image;
 
-
+async function sendFBMessageAsync(token,message) {
+	console.log('sendFBMessage', token, )
+	admin.messaging().sendToDevice(token, message);
+}
+exports.sendFBMessageAsync = sendFBMessageAsync;

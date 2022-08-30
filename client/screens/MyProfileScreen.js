@@ -1,7 +1,8 @@
 import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Platform, StyleSheet, Text, View } from 'react-native'
 import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../components/basics';
+import { EnableNotifsBanner } from '../components/notifpermission';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
 import { callAuthStateChangedCallbacks, firebaseSignOut, getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil'
@@ -30,6 +31,9 @@ export function MyProfileScreen({navigation}) {
 
     return (
         <ScreenContentScroll>
+            {Platform.OS == 'web' ?
+                <EnableNotifsBanner alwaysAsk style={{borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8, marginVertical: 16}} />
+            : null}
             <FixedTouchable onPress={() => chooseProfilePhotoAsync(setUploading)}>
                 <View style={{marginTop: 16, alignItems: 'center'}}>
                     <View style={{width: 200, height: 200}}>

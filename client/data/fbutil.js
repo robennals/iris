@@ -1,7 +1,23 @@
 import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
 import { getDatabase, ref, onValue, off, update, get, set, once, serverTimestamp, push } from "firebase/database";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import _ from 'lodash';
+import { Platform } from "react-native";
+
+var messaging = null;
+if (Platform.OS == 'web') {
+    messaging = getMessaging(firebaseApp);
+    console.log('messaging', messaging);
+    onMessage(messaging, (payload) => {
+        console.log('Foreground message received. ', payload);
+        // ...
+    });
+}
+
+export async function getFirebaseNotifTokenAsync() {
+    return await getToken(messaging, {vapidKey: 'BCbOd7O4PQnzInDEJJQDJJYv9hU44ua5nYr7cfsh3M3FdlNvcbqPceLP-aJ-lCcXDwsnnizRHxNmn4NObYolS80'});
+}
 
 const database = getDatabase();
 
