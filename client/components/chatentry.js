@@ -80,6 +80,7 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
                     onChangeText={setText}
                     autoFocus={isWeb}
                     placeholder='Type a message'
+                    placeholderTextColor={'#999'}
                     multiline
                     style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 
                         borderWidth: StyleSheet.hairlineWidth, 

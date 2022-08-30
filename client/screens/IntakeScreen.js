@@ -1,7 +1,7 @@
 import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, validateEmail, validateName, WideButton } from '../components/basics';
+import { email_label, FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
@@ -45,7 +45,7 @@ function QuestionAnswer({question, answer, onChangeAnswer}) {
                     onChangeText={onChangeAnswer} />
                 {focus ? null :
                     <ValidateAnswer answerType={atype} answer={answer} />
-                }
+                }                
             </View>
         )
     }
@@ -193,7 +193,7 @@ export function IntakeScreen({community}) {
                 <PhotoPicker photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
             </View>
             {questions.map(q =>
-                <Question key={q.question} question={q} answer={answers[q.question]} onChangeAnswer={answer => setAnswers({...answers, [q.question]: answer})} />
+                <Question key={q.question} question={q} answer={answers[textToKey(q.question)]} onChangeAnswer={answer => setAnswers({...answers, [textToKey(q.question)]: answer})} />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
             <View style={{margin: 16}}>
@@ -202,8 +202,8 @@ export function IntakeScreen({community}) {
             </View>
             {topics.map(topic =>
                 <Topic key={topic.title} topic={topic}
-                    selected={selectedTopics[topic.title]}
-                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topic.title]: selected})}
+                    selected={selectedTopics[textToKey(topic.title)]}
+                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [textToKey(topic.title)]: selected})}
                 />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />

@@ -411,9 +411,13 @@ export function parseQuestions(questions) {
 
 export function splitFirst(text, sep) {
   const index = text.indexOf(sep);
-  const first = text.slice(0, index);
-  const rest = text.slice(index + sep.length);
-  return [first, rest]
+  if (index != -1) {
+    const first = text.slice(0, index);
+    const rest = text.slice(index + sep.length);
+    return [first, rest]
+  } else {
+    return [text, '']
+  }
 }
 
 export function parseTopics(topicsTxt) {
@@ -426,3 +430,6 @@ export function parseTopics(topicsTxt) {
   return parsedTopics;
 }
 
+export function textToKey(text) {
+  return text.replace(/[\/\.\$\#\[\]]/g, '_');
+}

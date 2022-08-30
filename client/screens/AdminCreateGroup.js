@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, WideButton } from '../components/basics';
+import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, textToKey, WideButton } from '../components/basics';
 import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
@@ -10,7 +10,7 @@ import { Entypo } from '@expo/vector-icons';
 import { baseColor } from '../data/config';
 
 function IntakeMember({intake, questionTitles, selected, onSelect}) {
-    const answers = _.map(questionTitles, q => intake.answers[q])
+    const answers = _.map(questionTitles, q => intake.answers[textToKey(q)])
     const answerSummary = _.join(answers, ', ');
     const topicSummary = _.join(_.sortBy(Object.keys(intake.selectedTopics),x=>x), ', ');
 

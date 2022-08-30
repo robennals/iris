@@ -29,11 +29,15 @@ function botMessageAsync({group, text, time, updates}) {
 
 function splitFirst(text, sep) {
     const index = text.indexOf(sep);
-    const first = text.slice(0, index);
-    const rest = text.slice(index + sep.length);
-    return [first, rest]
-  }
-  
+    if (index != -1) {
+        const first = text.slice(0, index);
+        const rest = text.slice(index + sep.length);
+        return [first, rest]
+    } else {
+        return [text, '']
+    }
+}
+
 
 function parseTopics(topicsTxt) {
     const topicList = topicsTxt.trim().split('#').filter(x=>x);

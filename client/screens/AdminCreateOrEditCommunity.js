@@ -24,7 +24,7 @@ function mergeEditedParams({oldObj, newObj}) {
 }
 
 export function AdminCreateOrEditCommunityScreen({navigation, route}) {
-    const {community} = route.params;
+    const community = route?.params?.community;
     const [old, setOld] = useState({});
     const [name, setName] = useState(null);
     const [info, setInfo] = useState(null);
