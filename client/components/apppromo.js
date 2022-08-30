@@ -18,7 +18,7 @@ export function AppPromo(){
         return null;
     } else {
         return (
-            <a target='_blank' href='https://testflight.apple.com/join/hyvFrjwc' style={{alignSelf: 'center', textDecoration: 'none'}}>
+            <a target='_blank' href='https://apps.apple.com/us/app/iris-talk/id1640562508' style={{alignSelf: 'center', textDecoration: 'none'}}>
                 <View style={{backgroundColor: 'black', alignSelf: 'center', flexDirection: 'row', 
                 alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, 
                     marginHorizontal: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8}}>

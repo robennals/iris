@@ -177,9 +177,9 @@ export class GroupList extends React.Component {
 
 
                 {/* TODO: Bring back link to app once app is available */}
-                {/* {Platform.OS == 'web' && !shrink ?
+                {Platform.OS == 'web' ?
                     <AppPromo />
-                :null} */}
+                :null}
             </ScreenContentScroll>
         )
     }
