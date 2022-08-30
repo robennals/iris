@@ -4,7 +4,8 @@ import { StyleSheet, Text, View } from 'react-native'
 import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../components/basics';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
-import { firebaseSignOut, getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil'
+import { callAuthStateChangedCallbacks, firebaseSignOut, getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil'
+import { releaseServerTokenWatch } from '../data/servercall';
 
 export function MyProfileScreen({navigation}) {
     const [photo, setPhoto] = useState();
@@ -20,9 +21,11 @@ export function MyProfileScreen({navigation}) {
    
     console.log('photo', photo, uploading);
 
-    function signOut() {
-        navigation.goBack();
-        firebaseSignOut();        
+    async function signOut() {
+        await navigation.popToTop();
+        await releaseServerTokenWatch();        
+        await callAuthStateChangedCallbacks(null);
+        // await firebaseSignOut();        
     }
 
     return (

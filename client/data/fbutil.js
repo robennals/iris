@@ -10,12 +10,9 @@ export function newKey() {
 }
 
 var global_currentUser = null;
+var global_firebaseUser = null;
 
 const auth = getAuth();
-
-onAuthStateChanged(auth, fbUser => {
-    global_currentUser = _.get(fbUser,'uid');
-})
 
 export function getCurrentUser() {
     return global_currentUser;
@@ -35,8 +32,25 @@ export function getUser() {
     return global_currentUser;
 }
 
+var global_authCallbacks = [];
+
+
 export function onFirebaseAuthStatechanged(callback) {
+    global_authCallbacks.push(callback);
     return onAuthStateChanged(auth, callback);
+}
+
+onAuthStateChanged(auth, fbUser => {
+    global_currentUser = _.get(fbUser,'uid');
+    global_firebaseUser = _.get(fbUser,'uid');
+})
+
+
+export function callAuthStateChangedCallbacks(user) {
+    global_currentUser = null;
+    global_authCallbacks.forEach(callback =>
+        callback(user)
+    )
 }
 
 export async function signInWithTokenAsync(token){
@@ -45,6 +59,13 @@ export async function signInWithTokenAsync(token){
 
 export function firebaseSignOut() {
 	return signOut(auth);
+}
+
+export async function maybeFirebaseSignOut() {
+    if (global_firebaseUser) {
+        signOut(auth);
+        global_firebaseUser = null;
+    }
 }
 
 function refForPath(path) {

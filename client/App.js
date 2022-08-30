@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AppLoading from 'expo-app-loading';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { internalReleaseWatchers, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
+import { firebaseSignOut, internalReleaseWatchers, maybeFirebaseSignOut, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
 import { SignInScreen } from './screens/Signin';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, CommonActions, useNavigationContainerRef } from '@react-navigation/native';
@@ -103,6 +103,12 @@ export default function App() {
     })
     webInit();
   },[]);
+
+  useEffect(() => {
+    if (!user) {
+      maybeFirebaseSignOut();
+    }
+  }, [user])
 
   useEffect(() => {
     if (user) {

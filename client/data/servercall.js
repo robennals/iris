@@ -1,22 +1,33 @@
 import { getCurrentDomain } from "../components/shim";
 import { firebaseApp } from "./config";
-import { onFirebaseAuthStatechanged, releaseWatcher, signInWithTokenAsync, watchData } from "./fbutil";
+import { internalReleaseWatchers, onFirebaseAuthStatechanged, releaseWatcher, signInWithTokenAsync, watchData } from "./fbutil";
 import _ from 'lodash';
 
 var global_accessKey = null;
 var global_userId = null;
 var global_keyWatcher = null;
+var global_watchers = null;
 
 export function setupServerTokenWatch(userId) {
     const keyPath = ['userPrivate', userId, 'accessKey'];
-    if (global_keyWatcher) {
-        releaseWatcher(keyPath, global_keyWatcher);
+    if (global_watchers) {
+        internalReleaseWatchers(global_watchers);
     }
+    global_watchers = {};
     global_userId = userId;
-    global_keyWatcher = watchData(null, keyPath, key => {
+    watchData(global_watchers, keyPath, key => {
         global_accessKey = key
         // console.log('access key', key);
     });
+}
+
+export function releaseServerTokenWatch(){
+    console.log('release server token watch', global_userId, global_watchers);
+    if (global_watchers) {
+        internalReleaseWatchers(global_watchers);
+    }
+    global_watchers = null;
+    global_userId = null;
 }
 
 function getApiPrefix() {

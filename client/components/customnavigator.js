@@ -207,6 +207,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
                 ...navState.slice(index+1)
             ])
         },
+        popToTop: () => updateNavState([{screen: initialRouteName}]), 
         goHome: () => updateNavState([{screen: initialRouteName}]),
         reset: (navStack) => updateNavState(convertNavStack(navStack))        
     })
