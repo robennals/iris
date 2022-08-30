@@ -22,16 +22,35 @@ function ValidateAnswer({answerType, answer}) {
     return null;
 }
 
-function QuestionAnswer({question, answer, onChangeAnswer}) {
+function keysToSet(keys) {
+    return _.fromPairs(_.map(keys, k => [k,true]));
+}
+
+function QuestionAnswer({question, answer, onChangeAnswer, selector, onSelectorChange}) {
     const [focus, setFocus] = useState(false);
     const atype = question.answerType;
     if (question.answerType == 'options') {
         const items = question.options.map(option => ({label: option, id: option}));
+        const itemSet = keysToSet(items.map(item => item.id));
+        var shownAnswer = answer;
+        var isOther = false;
+        if (answer && !itemSet[answer] && answer != 'choose') {
+            shownAnswer = 'other';
+            isOther = true;
+            // console.log('other', {answer, itemSet, items});
+        }
         // return <PopupSelector value={answer} items={[{id: 'hello', label: 'Hello'}]} />
         return (
-            <PopupSelector width={200} value={answer || 'choose'}
-                onSelect={onChangeAnswer}
-                items={[{id:'choose', label: 'Choose an option'},...items]} />
+            <View>
+                <PopupSelector width={200} value={shownAnswer || 'choose'}
+                    onSelect={onChangeAnswer}
+                    items={[{id:'choose', label: 'Choose an option'},...items, {id:'other', label: 'Other (please specify)'}]} />
+                {isOther ? 
+                    <FormInput value={answer == 'other' ? '' : answer} onChangeText={onChangeAnswer} 
+                        placeholder='Please specify'
+                    />
+                : null}
+            </View>
         )
     } else {
         return (
@@ -42,6 +61,7 @@ function QuestionAnswer({question, answer, onChangeAnswer}) {
                     autocomplete={atype == 'text' ? null : atype}
                     keyboardType={atype == 'email' ? 'email-address' : null}
                     textContentType={atype == 'email' ? 'emailAddress' : (atype == 'name' ? 'name' : null)}
+                    value={answer || ''}
                     onChangeText={onChangeAnswer} />
                 {focus ? null :
                     <ValidateAnswer answerType={atype} answer={answer} />
@@ -155,8 +175,8 @@ export function IntakeScreen({community}) {
     const questions = parseQuestions(info.questions);
     const topics = parseTopics(info.topics);
     // console.log('questions', questions);
-    console.log('answers', answers);
-    console.log('topics', topics, selectedTopics);
+    // console.log('answers', answers);
+    // console.log('topics', topics, selectedTopics);
 
     async function onSubmit() {
         const name = answers[name_label];
@@ -166,7 +186,7 @@ export function IntakeScreen({community}) {
         setConfirmed(true);
     }
 
-    console.log('stuff', answers, answers.email, answers.name, photoData);
+    // console.log('stuff', answers, answers.email, answers.name, photoData);
 
     // return <ConfirmScreen community={community} email='hello@world.com' />
 
@@ -193,7 +213,10 @@ export function IntakeScreen({community}) {
                 <PhotoPicker photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
             </View>
             {questions.map(q =>
-                <Question key={q.question} question={q} answer={answers[textToKey(q.question)]} onChangeAnswer={answer => setAnswers({...answers, [textToKey(q.question)]: answer})} />
+                <Question key={q.question} question={q} 
+                    answer={answers[textToKey(q.question)]} 
+                    onChangeAnswer={answer => setAnswers({...answers, [textToKey(q.question)]: answer})} 
+                />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
             <View style={{margin: 16}}>
