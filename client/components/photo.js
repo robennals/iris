@@ -188,7 +188,7 @@ export function MessagePhoto({photoKey, photoUser}) {
     )
 }
 
-export function PhotoPicker({photoKey, photoUser, photoData, size=200, borderRatio=2, prompt='Profile Photo', onChoosePhoto}) {
+export function PhotoPicker({photoKey, photoUser, photoData, size=200, borderRatio=2, prompt='Profile Photo', required=false, onChoosePhoto}) {
   async function choosePhotoAsync() {
       const bigPhoto = await pickImage();
       const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
@@ -207,6 +207,7 @@ export function PhotoPicker({photoKey, photoUser, photoData, size=200, borderRat
           :
               <View style={{width: size, height: size, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: size/borderRatio, alignItems: 'center', justifyContent: 'center'}}>
                   <Text style={{fontSize: size/8,color: '#666'}}>{prompt}</Text>
+                  {required ? <Text style={{fontSize: size/16, color: '#666'}}>(required)</Text> : null}
               </View>
           }
           <View style={{width: size/5, height: size/5, borderRadius: size/10, backgroundColor: '#ddd', position: 'absolute', right: size/25, bottom: size/25, alignItems: 'center', justifyContent: 'center'}}>                        

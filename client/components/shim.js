@@ -3,13 +3,12 @@ import {View, FlatList, Text, TouchableOpacity} from 'react-native';
 import { appDomain } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
-import {Audio} from 'expo-av';
 import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import * as Haptics from 'expo-haptics';
-import {FlashList} from '@shopify/flash-list';
 import * as Notifications from 'expo-notifications';
+import _ from 'lodash';
 
 
 export function getCurrentDomain(){ 

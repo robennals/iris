@@ -26,9 +26,21 @@ function keysToSet(keys) {
     return _.fromPairs(_.map(keys, k => [k,true]));
 }
 
-function QuestionAnswer({question, answer, onChangeAnswer, selector, onSelectorChange}) {
+function QuestionAnswer({question, answer, onChangeAnswer, onChangeValid}) {
     const [focus, setFocus] = useState(false);
     const atype = question.answerType;
+    
+    function onChangeText(text){
+        onChangeAnswer(text);
+        var valid = true;
+        if (atype == 'email') {
+            valid = validateEmail(text);
+        } else if (atype == 'name') {
+            valid = validateName(text);
+        }
+        onChangeValid(valid);
+    }
+
     if (question.answerType == 'options') {
         const items = question.options.map(option => ({label: option, id: option}));
         const itemSet = keysToSet(items.map(item => item.id));
@@ -62,7 +74,7 @@ function QuestionAnswer({question, answer, onChangeAnswer, selector, onSelectorC
                     keyboardType={atype == 'email' ? 'email-address' : null}
                     textContentType={atype == 'email' ? 'emailAddress' : (atype == 'name' ? 'name' : null)}
                     value={answer || ''}
-                    onChangeText={onChangeAnswer} />
+                    onChangeText={onChangeText} />
                 {focus ? null :
                     <ValidateAnswer answerType={atype} answer={answer} />
                 }                
@@ -71,11 +83,11 @@ function QuestionAnswer({question, answer, onChangeAnswer, selector, onSelectorC
     }
 }
 
-function Question({question, answer, onChangeAnswer}) {
+function Question({question, answer, onChangeAnswer, onChangeValid}) {
     return (
         <View>
             <FormTitle title={question.question}>
-                <QuestionAnswer question={question} answer={answer} onChangeAnswer={onChangeAnswer} />
+                <QuestionAnswer question={question} answer={answer} onChangeAnswer={onChangeAnswer} onChangeValid={onChangeValid}/>
             </FormTitle>
         </View>
     )
@@ -106,7 +118,7 @@ function Topic({topic, selected, onChangeSelected}) {
                     <View style={{marginLeft: 12, flexShrink: 1}}>
                         <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>                       
                         {topic.questions.map(question =>
-                            <View style={{flexDirection: 'row', flexShrink: 1}}>
+                            <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                 <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
                                 <Text key={question} style={{color: '#666', marginBottom: 2}}>{question}</Text>
                             </View>
@@ -160,6 +172,7 @@ function ConfirmScreen({community, email}) {
 export function IntakeScreen({community}) {
     const [info, setInfo] = useState(null);
     const [answers, setAnswers] = useState({});
+    const [valid, setValid] = useState({});
     const [selectedTopics, setSelectedTopics] = useState({});
     const [photoData, setPhotoData] = useState(null);
     const [thumbData, setThumbData] = useState(null);
@@ -197,6 +210,9 @@ export function IntakeScreen({community}) {
         return <ConfirmScreen community={community} email={answers[email_label]} />
     }
 
+    const validEmail = valid[email_label];
+    const validName = valid[name_label];
+
     return (
         <ScreenContentScroll>
             <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
@@ -213,11 +229,12 @@ export function IntakeScreen({community}) {
 
             </View>
             <View style={{margin: 16, alignSelf: 'center'}}>
-                <PhotoPicker photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
+                <PhotoPicker required photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
             </View>
             {questions.map(q =>
                 <Question key={q.question} question={q} 
                     answer={answers[textToKey(q.question)]} 
+                    onChangeValid={isValid => setValid({...valid, [textToKey(q.question)]: isValid})}
                     onChangeAnswer={answer => setAnswers({...answers, [textToKey(q.question)]: answer})} 
                 />
             )}
@@ -233,9 +250,19 @@ export function IntakeScreen({community}) {
                 />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!answers[email_label] || !answers[name_label] || !thumbData || inProgress}>
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || !answers[email_label] || !answers[name_label] || !thumbData || inProgress}>
                 {inProgress ? 'Submitting...' : 'Submit'}
             </WideButton>
+            {validEmail ? null : 
+                <ValidationWarning>Valid email required</ValidationWarning>
+            }
+            {validName ? null : 
+                <ValidationWarning>Valid name required</ValidationWarning>
+            }
+            {thumbData ? null :
+                <ValidationWarning>Profile photo required</ValidationWarning>
+            }
+
 
         </ScreenContentScroll>
     )
