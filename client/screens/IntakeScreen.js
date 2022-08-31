@@ -103,10 +103,13 @@ function Topic({topic, selected, onChangeSelected}) {
                             <Entypo name='check' size={30} style={{marginTop: 4, color: 'white'}} />
                         : null}
                     </View>
-                    <View style={{marginLeft: 12}}>
-                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>
+                    <View style={{marginLeft: 12, flexShrink: 1}}>
+                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>                       
                         {topic.questions.map(question =>
-                            <Text key={question} style={{color: '#666'}}>{question}</Text>
+                            <View style={{flexDirection: 'row', flexShrink: 1}}>
+                                <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
+                                <Text key={question} style={{color: '#666', marginBottom: 2}}>{question}</Text>
+                            </View>
                         )}
                     </View>
                 </View>
