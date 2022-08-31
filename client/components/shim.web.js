@@ -233,7 +233,7 @@ export function PopupSelector({value, items, style, onSelect}) {
     <View style={{marginHorizontal: 16, marginVertical: 4}}>
       <select value={value} onChange={e => onSelect(e.target.value)} style={{
           backgroundColor: 'white', padding: 8, borderColor: '#ddd', borderWidth: 1, 
-          borderRadius: 8, flex: 1}}>
+          WebkitAppearance: 'none', borderRadius: 8, flex: 1}}>
             {items.map(item => 
               <option key={item.id} value={item.id}>{item.label}</option>
             )}
