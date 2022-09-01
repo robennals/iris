@@ -1,7 +1,7 @@
 import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
@@ -168,6 +168,52 @@ function ConfirmScreen({community, email}) {
     )
 }
 
+function LoggedOutHeader() {
+    return (
+        <View style={{borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12}}>
+            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                <Image source={{uri: 'https://iris-talk.com/logo.png'}} style={{height: 32, width: 32}}/>
+                <Text style={{fontSize: 20, marginLeft: 4, marginTop: 2}}>Iris</Text>
+            </View>
+        </View>
+    )
+}
+
+function LoggedOutFooter() {
+    return (
+        <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12}}>
+            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                <Image source={{uri: 'https://iris-talk.com/logo.png'}} style={{height: 32, width: 32}}/>
+                <Text style={{fontSize: 20, marginLeft: 4, marginTop: 2}}>Iris</Text>
+            </View>
+        </View>
+    )
+}
+
+function IrisIntro({communityName}) {
+    return (
+        <View style={{margin: 16, paddingHorizontal: 16, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
+            <Text style={{fontWeight: 'bold'}}>{communityName} is on Iris</Text>
+            <Text style={{color: '#666', marginVertical: 4}}>
+                Fill out the form below to get matched into private small-group conversations with other {communityName} 
+                members about topics of mutual interest.
+            </Text>
+        </View>
+    )
+}
+
+function IrisHelp() {
+    return (
+        <View style={{margin: 16, paddingHorizontal: 16, paddingVertical: 10, marginVertical: 32, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
+            <Text style={{fontWeight: 'bold'}}>Need Help?</Text>
+            <Text style={{color: '#666', marginVertical: 4}}>
+                Please email us at <Link url='mailto:contact@iris-talk.com'>contact@iris-talk.com</Link> if you need any help, or 
+                if you have any suggestions for improving Iris. We read and reply to every email.
+            </Text>
+        </View>
+    )
+}
+
 
 export function IntakeScreen({community}) {
     const [info, setInfo] = useState(null);
@@ -212,9 +258,11 @@ export function IntakeScreen({community}) {
 
     const validEmail = valid[email_label];
     const validName = valid[name_label];
+    const topicCount = Object.keys(selectedTopics).filter(t => selectedTopics[t]).length;
 
     return (
-        <ScreenContentScroll>
+        <ScreenContentScroll wideHeader={<LoggedOutHeader/>}>
+            <IrisIntro communityName={info.name} />
             <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
                 <CommunityPhotoIcon photoKey={info.photoKey} photoUser={info.photoUser} thumb={false} size={64} />
                 <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{info.name}</Text>
@@ -250,7 +298,7 @@ export function IntakeScreen({community}) {
                 />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || !answers[email_label] || !answers[name_label] || !thumbData || inProgress}>
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || !answers[email_label] || !answers[name_label] || !thumbData || inProgress || topicCount < 1}>
                 {inProgress ? 'Submitting...' : 'Submit'}
             </WideButton>
             {validEmail ? null : 
@@ -260,8 +308,12 @@ export function IntakeScreen({community}) {
                 <ValidationWarning>Valid name required</ValidationWarning>
             }
             {thumbData ? null :
-                <ValidationWarning>Profile photo required</ValidationWarning>
+                <ValidationWarning>Profile photo required</ValidationWarning>                
             }
+            {topicCount >= 1 ? null :
+                <ValidationWarning>You must select at least one topic</ValidationWarning>                
+            }
+            <IrisHelp/>
 
 
         </ScreenContentScroll>

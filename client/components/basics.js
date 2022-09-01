@@ -213,18 +213,20 @@ export function FixedTouchable({onPress, onLongPress, dummy, style, children}) {
   }
 }
 
-export function ScreenContentScroll({children, contentOffset, scrollRef, style}) {
+export function ScreenContentScroll({children, contentOffset, scrollRef, style, wideHeader = null, wideFooter = null}) {
     return (
       <HeaderSpaceView>
         <StatusBar style='dark'/>
         <View style={{flex: 1, backgroundColor: 'white', ... style}}>
           <ScrollView contentOffset={contentOffset} ref={scrollRef}>        
             {/* <View style={{marginTop: 8}} />     */}
+            {wideHeader}
             <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
               <View style={{maxWidth: 600, paddingBottom: 200, flex: 1, alignItems: 'stretch'}}>
                 {children}
               </View>
             </View>
+            {wideFooter}
           </ScrollView>
         </View>
       </HeaderSpaceView>
