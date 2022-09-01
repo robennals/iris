@@ -51,11 +51,12 @@ function QuestionAnswer({question, answer, onChangeAnswer, onChangeValid}) {
             isOther = true;
             // console.log('other', {answer, itemSet, items});
         }
+        const value = shownAnswer || 'choose'
         // return <PopupSelector value={answer} items={[{id: 'hello', label: 'Hello'}]} />
         return (
             <View>
-                <PopupSelector width={200} value={shownAnswer || 'choose'}
-                    onSelect={onChangeAnswer}
+                <PopupSelector width={200} value={value}
+                    onSelect={onChangeAnswer} color={value == 'choose' ? '#666' : 'black'}
                     items={[{id:'choose', label: 'Choose an option'},...items, {id:'other', label: 'Other (please specify)'}]} />
                 {isOther ? 
                     <FormInput value={answer == 'other' ? '' : answer} onChangeText={onChangeAnswer} 
@@ -74,6 +75,7 @@ function QuestionAnswer({question, answer, onChangeAnswer, onChangeValid}) {
                     keyboardType={atype == 'email' ? 'email-address' : null}
                     textContentType={atype == 'email' ? 'emailAddress' : (atype == 'name' ? 'name' : null)}
                     value={answer || ''}
+                    placeholder={atype == 'email' ? 'Enter your email address' : (atype == 'name' ? 'Enter your full name' : null)}
                     onChangeText={onChangeText} />
                 {focus ? null :
                     <ValidateAnswer answerType={atype} answer={answer} />

@@ -228,12 +228,12 @@ function findCurrentLabel(items, id) {
 }
 
 
-export function PopupSelector({value, items, style, onSelect}) {
+export function PopupSelector({value, items, style, onSelect, color='black'}) {
   return (
     <View style={{marginHorizontal: 16, marginVertical: 4}}>
       <select value={value} onChange={e => onSelect(e.target.value)} style={{
           backgroundColor: 'white', padding: 8, borderColor: '#ddd', borderWidth: 1, 
-          WebkitAppearance: 'none', borderRadius: 8, flex: 1}}>
+          WebkitAppearance: 'none', borderRadius: 8, flex: 1, color}}>
             {items.map(item => 
               <option key={item.id} value={item.id}>{item.label}</option>
             )}
