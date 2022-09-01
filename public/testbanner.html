@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- <meta name="apple-itunes-app" content="app-id=1640562508, app-argument=/"> -->
+    </head>
+    <body>
+        <p>You should see an app banner</p>
+    </body>
+    <script>
+        const m = document.createElement('meta');
+        m.setAttribute('name', 'apple-itunes-app');
+        m.setAttribute('content', 'app-id=1640562508, app-argument=/');
+        const heads = document.getElementsByTagName('head');
+        heads[0].appendChild(m);
+    </script>
+</html>

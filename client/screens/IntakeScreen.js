@@ -2,6 +2,7 @@ import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icon
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
+import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
@@ -192,13 +193,14 @@ function LoggedOutFooter() {
     )
 }
 
+
 function IrisIntro({communityName}) {
     return (
         <View style={{margin: 16, paddingHorizontal: 16, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
             <Text style={{fontWeight: 'bold'}}>{communityName} is on Iris</Text>
             <Text style={{color: '#666', marginVertical: 4}}>
-                Fill out the form below to get matched into private small-group conversations with other {communityName} 
-                members about topics of mutual interest.
+                Fill out the form below to get matched into private small-group conversations with 
+                other {communityName} members about topics of mutual interest.
             </Text>
         </View>
     )
@@ -261,6 +263,8 @@ export function IntakeScreen({community}) {
     const validEmail = valid[email_label];
     const validName = valid[name_label];
     const topicCount = Object.keys(selectedTopics).filter(t => selectedTopics[t]).length;
+    const infoLines = info.info.split('\n');
+    console.log('infoLines', infoLines);
 
     return (
         <ScreenContentScroll wideHeader={<LoggedOutHeader/>}>
@@ -270,7 +274,10 @@ export function IntakeScreen({community}) {
                 <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{info.name}</Text>
             </View>
             <View style={{margin: 16}}>
-                <Text style={{color: '#666'}}>{info.info}</Text>
+                {infoLines?.map(line => 
+                    <LinkText key={line} style={{color: '#666', marginBottom: 4}} text={line} />
+                )}
+                {/* <Text style={{color: '#666'}}>{info.info}</Text> */}
             </View>
             <View style={{borderTopColor: '#ddd', marginVertical: 16, borderTopWidth: StyleSheet.hairlineWidth}} />
             <View style={{margin: 16}}>
