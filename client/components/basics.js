@@ -404,6 +404,16 @@ const basicQuestions = [
   {question: email_label, answerType: 'email'}
 ]
 
+export function shouldIgnoreQuestion(question) {
+  if (question == name_label || question == email_label) {
+    return true;
+  } else if (question.indexOf('How many group chats') != -1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export function parseQuestions(questions) {
   const questionList = questions.trim().split('\n');
   const parsedQuestions = questionList.map(qtext => {
