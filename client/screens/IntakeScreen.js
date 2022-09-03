@@ -6,8 +6,8 @@ import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
-import { getCurrentUser, watchData } from '../data/fbutil';
-import { submitCommunityFormAsync } from '../data/servercall';
+import { getCurrentUser, internalReleaseWatchers, newKey, watchData } from '../data/fbutil';
+import { logIntakeAsync, submitCommunityFormAsync } from '../data/servercall';
 
 
 function ValidationWarning({children}) {
@@ -229,11 +229,39 @@ export function IntakeScreen({community}) {
     const [thumbData, setThumbData] = useState(null);
     const [inProgress, setInProgress] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
+    const [logKey, setLogKey] = useState(null);
 
     useEffect(() => {
         var x = {};
         watchData(x, ['community', community], setInfo);
+        const k = newKey();
+        setLogKey(k);
+        logIntakeAsync({logKey: k, community, stage:'visit', data: null});
+        return () => internalReleaseWatchers(x);
     }, [community])
+
+    const filledFields = Object.keys(answers);
+    const filledFieldCount = Object.keys(answers).length;
+
+    useEffect(() => {
+        if (filledFieldCount > 0) {
+            logIntakeAsync({logKey, community, stage: 'answer', data: filledFields});
+        }
+    }, [filledFieldCount])
+
+    const hasPhoto = photoData != null;
+    useEffect(() => {
+        if (hasPhoto) {
+            logIntakeAsync({logKey, community, stage: 'photo'});
+        }
+    }, [hasPhoto])
+
+    const topicCount = Object.keys(selectedTopics).filter(t => selectedTopics[t]).length;
+    useEffect(() => {
+        if (topicCount > 0) {
+            logIntakeAsync({logKey, community, stage: 'topic', data: selectedTopics});
+        }
+    }, [topicCount])
 
     // console.log('intake', info, community);
 
@@ -249,7 +277,9 @@ export function IntakeScreen({community}) {
         const name = answers[name_label];
         const email = answers[email_label];
         setInProgress(true);
-        await submitCommunityFormAsync({community, photoData, thumbData, name, email, answers, selectedTopics});
+        logIntakeAsync({community, logKey, stage:'submit'});
+        await submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics});
+        logIntakeAsync({community, logKey, stage:'received'});
         setConfirmed(true);
     }
 
@@ -263,7 +293,6 @@ export function IntakeScreen({community}) {
 
     const validEmail = valid[email_label];
     const validName = valid[name_label];
-    const topicCount = Object.keys(selectedTopics).filter(t => selectedTopics[t]).length;
     const infoLines = info.info.split('\n');
     console.log('infoLines', infoLines);
 

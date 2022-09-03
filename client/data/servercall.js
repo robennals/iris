@@ -166,9 +166,9 @@ export async function createOrUpdateCommunityAsync({community, photoData, thumbD
         community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics});
 }
 
-export async function submitCommunityFormAsync({community, photoData, thumbData, name, email, answers, selectedTopics}) {
+export async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics}) {
     return await callServerApiAsync('submitCommunityForm', {
-        community, photoData, thumbData, name, email, answers, selectedTopics});
+        community, logKey, photoData, thumbData, name, email, answers, selectedTopics});
 }
 
 export async function adminCommandAsync({command, params}) {
@@ -180,3 +180,9 @@ export async function adminCommandAsync({command, params}) {
 export async function leaveCommunityAsync({community}) {
     return await callServerApiAsync('leaveCommunity', {community});
 }
+
+export async function logIntakeAsync({community, logKey, stage, data}) {
+    return await callServerApiAsync('logIntake',{community, logKey, stage, data});
+}
+
+

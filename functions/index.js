@@ -26,6 +26,11 @@ admin.initializeApp({
 exports.api = functions.https.onRequest((async (request, response) => {
     console.log('API', request.path);
 
+    const ip = request.headers['x-forwarded-for'] ||
+     request.headers['x-appengine-user-ip'] ||
+     request.headers['fastly-client-ip'] ||
+     request.socket.remoteAddress || 'no-ip'
+
     if (request.method == 'OPTIONS') {
         cors(request, response, () => {
             response.status(200);
@@ -47,7 +52,7 @@ exports.api = functions.https.onRequest((async (request, response) => {
     }
     const action = parts[2];
     const components = _.map(parts.slice(2), p => decodeURI(p));
-    const params = {...request.body, ...request.query};
+    const params = {...request.body, ...request.query, ip};
     const hostname = request.hostname;
 
 
@@ -57,7 +62,7 @@ exports.api = functions.https.onRequest((async (request, response) => {
         pAccessKey = getDataAsync(['userPrivate', params.userId, 'accessKey']);
     }
   
-    const result = await Api.apiActionAsync({action, components, params});;
+    const result = await Api.apiActionAsync({action, components, ip, params});;
 
     if (params.userId && params.accessKey != await pAccessKey) {
         cors(request, response, () => {

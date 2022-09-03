@@ -235,7 +235,7 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
 }
 exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;
 
-async function submitCommunityFormAsync({community, photoData, thumbData, name, email, answers, selectedTopics, userId}) {
+async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics, userId}) {
     console.log('submit communityForm', {community, name, email, answers, selectedTopics});
 
     var uid = userId;
@@ -263,7 +263,7 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
     var updates = {};
     const confirmed = userId ? true : false
     updates['intake/' + community + '/' + key] = {
-        user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time, confirmed
+        user: uid, logKey, photoKey: newPhotoKey, name, email, answers, selectedTopics, time, confirmed
     }
     if (userId || created) {
         updates['userPrivate/' + uid + '/photo'] = newPhotoKey;
@@ -314,6 +314,10 @@ async function confirmSignupAsync({community, intake}) {
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/community/' + community + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
+
+    if (intakeItem.logKey) {
+        updates['/logs/intake/'+ community + '/' + intakeItem.logKey + '/confirmed'] = true;
+    }
 
     return {success: true, updates, html};
 }
@@ -391,3 +395,16 @@ async function leaveCommunityAsync({community, userId}) {
 
 }
 exports.leaveCommunityAsync = leaveCommunityAsync;
+
+
+function logIntakeAsync({logKey, community, stage, data, ip, userId}) {
+    var updates = {};
+    updates['/logs/intake/' + community + '/' + logKey + '/' + stage] = data || true;
+    if (userId) {
+        updates['/logs/intake/' + community + '/' + logKey + '/user'] = userId;
+    }
+    updates['/logs/intake/'+ community + '/' + logKey + '/ip'] = ip;
+    return {success: true, updates}
+}
+
+exports.logIntakeAsync = logIntakeAsync;

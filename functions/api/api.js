@@ -104,6 +104,9 @@ async function apiActionAsync({action, components, params}) {
         case 'leaveCommunity': {
             return Iris.leaveCommunityAsync(params);
         }
+        case 'logIntake': {
+            return Iris.logIntakeAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);
