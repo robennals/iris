@@ -101,7 +101,9 @@ async function apiActionAsync({action, components, params}) {
         case 'adminCommand': {
             return Iris.adminCommandAsync(params);
         }
-        
+        case 'leaveCommunity': {
+            return Iris.leaveCommunityAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

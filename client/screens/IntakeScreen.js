@@ -184,10 +184,11 @@ function LoggedOutHeader() {
 
 function LoggedOutFooter() {
     return (
-        <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12}}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-                <Image source={{uri: 'https://iris-talk.com/logo.png'}} style={{height: 32, width: 32}}/>
-                <Text style={{fontSize: 20, marginLeft: 4, marginTop: 2}}>Iris</Text>
+        <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={{color: '#666'}}>
+                    <Link style={{color: '#666'}} url='https://iris-talk.com/privacy.html'>Privacy</Link>   <Link style={{color: '#666'}} url='https://iris-talk.com/license.html'>License</Link>
+                </Text>
             </View>
         </View>
     )
@@ -267,7 +268,7 @@ export function IntakeScreen({community}) {
     console.log('infoLines', infoLines);
 
     return (
-        <ScreenContentScroll wideHeader={<LoggedOutHeader/>}>
+        <ScreenContentScroll wideHeader={<LoggedOutHeader/>} wideFooter={<LoggedOutFooter />}>
             <IrisIntro communityName={info.name} />
             <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
                 <CommunityPhotoIcon photoKey={info.photoKey} photoUser={info.photoUser} thumb={false} size={64} />

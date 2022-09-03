@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 import { EmptyScreen, GroupList, HomeScreen, SidePanel } from './screens/HomeScreen';
 import EditGroupScreen from './screens/NewGroupScreen';
-import { setupServerTokenWatch } from './data/servercall';
+import { releaseServerTokenWatch, setupServerTokenWatch } from './data/servercall';
 import { GroupScreen, GroupScreenHeader, GroupScreenTitle, GroupScreenWrapper } from './screens/GroupScreen';
 import { InviteScreen } from './screens/InviteScreen';
 import { JoinOrCreateScreen, JoinScreen } from './screens/JoinScreen';
@@ -47,6 +47,7 @@ import { IntakeScreen } from './screens/IntakeScreen';
 import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySignups';
 import { CommunityGroupsScreen } from './screens/CommunityGroups';
 import { AdminCommandScreen } from './screens/AdminCmd';
+import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -62,7 +63,7 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     community: 'community/:community',
     communityGroups: 'communityGroups/:community',
     communitySignups: 'communitySignups/:community',
-    adminCreateGroup: 'adminCreateGroup/:community'
+    adminCreateGroup: 'adminCreateGroup/:community',
   }
 }}
 
@@ -114,6 +115,8 @@ export default function App() {
     if (user) {
       setLoadStatus(loadStatus + ' : setup access token');
       setupServerTokenWatch(user);
+    } else {
+      releaseServerTokenWatch();        
     }
   }, [user])
 
@@ -188,7 +191,8 @@ export default function App() {
     communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
     communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
     communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
-    adminCommand: {component: AdminCommandScreen, title: 'Admin Command'}
+    adminCommand: {component: AdminCommandScreen, title: 'Admin Command'},
+    unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'}
   }
 
   // console.log('intialUrl', initialUrl);

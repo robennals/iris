@@ -176,3 +176,7 @@ export async function adminCommandAsync({command, params}) {
         command, params
     })
 }
+
+export async function leaveCommunityAsync({community}) {
+    return await callServerApiAsync('leaveCommunity', {community});
+}

@@ -148,12 +148,12 @@ export function DefaultImage({name, colorKey, size, style, marginRight=null, rad
     )
   }
 
-export function Link({title, url, children, inverted}) {
+export function Link({title, url, children, inverted, style}) {
   if (Platform.OS == 'web') {
-    return <a target='_blank' style={{color: inverted ? 'white' : 'rgb(29,161,242)'}} rel='noopener noreferrer' href={url}>{children}</a>
+    return <a target='_blank' style={style || {color: inverted ? 'white' : 'rgb(29,161,242)'}} rel='noopener noreferrer' href={url}>{children}</a>
   } else {
     return (
-      <Text style={{color: inverted ? 'white' : 'rgb(29,161,242)', textDecorationLine: inverted ? 'underline' : undefined}} onPress={()=>Linking.openURL(url)}>{children}</Text>
+      <Text style={style || {color: inverted ? 'white' : 'rgb(29,161,242)', textDecorationLine: inverted ? 'underline' : undefined}} onPress={()=>Linking.openURL(url)}>{children}</Text>
     )
   }
 }
@@ -457,4 +457,9 @@ export function parseTopics(topicsTxt) {
 
 export function textToKey(text) {
   return text.replace(/[\/\.\$\#\[\]]/g, '_');
+}
+
+const linkRegEx = /\[\d\w\-\?\:]*\|[\w\s]*\]/;
+function parseLinkText(text) {
+  const lines = te
 }

@@ -30,7 +30,7 @@ async function sendNotifForTokenAsync({token, title, body, data, badgeCount, sil
   console.log(message);
   console.log('Calling SDK');
   const tickets = await expo.sendPushNotificationsAsync([message])
-  // console.log('tickets', tickets);
+  console.log('tickets', tickets);
   return tickets;
 }
 

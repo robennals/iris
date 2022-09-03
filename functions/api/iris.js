@@ -246,7 +246,9 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
         created = result.created;
     }
 
+    const pPrevIntake = FBUtil.getDataAsync(['userPrivate', uid, 'communityIntake', community], null);
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
+    const prevIntake = await pPrevIntake;
 
     const newPhotoKey = FBUtil.newKey();
     var pPhotoUpload; var pThumbUpload;
@@ -255,15 +257,27 @@ async function submitCommunityFormAsync({community, photoData, thumbData, name, 
         pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId: uid, key: newPhotoKey});    
     }
 
+    const time = Date.now();
+
     const key = FBUtil.newKey();
     var updates = {};
     const confirmed = userId ? true : false
     updates['intake/' + community + '/' + key] = {
-        user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time: Date.now(), confirmed
+        user: uid, photoKey: newPhotoKey, name, email, answers, selectedTopics, time, confirmed
     }
     if (userId || created) {
         updates['userPrivate/' + uid + '/photo'] = newPhotoKey;
         updates['userPrivate/' + uid + '/name'] = name;
+    }
+
+    updates['userPrivate/' + uid + '/community/' + community] = {
+        name: communityName,
+        confirmed,
+        lastMessage: {text: 'Joined Community', time}
+    }
+
+    if (confirmed || !prevIntake) {
+        updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
     }
 
     var emails = [];
@@ -286,23 +300,94 @@ exports.submitCommunityFormAsync = submitCommunityFormAsync;
 
 async function confirmSignupAsync({community, intake}) {
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
+    const intakeItem = await FBUtil.getDataAsync(['intake/' + community + '/' + intake], null);
+
+    const uid = intakeItem.user;
+    if (!intakeItem || !uid) {
+        return {success: 'false', message: 'malformed request'};
+    }
 
     const template = FS.readFileSync('template/confirmsuccess.html').toString();
     const html = Mustache.render(template, {communityName});
 
     var updates = {};
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
+    updates['userPrivate/' + uid + '/community/' + community + '/confirmed'] = true;
+    updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
+
     return {success: true, updates, html};
 }
 
 exports.confirmSignupAsync = confirmSignupAsync;
 
 
+const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
+
+async function migrateIntakeAsync() {
+    console.log('migrateIntake');
+    const allIntake = await FBUtil.getDataAsync(['intake']);
+    const allCommunities = await FBUtil.getDataAsync(['community']);
+    var updates = {};
+    const time = Date.now();
+    _.forEach(_.keys(allIntake), community => {
+        const communityInfo = allCommunities[community];
+        console.log('communityInfo', community, communityInfo.name);
+        _.forEach(_.keys(allIntake[community]), intakeKey => {
+            const intake = allIntake[community][intakeKey];
+            updates['userPrivate/' + intake.user + '/community/' + community] = {
+                name: communityInfo.name,
+                confirmed: intake.confirmed,
+                lastMessage: {text: 'Joined Community', time}
+            } 
+            updates['updatePrivate/' + intake.user + '/communityIntake/' + community] = {
+                answers: intake.answers
+            }
+        })
+    })
+    // console.log('updates', updates);
+    // return {success: false, message: 'not finished'};
+    return {success: true, updates};
+}
+
 async function adminCommandAsync({command, params, userId}) {
+
     const paramList = params.trim().split('\n').map(x => x.trim()).filter(x => x);
     console.log('adminCommand', command, paramList);
+
+    if (userId != rob_userId) {
+        return {success: false, message: 'Access denied'}
+    }
+
+    switch (command) {
+        case 'migrateIntake':
+            return await migrateIntakeAsync();
+        default:
+            return {success: false, message: 'Unknown admin command'}
+    }
 
     return {success: true}
 }
 
 exports.adminCommandAsync = adminCommandAsync;
+
+
+async function leaveCommunityAsync({community, userId}) {
+    var updates = {};
+    // remove all intake due to me
+    const intakes = await FBUtil.getDataAsync(['intake', community]);
+    _.keys(intakes).forEach(k => {
+        intake = intakes[k];
+        console.log('intake', intake);
+        if (intake.user == userId) {
+            updates['intake/' + community + '/' + k] = null;
+        }        
+    })
+    updates['userPrivate/' + userId + '/community/' + community] = null;
+    updates['userPrivate/' + userId + '/communityIntake/' + community] = null;
+
+    console.log('updates', updates);
+
+    return {success: true, updates};
+
+}
+exports.leaveCommunityAsync = leaveCommunityAsync;

@@ -55,9 +55,12 @@ export function MyProfileScreen({navigation}) {
             </View>
 
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
-            <WideButton style={{alignSelf: 'center'}} onPress={() => signOut()}>
-                Sign Out
-            </WideButton>
+            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                <WideButton style={{alignSelf: 'center'}} onPress={() => signOut()}>
+                    Sign Out
+                </WideButton>
+                <WideButton onPress={() => navigation.navigate('unsubscribe')} >Leave Communities</WideButton>
+            </View>
             <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:acount@iris-talk.com'>account@iris-talk.com</Link></Text>
             
         </ScreenContentScroll>
