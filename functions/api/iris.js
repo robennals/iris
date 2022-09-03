@@ -270,11 +270,11 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         updates['userPrivate/' + uid + '/name'] = name;
     }
 
-    updates['userPrivate/' + uid + '/community/' + community] = {
-        name: communityName,
-        confirmed,
-        lastMessage: {text: 'Joined Community', time}
-    }
+    // updates['userPrivate/' + uid + '/community/' + community] = {
+    //     name: communityName,
+    //     confirmed,
+    //     lastMessage: {text: 'Joined Community', time}
+    // }
 
     if (confirmed || !prevIntake) {
         updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
@@ -312,7 +312,7 @@ async function confirmSignupAsync({community, intake}) {
 
     var updates = {};
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
-    updates['userPrivate/' + uid + '/community/' + community + '/confirmed'] = true;
+    // updates['userPrivate/' + uid + '/community/' + community + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
 
     if (intakeItem.logKey) {
@@ -353,6 +353,17 @@ async function migrateIntakeAsync() {
     return {success: true, updates};
 }
 
+async function adminRemoveCommunities() {
+    const allUsers = await FBUtil.getDataAsync(['userPrivate']);
+    const userKeys = _.keys(allUsers);
+    var updates = {};
+    userKeys.forEach(k => {
+        updates['userPrivate/' + k + '/community'] = null;
+    })
+    console.log('updates', updates);
+    return {success: true, updates}
+}
+
 async function adminCommandAsync({command, params, userId}) {
 
     const paramList = params.trim().split('\n').map(x => x.trim()).filter(x => x);
@@ -365,6 +376,8 @@ async function adminCommandAsync({command, params, userId}) {
     switch (command) {
         case 'migrateIntake':
             return await migrateIntakeAsync();
+        case 'removeCommunities':
+            return await adminRemoveCommunities();
         default:
             return {success: false, message: 'Unknown admin command'}
     }
