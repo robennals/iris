@@ -343,7 +343,7 @@ async function migrateIntakeAsync() {
                 confirmed: intake.confirmed,
                 lastMessage: {text: 'Joined Community', time}
             } 
-            updates['updatePrivate/' + intake.user + '/communityIntake/' + community] = {
+            updates['userPrivate/' + intake.user + '/communityIntake/' + community] = {
                 answers: intake.answers
             }
         })
