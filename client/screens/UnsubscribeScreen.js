@@ -41,7 +41,7 @@ export function UnsubscribeScreen(){
     const [communities, setCommunties] = useState();
     useEffect(() => {
         var x = {};
-        watchData(x, ['userPrivate', getCurrentUser(), 'community'], setCommunties);
+        watchData(x, ['userPrivate', getCurrentUser(), 'comm'], setCommunties);
         return () => internalReleaseWatchers();
     }, [])
     if (!setCommunties) return null;

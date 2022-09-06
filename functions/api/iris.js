@@ -132,7 +132,7 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
     const members = await pMembers; const groupName = await pGroupName;
-    console.log('members', members);
+    // console.log('members', members);
     if (!members[userId]) {
         return {success: false, message: 'access denied'};
     }
@@ -167,6 +167,9 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
             notifs.push(notif);
         }
     })
+
+    console.log('notifs', notifs);
+
     return {success: true, updates, notifs}
 }
 
@@ -270,11 +273,11 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         updates['userPrivate/' + uid + '/name'] = name;
     }
 
-    // updates['userPrivate/' + uid + '/community/' + community] = {
-    //     name: communityName,
-    //     confirmed,
-    //     lastMessage: {text: 'Joined Community', time}
-    // }
+    updates['userPrivate/' + uid + '/comm/' + community] = {
+        name: communityName,
+        confirmed,
+        lastMessage: {text: 'Joined Community', time}
+    }
 
     if (confirmed || !prevIntake) {
         updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
@@ -312,7 +315,7 @@ async function confirmSignupAsync({community, intake}) {
 
     var updates = {};
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
-    // updates['userPrivate/' + uid + '/community/' + community + '/confirmed'] = true;
+    updates['userPrivate/' + uid + '/comm/' + community + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
 
     if (intakeItem.logKey) {
@@ -338,7 +341,7 @@ async function migrateIntakeAsync() {
         console.log('communityInfo', community, communityInfo.name);
         _.forEach(_.keys(allIntake[community]), intakeKey => {
             const intake = allIntake[community][intakeKey];
-            updates['userPrivate/' + intake.user + '/community/' + community] = {
+            updates['userPrivate/' + intake.user + '/comm/' + community] = {
                 name: communityInfo.name,
                 confirmed: intake.confirmed,
                 lastMessage: {text: 'Joined Community', time}
@@ -399,7 +402,7 @@ async function leaveCommunityAsync({community, userId}) {
             updates['intake/' + community + '/' + k] = null;
         }        
     })
-    updates['userPrivate/' + userId + '/community/' + community] = null;
+    updates['userPrivate/' + userId + '/comm/' + community] = null;
     updates['userPrivate/' + userId + '/communityIntake/' + community] = null;
 
     console.log('updates', updates);

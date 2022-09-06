@@ -10,13 +10,13 @@ const { user } = require('firebase-functions/v1/auth');
 const Expo = ExpoServer.Expo;
 const expo = new ExpoServer.Expo();
 
-async function sendNotifForTokenAsync({token, title, body, data, badgeCount, silent}) {
+async function sendNotifForTokenAsync({name, token, title, body, data, badgeCount, silent}) {
   if (!token || !Expo.isExpoPushToken(token)) {
     console.error(`Push token ${token} is not a valid Expo push token`);
     return;
   }
 
-  console.log('sendNotifForToken, silent', silent);
+  console.log('sendNotifForToken', name, token, title);
 
   const message = {
     to: token,
@@ -25,12 +25,11 @@ async function sendNotifForTokenAsync({token, title, body, data, badgeCount, sil
     body: body,
     data: data,
     badge: 1 /* badgeCount */
-
   }
-  console.log(message);
-  console.log('Calling SDK');
+  // console.log(message);
+  // console.log('Calling SDK');
   const tickets = await expo.sendPushNotificationsAsync([message])
-  console.log('tickets', tickets);
+  console.log('tickets', name, tickets);
   return tickets;
 }
 
@@ -49,44 +48,6 @@ async function sendWebNotifForTokenAsync({webToken, title, body}) {
   }
 
 }
-
-// async function sendFirebaseNotifAsync({toUser, title, body, data, badgeCount, silent}) {
-//   console.log('sendNotif', toUser, title, body);
-
-//   const token = await FBUtil.getDataAsync(['userPrivate', toUser, 'notifToken'], null);
-// //   console.log('token', token);
-//   if (!token) {
-//       console.log('no notif token for ', toUser);
-//   } else {
-//       return await sendNotifForTokenAsync({token, title, body, data, badgeCount, silent});
-//   }
-// }
-
-
-// async function sendEmailForNotifAsync({toUser, title, body, data}) {
-//     const pUserEmail = FBUtil.getDataAsync(['special', 'userEmail', toUser]); 
-//     const pUnsubscribed = FBUtil.getDataAsync(['userPrivate', toUser, 'unsubscribed'], false);
-//     const unSubKey = await FBUtil.getDataAsync(['userPrivate', toUser, 'unSubKey'], 0);
-//     const userEmail = await pUserEmail;
-//     const unsubscribed = await pUnsubscribed;
-
-//     if (unsubscribed) {
-//       return;
-//     }
-//     const unSubURL = 'https://talkwell.net/api/v1/unsubscribe?unSubUser=' + toUser + '&key=' + unSubKey;
-//     const htmlTemplate = FS.readFileSync('template/notif.html').toString();
-//     const textTemplate = FS.readFileSync('template/notif.text').toString();
-//     const templateData = {title, body, unSubURL};
-//     const htmlOutput = Mustache.render(htmlTemplate, templateData);
-//     const textOutput = Mustache.render(textTemplate, templateData);    
-//     await Email.sendEmail({
-//       To: userEmail,
-//       From: 'TalkWell Notifs <notifs@talkwell.net>',
-//       Subject: title,
-//       HtmlBody: htmlOutput,
-//       TextBody: textOutput
-//     });
-// }
 
 function getFromNamesForNotifs(notifList) {
   var nameSet = {};
@@ -190,15 +151,18 @@ exports.sendPendingNotifsAsync = sendPendingNotifsAsync;
 
 
 async function sendNotifAsync({toUser, title, body, data}) {
-  // console.log('sendNotifAsync', toUser, title, data);
+  console.log('sendNotifAsync', toUser, title);
   const pCount = FBUtil.getDataAsync(['userPrivate', toUser, 'notifCount'], 0);
+  const pName = FBUtil.getDataAsync(['userPrivate', toUser, 'name'], null);
   const pToken = FBUtil.getDataAsync(['userPrivate', toUser, 'notifToken'], null);
   const pWebToken = FBUtil.getDataAsync(['userPrivate', toUser, 'webNotifToken'], null);
   const count = await pCount || 0;
   const token = await pToken;
   const webToken = await pWebToken;
+  const name = await pName;
 
   if (_.get(data,'from','') == toUser) {
+    console.log('skipping notif to self', toUser, name);
     return null;
   }
 
@@ -206,12 +170,13 @@ async function sendNotifAsync({toUser, title, body, data}) {
   var pNotif; var pWebNotif;
   if (token || webToken) {
     if (token) {
-     pNotif = sendNotifForTokenAsync({token, title, body, data: {...data, key}, badgeCount: count + 1});
+      pNotif = sendNotifForTokenAsync({name, token, title, body, data: {...data, key}, badgeCount: count + 1});
     }
     if (webToken) {
       pWebNotif = sendWebNotifForTokenAsync({webToken, title, body});
     }
   } else if (!data.noEmail) {
+    console.log('no notif token:', toUser, name);
     pNotif = FBUtil.setDataAsync(['userPrivate', toUser, 'pendingNotif', key], {toUser, title, body, data, time: Date.now()});
     // pNotif = sendEmailForNotifAsync({toUser, title, body, data});
   }
@@ -219,6 +184,7 @@ async function sendNotifAsync({toUser, title, body, data}) {
   const pLast = FBUtil.setDataAsync(['userPrivate', toUser, 'lastNotif'], data);
   const pCountSet = FBUtil.setDataAsync(['userPrivate', toUser, 'notifCount'], count + 1);
   await pNotif;
+  await pWebNotif;
   await pData;
   await pCountSet;
   await pLast;
@@ -227,7 +193,7 @@ async function sendNotifAsync({toUser, title, body, data}) {
 // TODO: Do this the correct efficient way
 
 async function sendBatchNotifs(notifs) {
-  // console.log('sendBatchNotifs', notifs.count);
+  console.log('sendBatchNotifs', notifs.length);
   const pNotifs = _.map(notifs, notif => sendNotifAsync(notif));
   
   await Promise.all(pNotifs);
