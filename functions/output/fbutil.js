@@ -41,16 +41,20 @@ function emailAsKey(email) {
     return email.replace(/\./g, '%2E');
   }
 
+function normStr(str) {
+	return str.toLowerCase().trim();
+}
+
 async function createUser(email) {
 	const userRecord = await admin.auth().createUser({
-		email: email
+		email: normStr(email)
 	});
 	const uid = userRecord.uid;
 	const key = emailAsKey(email);
 	const unSubKey = Math.floor(Math.random() * 10000000000);
 
 	await applyUpdates({
-		['/special/userEmail/' + uid]: email,
+		['/special/userEmail/' + uid]: normStr(email),
 		['/special/emailUser/' + key]: uid,
 		['/userPrivate/' + uid + '/unSubKey']: unSubKey
 	});

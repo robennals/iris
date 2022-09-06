@@ -7,6 +7,10 @@ const _ = require('lodash');
 const minute_millis = 60000;
 const hour_millis = 60*minute_millis;
 
+function normStr(str) {
+  return str.toLowerCase().trim();
+}
+
 // TODO: Have proper email -> account lookup
 // TODO: Rate limit how often you can request a PIN for a given email
 async function requestLoginCode({email, createUser}) {
@@ -17,7 +21,7 @@ async function requestLoginCode({email, createUser}) {
   }
 
   const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
-  var uid = _.findKey(userEmails, userEmail => userEmail == email)
+  var uid = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
 
   if (!uid && createUser) {
     uid = await FBUtil.createUser(email);
@@ -83,7 +87,7 @@ async function getLoginTokenForCode({email, code}) {
   }
 
   const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
-  const uid = _.findKey(userEmails, userEmail => userEmail == email)
+  const uid = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
   const lastPIN = await FBUtil.getDataAsync(['special','loginPIN',uid]);
 
   console.log({uid, lastPIN});
