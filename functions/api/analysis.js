@@ -33,9 +33,9 @@ function objListToGrid({entries, firstCols}) {
 }
 
 async function getIntakeLogsAsync({key}) {
-    if (key != accessKey) {
-        return access_failed;
-    }
+    // if (key != accessKey) {
+    //     return access_failed;
+    // }
 
     const pCommunities = FBUtil.getDataAsync(['community']);
     const intakeLogs = await FBUtil.getDataAsync(['logs','intake']);
@@ -47,11 +47,11 @@ async function getIntakeLogsAsync({key}) {
         _.forEach(_.keys(intakeLogs[communityKey]), logKey => {
 
             const intake = intakeLogs[communityKey][logKey];            
-            const hasName = intake.answer?.indexOf(name_label) != -1;
-            const hasEmail = intake.answer?.indexOf(email_label) != -1;
+            const hasName = _.find(intake.answer, v => v == name_label) ? true : null;
+            const hasEmail = _.find(intake.answer, v => v == email_label) ? true : null;
             const answerCount = _.keys(intake.answer ?? {}).length;
             const topicCount = _.keys(intake.topic ?? {}).length;
-            const entry = {...intake, communityName, communityKey, intakeKey: logKey, hasName, hasEmail, answerCount, topicCount}
+            const entry = {...intake, communityName, communityKey, logKey, hasName, hasEmail, answerCount, topicCount}
             const ignore = intake.ip == 'no-ip';
             if (!ignore) {
                 entries.push(_.omit(entry, ['topic', 'answer']));
