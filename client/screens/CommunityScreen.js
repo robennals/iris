@@ -67,8 +67,9 @@ export function CommunityScreen({navigation, route}) {
             <Text>
                 Soon this screen will allow community members to express interest in new topics.
             </Text>
-            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communitySignups', {community})}>See Signups</WideButton>
-            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communityGroups', {community})}>See Groups</WideButton>
+            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communitySignups', {community})}>Signups</WideButton>
+            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('communityGroups', {community})}>Groups</WideButton>
+            <WideButton alwaysActive style={{alignSelf: 'flex-start'}} onPress={() => navigation.navigate('join', {community})}>Intake Form</WideButton>
             </View>
         </ScreenContentScroll>
     )

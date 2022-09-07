@@ -8,6 +8,7 @@ import { PopupSelector } from '../components/shim';
 import { baseColor, highlightColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, newKey, watchData } from '../data/fbutil';
 import { logIntakeAsync, submitCommunityFormAsync } from '../data/servercall';
+import _ from 'lodash';
 
 
 function ValidationWarning({children}) {
@@ -105,7 +106,7 @@ function Topic({topic, selected, onChangeSelected}) {
     return (
         <View style={{marginHorizontal: 16, marginVertical: 4}}>
             <FixedTouchable onPress={() => onChangeSelected(!selected)}>
-                <View style={{flexDirection: 'row', alignItems: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 8, borderRadius: 8,
+                <View style={{flexDirection: 'row', backgroundColor: 'white', alignItems: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 8, borderRadius: 8,
                     ... selected ? shadowStyle : {}
                     }}>
                     {/* <MaterialIcons color='#666' name={selected ? 'check-box' : 'check-box-outline-blank'} size={40} /> */}
@@ -220,7 +221,8 @@ function IrisHelp() {
 }
 
 
-export function IntakeScreen({community}) {
+export function IntakeScreen({community:paramCommunity, route}) {
+    const community = paramCommunity || route?.params?.community;
     const [info, setInfo] = useState(null);
     const [answers, setAnswers] = useState({});
     const [valid, setValid] = useState({});
@@ -230,6 +232,8 @@ export function IntakeScreen({community}) {
     const [inProgress, setInProgress] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [logKey, setLogKey] = useState(null);
+
+    console.log('comunity', community, paramCommunity, route?.params?.community)
 
     useEffect(() => {
         var x = {};

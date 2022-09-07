@@ -77,10 +77,17 @@ export function firebaseSignOut() {
 	return signOut(auth);
 }
 
+var global_requested_signout = false;
+export async function requestDelayedSignout() {
+    global_requested_signout = true;
+}
+
 export async function maybeFirebaseSignOut() {
-    if (global_firebaseUser) {
+    if (global_firebaseUser && global_requested_signout) {
+        console.log('-- Doing Delayed Sign Out --')
         signOut(auth);
         global_firebaseUser = null;
+        global_requested_signout = false;
     }
 }
 

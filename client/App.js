@@ -64,6 +64,7 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     communityGroups: 'communityGroups/:community',
     communitySignups: 'communitySignups/:community',
     adminCreateGroup: 'adminCreateGroup/:community',
+    join: 'join/:community'
   }
 }}
 
@@ -192,7 +193,8 @@ export default function App() {
     communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
     communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
     adminCommand: {component: AdminCommandScreen, title: 'Admin Command'},
-    unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'}
+    unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'},
+    join: {component: IntakeScreen, title: 'Join Community'}
   }
 
   // console.log('intialUrl', initialUrl);
