@@ -7,6 +7,7 @@ const Cron = require('./cron');
 const Migrate = require('./migrate');
 const Export = require('./export');
 const Iris = require('./iris');
+const Analysis = require('./analysis');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -107,6 +108,10 @@ async function apiActionAsync({action, components, params}) {
         case 'logIntake': {
             return Iris.logIntakeAsync(params);
         }
+        case 'getIntakeLogs.tsv': {
+            return Analysis.getIntakeLogsAsync(params);
+        }
+
 
         default: {
             console.log('unknown action', action);

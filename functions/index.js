@@ -120,6 +120,9 @@ exports.api = functions.https.onRequest((async (request, response) => {
                 response.send(buffer);
             } else if (result.html) {
                 response.send(result.html)
+            } else if (result.tsvData) {
+                response.setHeader('content-type', 'text/tab-separated-values');
+                response.send(result.tsvData);
             } else {
                 response.send(JSON.stringify(result))
             }
