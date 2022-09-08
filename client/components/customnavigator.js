@@ -47,9 +47,9 @@ export function CustomNavigator(params) {
     }
 }
 
-export function MobileNavigator({screens, user, initialRouteName, linking}) {
+export function MobileNavigator({screens, user, initialRouteName, linking, navigationRef}) {
     const screenNames = _.keys(screens);
-    const navigationRef = useNavigationContainerRef();
+    // const navigationRef = useNavigationContainerRef();
 
     return (
         <AppContext.Provider value={{user, navigation: navigationRef}}>

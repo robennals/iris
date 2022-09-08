@@ -88,6 +88,7 @@ export default function App() {
   const [loadStatus, setLoadStatus] = useState('Authenticating...');
   const notificationListener = useRef();
   const responseListener = useRef();
+  const navigationRef = useNavigationContainerRef();
 
   useEffect(() => {
     // TODO: Make this not fail on IOS - Is it because I haven't linked a domain?
@@ -142,8 +143,14 @@ export default function App() {
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-      // navigationRef.navigate('home');
+      // console.log(response);
+      console.log('notif tapped');
+
+      if (Platform.OS != 'web') {
+        console.log('navigating to home');
+        navigationRef.navigate('home');
+        console.log('done');
+      }
     });
 
     return () => {
@@ -214,7 +221,7 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-        <CustomNavigator user={user} screens={screens} initialRouteName='home' linking={linking} />
+        <CustomNavigator user={user} screens={screens} initialRouteName='home' linking={linking} navigationRef={navigationRef} />
       </SafeAreaProvider>
     )
   }
