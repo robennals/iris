@@ -157,6 +157,15 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
 
     await writeIntroMessagesAsync({community, group, members, topic, updates});
 
+    var notifs = []
+    const notifBase = {
+        title: 'New Group Chat: ' + topic,
+        body: 'You have been added to a new group chat.',
+        data: {
+            group, groupName: topic, time, type: 'newGroup'
+        }
+    }
+
     members.forEach(member => {
         const {user, name, bio, photoKey, answers} = member;
         const userData = {
@@ -164,16 +173,18 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
         }
         updates['group/' + group + '/member/' + user] = userData;
         updates['adminCommunity/' + community + '/group/' + group + '/member/' + user] = userData;
-
         updates['userPrivate/' + user + '/name'] = name;
         updates['userPrivate/' + user + '/group/' + group] = {name:topic, lastMessage, community}
+
+        const notif = {...notifBase, toUser: user};
+        notifs.push(notif);
     })
 
     console.log('updates', updates);
 
     // return {success: false, message: 'Not completed yet'};
 
-    return {success: true, updates, data: {group}}
+    return {success: true, updates, data: {group}, notifs}
 }
 
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
