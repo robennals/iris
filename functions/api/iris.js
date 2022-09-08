@@ -79,12 +79,21 @@ async function maybeSendNextQuestionAsync({group, irisBotGroup}) {
         ['special/irisBotGroup/' + group + '/pending']: restJson
     }
 
-    const messageText = 'Another question to think about: ' + first;
+    const messageText = first;
     const result = await sendMessageAsync({group, text: messageText, userId: 'zzz_irisbot'});
     return {...result, updates: {...result.updates, ...updates}} 
 }
 
 exports.maybeSendNextQuestionAsync = maybeSendNextQuestionAsync;
+
+
+function stripHiddenSymbolFromQuestion(q) {
+    if (q[0] == '>') {
+        return q.slice(1).trim();
+    } else {
+        return q.trim();
+    }
+}
 
 
 async function writeIntroMessagesAsync({community, group, topic, members, updates}) {
@@ -96,8 +105,8 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
     var timeIncrement = 0;
     const firstMessageText = 'This is a private conversation about ' + topic 
-        + ' between ' + memberAnds
-        + '.\nHere is a question to get you started:';
+        + ' between ' + memberAnds;
+        // + '.\nHere is a question to get you started:';
     botMessageAsync({group, text: firstMessageText, time, updates});
 
     console.log('firstMessage', firstMessageText);
@@ -108,7 +117,7 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     const selectedTopic = _.find(topics, t => t.title == topic);
 
     if (selectedTopic && selectedTopic.questions) {
-        const questions = selectedTopic?.questions;
+        const questions = selectedTopic?.questions?.map(q => stripHiddenSymbolFromQuestion(q));
         const firstQuestion = questions[0];
         const otherQuestions = questions.slice(1);
 

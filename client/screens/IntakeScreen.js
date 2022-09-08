@@ -103,6 +103,7 @@ const shadowStyle = {
     shadowOpacity: 0.5, elevation: 3}
 
 function Topic({topic, selected, onChangeSelected}) {
+    const shownQuestions = topic.questions.filter(q => q[0] != '>');
     return (
         <View style={{marginHorizontal: 16, marginVertical: 4}}>
             <FixedTouchable onPress={() => onChangeSelected(!selected)}>
@@ -121,7 +122,7 @@ function Topic({topic, selected, onChangeSelected}) {
                     </View>
                     <View style={{marginLeft: 12, flexShrink: 1}}>
                         <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>                       
-                        {topic.questions.map(question =>
+                        {shownQuestions.map(question =>
                             <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                 <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
                                 <Text key={question} style={{color: '#666', marginBottom: 2}}>{question}</Text>

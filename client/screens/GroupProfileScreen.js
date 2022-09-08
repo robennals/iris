@@ -60,7 +60,7 @@ export function GroupProfileScreen({navigation, route}) {
 
     const filteredMemberKeys = Object.keys(members || {}).filter(k => k != 'zzz_irisbot');
 
-    var selectedTopicQuestions = '';
+    var selectedTopicQuestions = [];
     var bioQuestions = [];
     console.log('communityInfo', communityInfo)
     if (communityInfo) {
@@ -71,8 +71,11 @@ export function GroupProfileScreen({navigation, route}) {
         bioQuestions = parseQuestions(communityInfo.questions);
     }
 
+
     console.log('selectedTopicquestions', selectedTopicQuestions);
     console.log('bioQuestions', bioQuestions);
+
+    const filteredQuestions = selectedTopicQuestions?.filter(q => q[0] != '>')
 
     // console.log('groupProfile', questions);
 
@@ -90,8 +93,8 @@ export function GroupProfileScreen({navigation, route}) {
             </View>
 
             <View>
-                {selectedTopicQuestions ? 
-                    selectedTopicQuestions.map(question => 
+                {filteredQuestions ? 
+                    filteredQuestions.map(question => 
                         <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                             <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
                             <Text key={question} style={{color: '#666', marginBottom: 2}}>{question}</Text>
