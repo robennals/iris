@@ -5,7 +5,7 @@ import { getCurrentUser, getFirebaseServerTimestamp, newKey, SERVER_TIMESTAMP, s
 import { sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
 
-export function ChatEntryBox({group, messages, members, replyTo, onClearReply, chatInputRef}) {
+export function ChatEntryBox({group, messages, members, replyTo, onClearReply, chatInputRef, byMeCount = 0}) {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
@@ -28,6 +28,8 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
     const maxMessageLength = 350;
     const textGettingLong = textLength > 300;
     const textTooLong = textLength > maxMessageLength;
+
+    const maxByMe = 3;
 
     async function onSubmit() {
         if (!text || textTooLong) {
@@ -85,6 +87,11 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
             {textGettingLong && !textTooLong ?
                 <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>{maxMessageLength - textLength} / {maxMessageLength} chars remaining</Text>
             :null}
+            {byMeCount > maxByMe && text.length > 0 ?
+                <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>
+                    You have written {byMeCount} messages in a row. Consider letting someone else speak before writing another message.
+                </Text>
+            : null}
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextInput // disabled={inProgress} 
                     key={textKey}

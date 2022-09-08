@@ -117,6 +117,19 @@ function NewMessageTracker({group}) {
 //         </View>
 //     )
 // }
+
+function howManyMessagesByMe({messages, sortedMessageKeys}) {
+    var byMeCount = 0;
+    for (var i = sortedMessageKeys.length -1; i >= 0; i--) {
+        if (messages[sortedMessageKeys[i]].from == getCurrentUser()) {
+            byMeCount ++;
+        } else {
+            return byMeCount;
+        }
+    }
+    return byMeCount;
+}
+
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
     const [messages, setMessages] = useState(null);
@@ -141,7 +154,11 @@ export function ChatScreen({navigation, route}) {
     }
 
     const allMessages = messages ? {...localMessages, ...messages} : {};
-
+    const messageKeys = Object.keys(allMessages || {});
+    const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
+    const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
+    console.log('byMeCount', byMeCount);
+    
     return (
       <GroupContext.Provider value={{group}} >
       <KeyboardSafeView style={{flex: 1}}>
@@ -151,8 +168,8 @@ export function ChatScreen({navigation, route}) {
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} messages={allMessages} members={members} onReply={onReply} />
-            <ChatEntryBox group={group} messages={allMessages} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+            <MessageList group={group} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />
+            <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
           </View>
         </HeaderSpaceView>
       </KeyboardSafeView>
@@ -174,13 +191,13 @@ function MoreButton({showCount, messageCount, onMore}) {
     }
 }
 
-function MessageList({group, messages, members, onReply}) {
+function MessageList({group, messages, sortedMessageKeys, members, onReply}) {
     const scrollRef = React.createRef();
     const [showCount, setShowCount] = useState(20);
 
-    const messageKeys = Object.keys(messages || {});
-    const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
-    // const shownMessageKeys = sortedMessageKeys.slice(-showCount);
+    // const messageKeys = Object.keys(messages || {});
+    // const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
+    // // const shownMessageKeys = sortedMessageKeys.slice(-showCount);
     const shownMessageKeys = sortedMessageKeys;
 
     return (
@@ -216,7 +233,7 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
     const prevAlsoMe = myMessage && prevMessage.from == getCurrentUser();
     const nextAlsoMe = myMessage && nextMessage.from == getCurrentUser();
 
-    const timePassed = (message.time - prevMessage.time) > (5 * minuteMillis);
+    const timePassed = (message.time - (prevMessage.time || 0)) > (5 * minuteMillis);
 
     return (
         // <Swipeable renderLeftActions={() =>
