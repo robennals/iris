@@ -35,7 +35,7 @@ export function GroupPreview ({group, groupInfo, highlight, allCommunities}) {
     return (
         <View style={[styles.groupPreview, 
                 highlight ? {backgroundColor: '#eee'} : null]}>
-            <GroupMultiIcon members={members || {}} name={name} size={60} photo={groupInfo.photo} />
+            <GroupMultiIcon members={members || {}} name={name} size={54} photo={groupInfo.photo} />
 
             {/* <GroupIcon name={name} size={shrink ? 40 : 50} /> */}
                 <View style={styles.groupPreviewRight}>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     },
     groupPreviewRight: {
         flex: 1,
-        marginLeft: 12
+        marginLeft: 14
     },
     p: {
         marginVertical: 8,

@@ -105,6 +105,8 @@ export function GroupMultiIcon({members, size = 40}) {
         <MiniMemberPhoto members={members} user={notMeMemberKeys[3]} size={size * 0.55} style={{position: 'absolute', right: 0, bottom: 0}}/>
       </View>
     )  
+  } else {
+    return <View style={{width: size, height: size}} />
   }
 }
 

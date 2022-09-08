@@ -28,7 +28,7 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
     return (
         <View style={[styles.groupPreview, 
                 highlight ? {backgroundColor: '#eee'} : null]}>
-            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={60} />
+            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={54} />
 
             <View style={styles.groupPreviewRight}>
                 <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
@@ -47,7 +47,7 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 
 
 export class GroupList extends React.Component {
-    state = {groupSet: null, communitySet: {}, selected: null, search: '', name: null, photo: null, allCommunities: {}}
+    state = {groupSet: null, showArchived: false, communitySet: {}, selected: null, search: '', name: null, photo: null, allCommunities: {}}
 
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
@@ -90,7 +90,7 @@ export class GroupList extends React.Component {
 
     render() {
         const {navigation, showSelected, shrink} = this.props;
-        const {groupSet, communitySet, selected, search, name, photo, allCommunities} = this.state;
+        const {groupSet, communitySet, selected, search, name, photo, allCommunities, showArchived} = this.state;
 
         if (!groupSet) {
             return null;
@@ -107,6 +107,10 @@ export class GroupList extends React.Component {
         }
         const filteredGroupAndCommunityKeys = [...filteredGroupKeys, ...filteredCommunityKeys];
         const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
+
+        const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => _.get(groupSet,[k,'archived']) && !isGroupUnread(groupSet[k]));
+
+        console.log('partition', {archivedKeys, shownKeys});
 
         // console.log('keys', {filteredGroupKeys, filteredCommunityKeys, sortedGroupAndCommunityKeys, groupSet})
 
@@ -135,7 +139,7 @@ export class GroupList extends React.Component {
                 <SearchBox value={search} onChangeText={search => this.setState({search})} 
                     style={{marginHorizontal: 16, marginBottom: 8}}
                 />
-                {sortedGroupAndCommunityKeys.map(k => 
+                {shownKeys.map(k => 
                     <Catcher key={k}>
                         <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
                             {!communitySet[k] ?
@@ -153,6 +157,47 @@ export class GroupList extends React.Component {
                         </FixedTouchable>
                     </Catcher>
                 )}
+                {showArchived ?
+                    <View style={{margin: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopColor: '#ddd', paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, marginBottom: 8}}>
+                        <Text>ARCHIVED</Text>
+                        <FixedTouchable onPress={() => this.setState({showArchived: false})}>
+                            <View style={{borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, borderColor: '#ddd', paddingHorizontal: 8, paddingVertical: 4}}>
+                                <Text style={{color: '#666', fontSize: 12}}>Hide</Text>
+                            </View>
+                        </FixedTouchable>
+                    </View>
+                :null}
+
+                {!showArchived && archivedKeys.length > 0 ?
+                <FixedTouchable onPress={() => this.setState({showArchived: !showArchived})} style={{margin: 16}}>
+                    <View style={{alignSelf: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16}}>
+                        <Text style={{color: '#666'}}>
+                            Show {archivedKeys.length} archived conversations
+                        </Text>
+                    </View>
+                </FixedTouchable>
+                :null}
+                {showArchived ?
+                    archivedKeys.map(k => 
+                        <Catcher key={k}>
+                            <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
+                                {!communitySet[k] ?
+                                    <GroupPreview group={k} name={groupSet[k].name}
+                                        allCommunities={allCommunities}
+                                        highlight={selected == k && showSelected}
+                                        groupInfo={groupSet[k]} shrink={shrink}
+                                    />
+                                : 
+                                    <CommunityPreview community={k} name={communitySet[k].name}
+                                        highlight={selected == k && showSelected}
+                                        communityInfo={communitySet[k]} 
+                                    />
+                                }
+                            </FixedTouchable>
+                        </Catcher>
+                    )
+                    
+                : null}
                 {/* {shrink ? null : 
                     <FixedTouchable onPress={() => navigation.navigate('joinOrCreate')}>
                         <Text style={{alignSelf: 'center', color: baseColor, marginTop: 8}}>Join or Create a group</Text>

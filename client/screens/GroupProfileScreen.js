@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { FixedTouchable, FormInput, FormTitle, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
-import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
 import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
-import { leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
+import { adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
 import { CommunityPhotoIcon, GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
 import { Catcher } from '../components/catcher';
@@ -121,6 +121,18 @@ export function GroupProfileScreen({navigation, route}) {
                     Report Abuse
                 </WideButton>
             </View>
+            {isMasterUser(getCurrentUser()) ?
+                // <View style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, margin: 16,padding: 8, borderRadius: 8}}>
+                <View>
+                    <View style={{marginVertical: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
+
+                    <Text style={{alignSelf: 'center', fontWeight: 'bold'}}>Admin Controls</Text>
+                    <View style={{flexDirection: 'row'}}>
+                        <WideButton onPress={() => adminArchiveGroupAsync({group})}>Archive Group</WideButton>
+                    </View>
+                </View>
+            :null}        
+
             </View>
         </ScreenContentScroll>
     )

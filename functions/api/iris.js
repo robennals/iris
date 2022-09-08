@@ -154,6 +154,24 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
 }
 
+async function adminArchiveGroupAsync({group, isArchived = true, userId}) {
+    if (!isMasterUser(userId)) {
+        return accessDeniedResult;
+    }
+    const members = await FBUtil.getDataAsync(['group', group, 'member']);
+
+    var updates = {};
+    _.forEach(_.keys(members), member => {
+        updates['userPrivate/' + member + '/group/' + group + '/archived'] = isArchived;
+    });
+
+    updates['group/' + group + '/archived'] = true;
+
+    return {success: true, updates};
+}
+exports.adminArchiveGroupAsync = adminArchiveGroupAsync;
+
+
 async function adminJoinGroupAsync({group, userId}) {
     console.log('adminJoinGroup', group);
    

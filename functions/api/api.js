@@ -114,6 +114,9 @@ async function apiActionAsync({action, components, params}) {
         case 'adminJoinGroup': {
             return Iris.adminJoinGroupAsync(params);
         }
+        case 'adminArchiveGroup': {
+            return Iris.adminArchiveGroupAsync(params);
+        }
 
 
         default: {

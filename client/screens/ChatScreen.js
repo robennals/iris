@@ -11,7 +11,7 @@ import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { addFocusListener, BottomFlatScroller, ModalMenu, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { setTitle } from '../components/shim';
-import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -131,11 +131,21 @@ function howManyMessagesByMe({messages, sortedMessageKeys}) {
     return byMeCount;
 }
 
+function ArchivedBanner(){
+    return (
+        <View style={{padding: 16, backgroundColor: 'white', borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
+            <Text style={{fontWeight: 'bold'}}>This Conversation has been Archived</Text>
+            <Text style={{color: '#666'}}>You cannot post new messages, but can continue to read messages for a limited time.</Text>
+        </View>
+    )
+}
+
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
     const [messages, setMessages] = useState(null);
     const [localMessages, setLocalMessages] = useState({});
     const [members, setMembers] = useState(null);
+    const [archived, setArchived] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
     const scrollRef = React.createRef();
     const chatInputRef = React.createRef();
@@ -144,6 +154,7 @@ export function ChatScreen({navigation, route}) {
         var x = {}
         watchData(x, ['group', group, 'message'], setMessages);
         watchData(x, ['group', group, 'member'], setMembers);
+        watchData(x, ['group', group, 'archived'], setArchived, false);
         watchData(x, ['userPrivate', getCurrentUser(), 'localMessage', group], setLocalMessages);
 
         return () => internalReleaseWatchers(x);
@@ -168,16 +179,23 @@ export function ChatScreen({navigation, route}) {
         <HeaderSpaceView style={{flex:1 }}>
           <EnableNotifsBanner />
           <PhotoPromo />
+          {archived ? 
+            <ArchivedBanner />
+          :null}
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />
+            <MessageList group={group} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
                 </WideButton>
             :
-                <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+                (archived && !isMasterUser(getCurrentUser()) ? 
+                null
+                :
+                    <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+                )
             }
           </View>
         </HeaderSpaceView>
