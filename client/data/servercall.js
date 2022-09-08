@@ -185,4 +185,6 @@ export async function logIntakeAsync({community, logKey, stage, data}) {
     return await callServerApiAsync('logIntake',{community, logKey, stage, data});
 }
 
-
+export async function adminJoinGroupAsync({community, group}) {
+    return await callServerApiAsync('adminJoinGroup', {community, group});
+}

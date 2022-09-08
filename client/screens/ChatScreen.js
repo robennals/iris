@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { NewMessageSound } from '../components/alertping';
-import { FixedTouchable, HeaderSpaceView, OneLineText } from '../components/basics';
+import { FixedTouchable, HeaderSpaceView, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -16,6 +16,7 @@ import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
+import { adminJoinGroupAsync } from '../data/servercall';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -153,6 +154,8 @@ export function ChatScreen({navigation, route}) {
         chatInputRef?.current?.focus();
     }
 
+    const iAmNotInGroup = members && !members[getCurrentUser()];
+
     const allMessages = messages ? {...localMessages, ...messages} : {};
     const messageKeys = Object.keys(allMessages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
@@ -169,7 +172,13 @@ export function ChatScreen({navigation, route}) {
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
             <MessageList group={group} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />
-            <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+            {iAmNotInGroup ?
+                <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
+                    Join Group Chat
+                </WideButton>
+            :
+                <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+            }
           </View>
         </HeaderSpaceView>
       </KeyboardSafeView>

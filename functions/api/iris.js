@@ -3,11 +3,26 @@ const _ = require('lodash');
 const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
+const { pad } = require('lodash');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
 const hourMillis = 60 * minuteMillis;
 const dayMillis = 24 * hourMillis;
+
+const accessDeniedResult = {success: false, message: 'access denied'};
+
+const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2'];
+
+function isMasterUser(user) {
+    for (var i = 0; i < masterUsers.length; i++) {
+        if (masterUsers[i] == user) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;
@@ -139,10 +154,50 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
 }
 
+async function adminJoinGroupAsync({group, userId}) {
+    console.log('adminJoinGroup', group);
+   
+    if (!isMasterUser(userId)) {
+        return accessDeniedResult;
+    }
 
-async function adminCreateGroupAsync({community, topic, privateName, people, picked}) {
+    const community = await FBUtil.getDataAsync(['group', group, 'community'], null);
+
+    const pAdminName = FBUtil.getDataAsync(['userPrivate', userId, 'name']);
+    const pPhoto = FBUtil.getDataAsync(['userPrivate', userId, 'photo']);
+    const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
+    const pGroupPrivateName = FBUtil.getDataAsync(['group', group, 'privateName'], '');
+    const pAnswers = FBUtil.getDataAsync(['userPrivate', userId, 'communityIntake', community, 'answers']);
+    const adminName = await pAdminName; const photo = await pPhoto;
+    const groupName = await pGroupName; const groupPrivateName = await pGroupPrivateName;
+    const answers = await pAnswers;
+
+    const userData = {
+        name: adminName, photo: photo || null, isAdmin: true, answers
+    }
+
+    const time = Date.now();
+    const lastMessage = {text: 'You Joined', time}
+
+    const updates = {};
+    updates['group/' + group + '/member/' + userId] = userData;
+    updates['adminCommunity/' + community + '/group/' + group + '/member/' + userId] = userData;
+    updates['userPrivate/' + userId + '/group/' + group] = {
+        name: groupName, privateName: groupPrivateName, lastMessage, community};
+
+    const botResult = await sendMessageAsync({group, text: 'admin ' + adminName + ' joined the chat', userId: 'zzz_irisbot'});
+    
+    return {...botResult, updates: {...botResult.updates, ...updates}} 
+}
+exports.adminJoinGroupAsync = adminJoinGroupAsync;
+
+
+async function adminCreateGroupAsync({community, topic, privateName, people, picked, userId}) {
     console.log('adminCreateGroupAsync', community, topic, privateName);
-    // return {success: false, message: 'Not completed yet'};
+
+    if (!isMasterUser(userId)) {
+        return accessDeniedResult;
+    }
 
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     const group = FBUtil.newKey();

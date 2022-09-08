@@ -9,7 +9,7 @@ import { resizeImageAsync } from '../components/shim';
 import { Catcher } from '../components/catcher';
 
 function BioAnswers({answers, bioQuestions}) {
-    if (!bioQuestions) return null;
+    if (!bioQuestions || !answers) return null;
     const goodQuestions = bioQuestions.map(q => q.question).filter(q => !shouldIgnoreQuestion(q));
     const sortedAnswers = goodQuestions.map(q => answers[textToKey(q)]);
     const joinedAnswers = _.join(sortedAnswers, ', ');

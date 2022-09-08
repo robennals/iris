@@ -111,6 +111,9 @@ async function apiActionAsync({action, components, params}) {
         case 'getIntakeLogs.tsv': {
             return Analysis.getIntakeLogsAsync(params);
         }
+        case 'adminJoinGroup': {
+            return Iris.adminJoinGroupAsync(params);
+        }
 
 
         default: {
