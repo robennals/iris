@@ -24,8 +24,13 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
         }
     }
 
+    const textLength = text.length;
+    const maxMessageLength = 400;
+    const textGettingLong = textLength > 350;
+    const textTooLong = textLength > 400;
+
     async function onSubmit() {
-        if (!text) {
+        if (!text || textTooLong) {
             return;
         }
         const messageKey = newKey();
@@ -58,6 +63,8 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
 
     const isWeb = Platform.OS == 'web'
 
+
+
     return (
         <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingHorizontal: 8, backgroundColor: 'white'}}>
             {replyTo ? 
@@ -71,6 +78,12 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
                          <Entypo name='circle-with-cross' size={20} color='#666' />
                     </FixedTouchable>
                 </View>
+            :null}
+            {textTooLong ? 
+                <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>Message is {textLength - maxMessageLength} chars too long</Text>
+            : null}
+            {textGettingLong && !textTooLong ?
+                <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>{maxMessageLength - textLength} / {maxMessageLength} chars remaining</Text>
             :null}
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextInput // disabled={inProgress} 
@@ -91,10 +104,12 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
                     onContentSizeChange={onContentSizeChange}
                     onKeyPress={onKeyPress}                
                 />
-                <FixedTouchable part='sendMessage' onPress={onSubmit} >
-                <Ionicons style={{marginHorizontal: 8}} name='md-send' size={24}  
-                    color={inProgress ? '#999' : '#0084ff'} />
-                </FixedTouchable>
+                {textLength > 0 && !textTooLong ?
+                    <FixedTouchable part='sendMessage' onPress={onSubmit} >
+                        <Ionicons style={{marginHorizontal: 8}} name='md-send' size={24}  
+                            color={inProgress ? '#999' : '#0084ff'} />
+                    </FixedTouchable>
+                : null}
             </View>
         </View>
     )
