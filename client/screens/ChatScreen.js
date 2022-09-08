@@ -15,6 +15,7 @@ import { getCurrentUser, internalReleaseWatchers, setDataAsync, watchData } from
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
+import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -215,6 +216,8 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
     const prevAlsoMe = myMessage && prevMessage.from == getCurrentUser();
     const nextAlsoMe = myMessage && nextMessage.from == getCurrentUser();
 
+    const timePassed = (message.time - prevMessage.time) > (5 * minuteMillis);
+
     return (
         // <Swipeable renderLeftActions={() =>
         //     <View style={{justifyContent: 'space-around', padding: 8, alignItems: myMessage ? 'flex-end' : 'flex-start'}}>
@@ -223,6 +226,14 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
         // }
         //     onSwipeableWillOpen={() => onReply(messageKey)}
         // >
+        <View>
+            {timePassed ? 
+                <Text style={{textAlign: 'center', fontSize: 13, color: '#999', marginTop: 16, marginBottom: 4}}>
+                    {formatMessageTime(message.time)}
+                </Text>
+            : null}
+
+
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             {popup ? 
@@ -269,6 +280,7 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                 </View>
                 : null}
             </View>
+        </View>
         </View>
         // </Swipeable>
     )

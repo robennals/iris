@@ -24,6 +24,21 @@ function isThisYear({date, nowDate}) {
       (date.getFullYear() == nowDate.getFullYear()))
 }
 
+export function formatMessageTime(time) {
+  const now = Date.now();
+  const nowDate = new Date(now);
+  const date = new Date(time);
+  if (!time) {
+    return '';
+  } else if ((now - time) < (2 * minuteMillis)) {
+    return 'just now';
+  } else if (!isToday({date, nowDate})) {
+    return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'}) 
+  } else {
+    return date.toLocaleTimeString(undefined, {hour: 'numeric', minute: 'numeric'}).toLowerCase()
+  }
+}
+
 
 export function formatTime(time) {
     const now = Date.now();

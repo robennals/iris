@@ -207,7 +207,7 @@ export default function App() {
   // } else if (!initialUrl) {
   //   return <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}><Text>Starting up...</Text></View>
     // return null;
-  } else if (!user && parsedUrl.screen == 'community') {
+  } else if (!user && (parsedUrl.screen == 'community' || parsedUrl.screen == 'join')) {
     return <IntakeScreen community={parsedUrl.param} />
   } else if (!user) {
     return <SignInScreen/>
