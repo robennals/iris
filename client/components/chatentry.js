@@ -25,9 +25,9 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
     }
 
     const textLength = text.length;
-    const maxMessageLength = 400;
-    const textGettingLong = textLength > 350;
-    const textTooLong = textLength > 400;
+    const maxMessageLength = 350;
+    const textGettingLong = textLength > 300;
+    const textTooLong = textLength > maxMessageLength;
 
     async function onSubmit() {
         if (!text || textTooLong) {
