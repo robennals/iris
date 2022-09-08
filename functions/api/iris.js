@@ -4,6 +4,11 @@ const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
 
+const secondMillis = 1000;
+const minuteMillis = 60 * secondMillis;
+const hourMillis = 60 * minuteMillis;
+const dayMillis = 24 * hourMillis;
+
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;
     var user = _.findKey(userEmails, userEmail => userEmail == email)
@@ -51,6 +56,37 @@ function parseTopics(topicsTxt) {
 
 const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
 
+async function maybeSendNextQuestionAsync({group, irisBotGroup}) {
+    console.log('maybeSendNextQuentionAsync', group, irisBotGroup);
+    const dayAgo = Date.now() - dayMillis;
+    if (irisBotGroup.lastMessageTime > dayAgo) {
+        console.log('still active', group);
+        return;
+    }
+    if (!irisBotGroup.pending) {
+        console.log('nothing pending');
+        return;
+    }
+    const pending = JSON.parse(irisBotGroup.pending);
+    if (pending.length == 0) {
+        console.log('empty pending');
+        return;
+    }
+    const first = pending[0];
+    const rest = pending.slice(1);
+    const restJson = rest.length > 0 ? JSON.stringify(rest) : null;
+    const updates = {
+        ['special/irisBotGroup/' + group + '/pending']: restJson
+    }
+
+    const messageText = 'Another question to think about: ' + first;
+    const result = await sendMessageAsync({group, text: messageText, userId: 'zzz_irisbot'});
+    return {...result, updates: {...result.updates, ...updates}} 
+}
+
+exports.maybeSendNextQuestionAsync = maybeSendNextQuestionAsync;
+
+
 async function writeIntroMessagesAsync({community, group, topic, members, updates}) {
     const memberNames = members.map(m => m.name);
     const memberAnds = AndFormat.format(memberNames);
@@ -61,7 +97,7 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     var timeIncrement = 0;
     const firstMessageText = 'This is a private conversation about ' + topic 
         + ' between ' + memberAnds
-        + '.\nHere are some questions to get you started:'
+        + '.\nHere is a question to get you started:';
     botMessageAsync({group, text: firstMessageText, time, updates});
 
     console.log('firstMessage', firstMessageText);
@@ -70,12 +106,28 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     console.log('topicsTxt', community, topicsTxt);
     const topics = parseTopics(topicsTxt);
     const selectedTopic = _.find(topics, t => t.title == topic);
-    if (selectedTopic) {
-        selectedTopic.questions.forEach(question => {
-            timeIncrement++;
-            botMessageAsync({group, text: question, time: time+timeIncrement, updates});
-        })
+
+    if (selectedTopic && selectedTopic.questions) {
+        const questions = selectedTopic?.questions;
+        const firstQuestion = questions[0];
+        const otherQuestions = questions.slice(1);
+
+        // botMessageAsync({group, text:'Here is a question to get you started:', time: time + 1, updates});
+        botMessageAsync({group, text:firstQuestion, time: time + 2, updates});
+
+        updates['special/irisBotGroup/' + group + '/pending'] = JSON.stringify(otherQuestions);
+        updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
     }
+    
+    // var questions = [];
+    // if (selectedTopic) {
+    //     selectedTopic.questions.forEach(question => {
+    //         timeIncrement++;
+    //         questions.push(question);
+    //         // botMessageAsync({group, text: question, time: time+timeIncrement, updates});
+    //     })
+    // }
+
 }
 
 
@@ -131,7 +183,8 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
-    const members = await pMembers; const groupName = await pGroupName;
+    const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null);
+    const members = await pMembers; const groupName = await pGroupName; const community = await pCommunity;
     // console.log('members', members);
     if (!members[userId]) {
         return {success: false, message: 'access denied'};
@@ -156,11 +209,19 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
         }
     }
 
+    const lastMessage = {
+        text: text || null, time, from: userId, fromName
+    }
+
+    if (community) {
+        updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
+    }
+
+    updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
+
     // update local state for all members
     Object.keys(members).forEach(member => {
-        updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = {
-            text: text || null, time, from: userId, fromName
-        };
+        updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = lastMessage;
         if (member != userId) {
             updates['userPrivate/' + member + '/lastMessageTime'] = time;
             const notif = {...notifBase, toUser: member}
@@ -168,7 +229,7 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
         }
     })
 
-    console.log('notifs', notifs);
+    // console.log('notifs', notifs);
 
     return {success: true, updates, notifs}
 }
