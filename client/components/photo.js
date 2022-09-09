@@ -72,6 +72,11 @@ export function MemberPhotoIcon({photoKey, user, name, style, size = 40, thumb=t
             <Image source={{uri: getUrlForImage(photoKey, user, thumb), cache: 'force-cache'}} 
                 style={[{width: size, height: size, borderRadius: size / 2, borderColor: '#eee', borderWidth: StyleSheet.hairlineWidth}, style]} />
         )
+  } else if (user == 'zzz_irisbot') {
+        return (
+          <Image source={{uri: 'https://iris-talk.com/irisbot_icon_small.png', cache: 'force-cache'}} 
+              style={[{width: size, height: size, borderRadius: size / 2, borderColor: '#eee', borderWidth: StyleSheet.hairlineWidth}, style]} />
+        )
   } else {
       return <MemberIcon name={name} style={style} size={size} />
   }

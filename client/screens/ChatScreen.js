@@ -140,6 +140,17 @@ function ArchivedBanner(){
     )
 }
 
+const standardHues = [0, 90, 180, 270, , ]
+
+function memberKeysToHues(memberKeys) {
+    const filteredKeys = memberKeys.filter(k => k != 'zzz_irisBot' && k != getCurrentUser());
+    var hueMap = {};
+    for (var i = 0; i < filteredKeys.length; i++) {
+        hueMap[filteredKeys[i]] = (360/filteredKeys.length) * i;
+    }
+    return hueMap;
+}
+
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
     const [messages, setMessages] = useState(null);
@@ -165,6 +176,8 @@ export function ChatScreen({navigation, route}) {
         chatInputRef?.current?.focus();
     }
 
+    const memberHues = memberKeysToHues(_.keys(members || {}));
+
     const iAmNotInGroup = members && !members[getCurrentUser()];
 
     const allMessages = messages ? {...localMessages, ...messages} : {};
@@ -185,7 +198,7 @@ export function ChatScreen({navigation, route}) {
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
+            <MessageList group={group} memberHues={memberHues} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
@@ -218,7 +231,7 @@ function MoreButton({showCount, messageCount, onMore}) {
     }
 }
 
-function MessageList({group, messages, sortedMessageKeys, members, onReply}) {
+function MessageList({group, messages, sortedMessageKeys, members, memberHues, onReply}) {
     const scrollRef = React.createRef();
     const [showCount, setShowCount] = useState(20);
 
@@ -238,6 +251,7 @@ function MessageList({group, messages, sortedMessageKeys, members, onReply}) {
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
                     <Message key={k} messages={messages} members={members} 
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
+                        memberHues={memberHues}
                         onReply={onReply}/>})),
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
@@ -246,7 +260,7 @@ function MessageList({group, messages, sortedMessageKeys, members, onReply}) {
 }
 
 
-function Message({messages, members, messageKey, prevMessageKey, nextMessageKey, onReply}) {
+function Message({messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply}) {
     const message = messages[messageKey];
     const prevMessage = messages[prevMessageKey] ?? {};
     const nextMessage = messages[nextMessageKey] ?? {};
@@ -254,6 +268,8 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
     const fromMember = members[message.from];
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
+    const hue = memberHues[message.from];
+    const hueStyle = (myMessage || message.from == 'zzz_irisbot') ? null : {backgroundColor: 'hsl(' + hue + ',40%, 90%)'};
 
     const samePrevAuthor = !myMessage && message.from == prevMessage.from;
     const sameNextAuthor = !myMessage && message.from == nextMessage.from;
@@ -299,7 +315,8 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                             samePrevAuthor ? {marginTop: 1, borderTopLeftRadius: 4} : {}, 
                             sameNextAuthor ? {marginBottom: 1, borderBottomLeftRadius: 4} : {},
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
-                            nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {}
+                            nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
+                            hueStyle
                          ]} >
                         {myMessage || samePrevAuthor ? null :
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
