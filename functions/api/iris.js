@@ -120,37 +120,47 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
     var timeIncrement = 0;
     const firstMessageText = 'This is a private conversation about ' + topic 
-        + ' between ' + memberAnds;
-        // + '.\nHere is a question to get you started:';
+        + ' between ' + memberAnds + '.';
+        + '.\nHere are some questions to get you started:';
     botMessageAsync({group, text: firstMessageText, time, updates});
 
-    console.log('firstMessage', firstMessageText);
+    // timeIncrement++;
+    // botMessageAsync({group, text: 'Here are some questions to get you started:', time, updates});
+
+
+    // console.log('firstMessage', firstMessageText);
 
     const topicsTxt = await FBUtil.getDataAsync(['community', community, 'topics']);
-    console.log('topicsTxt', community, topicsTxt);
+    // console.log('topicsTxt', community, topicsTxt);
     const topics = parseTopics(topicsTxt);
     const selectedTopic = _.find(topics, t => t.title == topic);
 
-    if (selectedTopic && selectedTopic.questions) {
-        const questions = selectedTopic?.questions?.map(q => stripHiddenSymbolFromQuestion(q));
-        const firstQuestion = questions[0];
-        const otherQuestions = questions.slice(1);
+    // if (selectedTopic && selectedTopic.questions) {
+    //     const questions = selectedTopic?.questions?.map(q => stripHiddenSymbolFromQuestion(q));
+    //     const firstQuestion = questions[0];
+    //     const otherQuestions = questions.slice(1);
 
-        // botMessageAsync({group, text:'Here is a question to get you started:', time: time + 1, updates});
-        botMessageAsync({group, text:firstQuestion, time: time + 2, updates});
+    //     // botMessageAsync({group, text:'Here is a question to get you started:', time: time + 1, updates});
+    //     botMessageAsync({group, text:firstQuestion, time: time + 2, updates});
 
-        updates['special/irisBotGroup/' + group + '/pending'] = JSON.stringify(otherQuestions);
-        updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
-    }
+    //     updates['special/irisBotGroup/' + group + '/pending'] = JSON.stringify(otherQuestions);
+    //     updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
+    // }
     
     // var questions = [];
-    // if (selectedTopic) {
-    //     selectedTopic.questions.forEach(question => {
-    //         timeIncrement++;
-    //         questions.push(question);
-    //         // botMessageAsync({group, text: question, time: time+timeIncrement, updates});
-    //     })
-    // }
+    if (selectedTopic) {
+        selectedTopic.questions.forEach(question => {
+            timeIncrement++;
+            // questions.push(question);
+            botMessageAsync({group, text: stripHiddenSymbolFromQuestion(question), time: time+timeIncrement, updates});
+        })
+    }
+
+    timeIncrement++;
+    botMessageAsync({group, 
+        text: "Please also introduce yourself, and say why you are personally interested in this topic.",
+        time: time + timeIncrement + 1, updates
+    })
 
 }
 
