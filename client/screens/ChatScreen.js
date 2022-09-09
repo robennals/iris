@@ -284,10 +284,10 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                 <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
             : null}
             {myMessage ? null :
-                (sameNextAuthor ? 
+                (samePrevAuthor ? 
                     <View style={{width: 40, marginLeft: 8}} />
                 :
-                    <View style={{marginLeft: 4, alignSelf: 'flex-end', marginBottom: 8}}>
+                    <View style={{marginLeft: 4, alignSelf: 'flex-start', marginTop: 8}}>
                         <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
                     </View>
                 )
