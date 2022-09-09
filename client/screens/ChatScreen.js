@@ -283,6 +283,15 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
             {popup ? 
                 <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
             : null}
+            {myMessage ? null :
+                (sameNextAuthor ? 
+                    <View style={{width: 40, marginLeft: 8}} />
+                :
+                    <View style={{marginLeft: 4, alignSelf: 'flex-end', marginBottom: 8}}>
+                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
+                    </View>
+                )
+            }
             <View style={{flexShrink: 1}}>
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1, maxWidth: 550}}>
@@ -294,7 +303,7 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                          ]} >
                         {myMessage || samePrevAuthor ? null :
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
-                                <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/>
+                                {/* <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/> */}
                                 <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
                             </View>
                         }
@@ -315,7 +324,7 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                 </FixedTouchable>
             </View>
 
-            <View style={{width: 64, flexShrink: 0}}>
+            <View style={{width: 48, flexShrink: 0}}>
                 {hover ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
                     <FixedTouchable onPress={() => onReply(messageKey)}>
@@ -366,7 +375,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 16,
         marginVertical: 4,
-        marginHorizontal: 8,
+        // marginHorizontal: 8,
         maxWidth: 550,
         flexShrink: 1,
         flexGrow: 0,
@@ -390,7 +399,7 @@ const styles = StyleSheet.create({
         lineHeight: Platform.OS == 'web' ? 20 : 21
     },
     theirMessageText: {
-        color: '#222',
+        color: '#111',
         fontSize: Platform.OS == 'web' ? 15 : 16,
         lineHeight: Platform.OS == 'web' ? 20 : 21
     },
