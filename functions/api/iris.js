@@ -506,6 +506,42 @@ async function confirmSignupAsync({community, intake}) {
 exports.confirmSignupAsync = confirmSignupAsync;
 
 
+async function migrateTopicsAsync() {
+    const allCommunities = await FBUtil.getDataAsync(['community']);
+    const allTopics = await FBUtil.getDataAsync(['topic']);
+    var updates = {};
+    _.forEach(_.keys(allCommunities), community => {
+        const commInfo = allCommunities[community];
+        console.log('community: ', commInfo.name);
+        const commTopics = _.get(allTopics,community,{});
+        var knownTopics = {};
+        _.keys(commTopics).forEach(k => {
+            const topic = commTopics[k];
+            knownTopics[topic.name] = true;
+        })
+        console.log('known topics', knownTopics);
+        if (commInfo.topics) {
+            const topics = parseTopics(commInfo.topics);
+            topics.forEach(topic => {
+                if (!knownTopics[topic.title]) {
+                    const key = FBUtil.newKey();
+                    updates['topic/' + community + '/' + key] = {
+                        name: topic.title,
+                        questions: JSON.stringify(topic.questions),
+                        time: Date.now()
+                    }
+                    console.log('topic', topic.title);
+                } else {
+                    console.log('known topic', topic.title);
+                }
+            })
+        }
+    })
+    // console.log('updates', updates);
+    // return {success: false, message: 'in progress'}
+    return {sucess: true, updates}
+}
+
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
 async function migrateIntakeAsync() {
@@ -555,10 +591,12 @@ async function adminCommandAsync({command, params, userId}) {
     }
 
     switch (command) {
-        case 'migrateIntake':
-            return await migrateIntakeAsync();
-        case 'removeCommunities':
-            return await adminRemoveCommunities();
+        case 'migrateTopics':
+            return await migrateTopicsAsync();
+        // case 'migrateIntake':
+        //     return await migrateIntakeAsync();
+        // case 'removeCommunities':
+        //     return await adminRemoveCommunities();
         default:
             return {success: false, message: 'Unknown admin command'}
     }

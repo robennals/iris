@@ -276,6 +276,22 @@ export function MinorButton({onPress, children, style=null, innerStyle=null}) {
   )
 }
 
+  
+export function SmallMinorButton({onPress, children, style=null, innerStyle=null}) {
+  return (
+    <FixedTouchable onPress={onPress} >
+      <View style={[{padding: 4, borderRadius: 8, borderColor: '#999', 
+            borderWidth: StyleSheet.hairlineWidth, marginHorizontal: 4, 
+            alignItems: 'center'},style]}>
+        <Text style={{color: '#666', fontWeight: 'bold', marginHorizontal: 12, fontSize: 12, ...innerStyle}}>
+          {children}
+        </Text>
+      </View>
+    </FixedTouchable>
+  )
+}
+
+
 export function WideButton({onPress, children, progressText, disabled, alwaysActive, style, innerStyle}){
   const [clicked, setClicked] = useState(false);
   if (disabled || (clicked && !alwaysActive)) {

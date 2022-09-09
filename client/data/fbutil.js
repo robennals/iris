@@ -134,8 +134,8 @@ export function watchData(obj, path, callback, fallback = {}) {
 
 		return onValue(ref, watchFunc, error => {
             console.error(error); 
-            throw new Error(error)}
-        );
+            // throw new Error(error)}
+        });
 	} catch (e) {
 		console.error('error in watch:', path);
 		console.log(e);

@@ -58,7 +58,7 @@ export class GroupList extends React.Component {
         if (isMasterUser()) {
             watchData(this, ['community'], communitySet => this.setState({communitySet}));
         } else {
-            watchData(this, ['userPrivate', getCurrentUser(), 'community'], communitySet => this.setState({communitySet}));
+            watchData(this, ['userPrivate', getCurrentUser(), 'comm'], communitySet => this.setState({communitySet}));
         }
     }
     async componentWillUnmount() {
@@ -71,6 +71,7 @@ export class GroupList extends React.Component {
         reloadIfVersionChanged();
 
         const thingType = communitySet[k] ? 'community' : 'group';
+        const dataName = communitySet[k] ? 'comm' : 'group';
 
         this.setState({selected: k});
         if (singleScreen || Platform.OS == 'web') {           
@@ -84,7 +85,7 @@ export class GroupList extends React.Component {
                 ],
             })
         }
-        setDataAsync(['userPrivate', getCurrentUser(), thingType, k, 'readTime'], Date.now());
+        setDataAsync(['userPrivate', getCurrentUser(), dataName, k, 'readTime'], Date.now());
         setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
     }
 

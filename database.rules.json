@@ -21,6 +21,14 @@
       ".read": true,
       ".write": false
     },
+    "commMember": {
+      "$community":{
+        "$user": {
+          ".read": "$user == auth.uid || root.child('special').child('master').child(auth.uid).exists()",
+          ".write": "$user == auth.uid || root.child('special').child('master').child(auth.uid).exists()"
+        }
+      }
+    },
     "intake": {
       ".read": "root.child('special').child('master').child(auth.uid).exists()",
       ".write": false
@@ -29,6 +37,12 @@
       "$group": {
         ".write": false,
         ".read": "data.child('member').child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",
+      }
+    },
+    "topic": {
+      "$community": {
+        ".write": false,
+        ".read": true
       }
     },
     "groupAdmin": {

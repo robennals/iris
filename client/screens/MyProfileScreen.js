@@ -63,7 +63,7 @@ export function MyProfileScreen({navigation}) {
                 </WideButton>
                 <WideButton onPress={() => navigation.navigate('unsubscribe')} >Leave Communities</WideButton>
             </View>
-            <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:acount@iris-talk.com'>account@iris-talk.com</Link></Text>
+            <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:account@iris-talk.com'>account@iris-talk.com</Link></Text>
             
         </ScreenContentScroll>
     )
