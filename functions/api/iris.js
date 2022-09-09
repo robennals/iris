@@ -73,11 +73,11 @@ const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'}
 
 async function maybeSendNextQuestionAsync({group, irisBotGroup}) {
     console.log('maybeSendNextQuentionAsync', group, irisBotGroup);
-    const dayAgo = Date.now() - dayMillis;
-    if (irisBotGroup.lastMessageTime > dayAgo) {
-        console.log('still active', group);
-        return;
-    }
+    const timeGap = Date.now() - (4 * hourMillis);
+    // if (irisBotGroup.lastMessageTime > timeGap) {
+    //     console.log('still active', group);
+    //     return;
+    // }
     if (!irisBotGroup.pending) {
         console.log('nothing pending');
         return;
@@ -89,13 +89,27 @@ async function maybeSendNextQuestionAsync({group, irisBotGroup}) {
     }
     const first = pending[0];
     const rest = pending.slice(1);
-    const restJson = rest.length > 0 ? JSON.stringify(rest) : null;
+    // const restJson = rest.length > 0 ? JSON.stringify(rest) : null;
     const updates = {
-        ['special/irisBotGroup/' + group + '/pending']: restJson
+        ['special/irisBotGroup/' + group + '/pending']: null
     }
 
     const messageText = first;
     const result = await sendMessageAsync({group, text: messageText, userId: 'zzz_irisbot'});
+
+    // post all remaining questions 
+    // HACK; this is for shutting down the drip-feed feature
+    const time = Date.now();
+    var timeIncrement = 0;
+
+    rest.forEach(question => {
+        timeIncrement++;
+        botMessageAsync({group, text: stripHiddenSymbolFromQuestion(question), time: time+timeIncrement, updates});
+    })
+
+    console.log('result', result);
+    console.log('updates', updates);
+    // return {success: false, message: 'in progress'}
     return {...result, updates: {...result.updates, ...updates}} 
 }
 

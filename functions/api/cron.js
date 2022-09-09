@@ -30,7 +30,7 @@ async function maybeProdGroupsWithNextQuestionAsync() {
 }
 
 async function pingAsync({secret}){
-    console.log('Ping received', secret);
+    // console.log('Ping received', secret);
     return await maybeProdGroupsWithNextQuestionAsync();
 
     // const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
