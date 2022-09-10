@@ -20,7 +20,8 @@ async function sendNotifForTokenAsync({name, token, title, body, data, badgeCoun
 
   const message = {
     to: token,
-    sound: silent ? null : 'default',
+    sound: null,
+    // sound: silent ? null : 'default',
     title: title,
     body: body,
     data: data,

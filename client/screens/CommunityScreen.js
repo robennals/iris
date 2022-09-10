@@ -5,9 +5,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, SmallMinorButton, WideButton } from '../components/basics';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
+import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon } from '../components/photo';
 import { BottomFlatScroller, setTitle, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
+import { baseColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 
@@ -164,7 +166,7 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                                 {shownQuestions.map(question =>
                                     <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                         <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
-                                        <Text key={question} style={{color: '#666', marginBottom: 2}}>{question}</Text>
+                                        <LinkText color={baseColor} key={question} style={{color: '#666', marginBottom: 2}} text={question} />
                                     </View>
                                 )}                        
                             </View>
