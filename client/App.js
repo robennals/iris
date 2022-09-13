@@ -48,6 +48,7 @@ import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySi
 import { CommunityGroupsScreen } from './screens/CommunityGroups';
 import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
+import { EditTopicScreen } from './screens/EditTopic';
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -64,7 +65,9 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     communityGroups: 'communityGroups/:community',
     communitySignups: 'communitySignups/:community',
     adminCreateGroup: 'adminCreateGroup/:community',
-    join: 'join/:community'
+    join: 'join/:community',
+    newTopic: 'newTopic/:community',
+    editTopic: 'editTopic/:community/:topic'
   }
 }}
 
@@ -201,7 +204,9 @@ export default function App() {
     communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
     adminCommand: {component: AdminCommandScreen, title: 'Admin Command'},
     unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'},
-    join: {component: IntakeScreen, title: 'Join Community'}
+    join: {component: IntakeScreen, title: 'Join Community'},
+    newTopic: {component: EditTopicScreen, title: 'New Topic'},
+    editTopic: {component: EditTopicScreen, title: 'Edit Topic'}
   }
 
   // console.log('intialUrl', initialUrl);

@@ -3,25 +3,12 @@ import { stringLength } from '@firebase/util';
 import React, { useEffect, useState } from 'react';
 
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View, Image } from 'react-native';
-import { FixedTouchable, FormTitle, makePhotoDataUrl, ScreenContentScroll, WideButton } from '../components/basics';
+import { FixedTouchable, FormTitle, makePhotoDataUrl, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { getUrlForImage, GroupPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
 import { watchData } from '../data/fbutil';
 import { createCommunityAsync, createOrUpdateCommunityAsync, updateCommunityAsync } from '../data/servercall';
 
-function mergeEditedParams({oldObj, newObj}) {
-    var merged = {};
-    Object.keys(newObj).forEach(k => {
-        if (newObj[k] != null) {
-            merged[k] = newObj[k]
-        } else if (oldObj[k]) {
-            merged[k] = oldObj[k];
-        } else {
-            merged[k] = '';
-        }
-    })
-    return merged;
-}
 
 export function AdminCreateOrEditCommunityScreen({navigation, route}) {
     const community = route?.params?.community;

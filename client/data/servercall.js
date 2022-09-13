@@ -192,3 +192,7 @@ export async function adminJoinGroupAsync({community, group}) {
 export async function adminArchiveGroupAsync({group}) {
     return await callServerApiAsync('adminArchiveGroup', {group});
 }
+
+export async function editTopicAsync({community, topic, name, summary, questions}) {
+    return await callServerApiAsync('editTopic', {community, topic, name, summary, questions});
+}

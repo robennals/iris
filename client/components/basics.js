@@ -167,7 +167,7 @@ export function FormTitle({title, children}) {
   )
 }
 
-export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, onSubmitEditing, style}) {
+export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textContentType, multiline=false, autoCompleteType, textAlign, placeholder, keyboardType, defaultValue, onChangeText, onSubmitEditing, style, extraStyle}) {
   const textBoxStyle = {
     backgroundColor: 'white',
     padding: 8,
@@ -179,7 +179,7 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
     marginHorizontal: 16
   }
   if (Platform.OS == 'web') {
-    return <TextInput placeholder={placeholder} style={style || textBoxStyle}
+    return <TextInput placeholder={placeholder} style={style ? style : [textBoxStyle, extraStyle]}
       defaultValue = {defaultValue} multiline={multiline}
       // textAlign = {textAlign}
       value = {value}
@@ -190,7 +190,7 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
       onSubmitEditing={onSubmitEditing}
       onChangeText={onChangeText}/>
   } else {
-    return <TextInput placeholder={placeholder} style={style || textBoxStyle}
+    return <TextInput placeholder={placeholder} style={style ? style : [textBoxStyle, extraStyle]}
       textContentType={textContentType} multiline={multiline}
       placeholderTextColor = '#666'
       keyboardType={keyboardType}
@@ -478,4 +478,18 @@ export function textToKey(text) {
 const linkRegEx = /\[\d\w\-\?\:]*\|[\w\s]*\]/;
 function parseLinkText(text) {
   const lines = te
+}
+
+export function mergeEditedParams({oldObj, newObj}) {
+  var merged = {};
+  Object.keys(newObj).forEach(k => {
+      if (newObj[k] != null) {
+          merged[k] = newObj[k]
+      } else if (oldObj[k]) {
+          merged[k] = oldObj[k];
+      } else {
+          merged[k] = '';
+      }
+  })
+  return merged;
 }

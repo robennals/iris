@@ -117,6 +117,9 @@ async function apiActionAsync({action, components, params}) {
         case 'adminArchiveGroup': {
             return Iris.adminArchiveGroupAsync(params);
         }
+        case 'editTopic': {
+            return Iris.editTopicAsync(params);
+        }
 
 
         default: {

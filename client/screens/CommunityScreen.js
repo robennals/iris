@@ -77,6 +77,8 @@ export function CommunityScreen({navigation, route}) {
         )
     }
 
+    const isMaster = isMasterUser();
+
     // if (role == false && !isMasterUser()) {
     //     return (
     //         <IntakeScreen community={community} />
@@ -90,6 +92,11 @@ export function CommunityScreen({navigation, route}) {
                     <CommunityAdminActions community={community} />
                 : null}     
                 <TopicList topics={topics} community={community} communityInfo={communityInfo} topicStates={topicStates} />
+                <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd'}}>
+                    <WideButton alwaysActive
+                        onPress={() => navigation.navigate('newTopic', {community})} 
+                        style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
+                </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
       )
@@ -130,6 +137,7 @@ function PillButton({children, color = 'white', onPress}){
 }
 
 function Topic({community, communityInfo, topics, topicKey, topicStates}) {
+    const navgation = useCustomNavigation();
     const topic = topics[topicKey]
     const questions = JSON.parse(topic.questions)
     const shownQuestions = questions.filter(q => q[0] != '>');
@@ -143,6 +151,8 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
         await setDataAsync(['commMember', community, getCurrentUser(), 'topic', topicKey], state);
     }
 
+    const canEdit = topic.from == getCurrentUser() || isMasterUser();
+
     const red = 'hsl(0, 50%, 90%)';
     const green = 'hsl(120, 50%, 90%)';
     const yellow = 'hsl(60, 50%, 90%)';
@@ -150,8 +160,8 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
     if (expanded || !state) {
         return (
             <View style={{marginVertical: 8, marginHorizontal: 16}}>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 12, marginVertical: 2}}>               
-                    <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={16} /> 
+                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 4, marginVertical: 2}}>               
+                    {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={16} />  */}
                     <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
                 </View>
                 <View style={{flexDirection: 'row'}}>
@@ -161,8 +171,15 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                             // marginHorizontal: 8,
                             ...shadowStyle }}>
                         <View style={{padding: 8}}>
-                            <Text style={{fontWeight: 'bold'}}>{topic.name}</Text>
-                            <View style={{flexShrink: 1}}>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <Text style={{fontWeight: 'bold'}}>{topic.name}</Text>
+                                {canEdit ? 
+                                    <FixedTouchable onPress={() => navgation.navigate('editTopic', {community, topic: topicKey})}>
+                                        <Entypo name='edit' color='#999' size={12}/>
+                                    </FixedTouchable>
+                                :null}
+                            </View>
+                            <View style={{flexShrink: 1, marginTop: 4}}>
                                 {shownQuestions.map(question =>
                                     <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                         <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>

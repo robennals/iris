@@ -3,7 +3,6 @@ const _ = require('lodash');
 const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
-const { pad } = require('lodash');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -640,3 +639,34 @@ function logIntakeAsync({logKey, community, stage, data, ip, userId}) {
 }
 
 exports.logIntakeAsync = logIntakeAsync;
+
+
+async function editTopicAsync({community, topic, name, questions, summary, userId}) {
+    const isMaster = isMasterUser(userId);
+    var updates = {};
+    var topicKey = topic ? topic : FBUtil.newKey();
+    var oldTopic = null;
+    const pMembers = FBUtil.getDataAsync(['commMember', community]);
+    if (topic) {
+        oldTopic = await FBUtil.getDataAsync(['topic', community, topic], null);
+    }
+    const members = await pMembers;
+
+    console.log('editTopic', topic, members, community);
+
+    const time = Date.now();
+    updates['topic/' + community + '/' + topicKey] = {
+        name, questions, summary, time: oldTopic?.time || time,
+        approved: isMaster, from: userId
+    }
+    const lastMessage = {text: 'New topic: ' + name, time};
+    updates['community/' + community + '/lastMessage'] = lastMessage
+    if (!topic) {
+        _.forEach(_.keys(members), member => {
+            updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
+        })
+    }
+    // console.log('updates', updates);
+    return {success: true, updates}
+}
+exports.editTopicAsync = editTopicAsync;

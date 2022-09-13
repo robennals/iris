@@ -111,7 +111,7 @@ export class GroupList extends React.Component {
 
         const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => _.get(groupSet,[k,'archived']) && !isGroupUnread(groupSet[k]));
 
-        console.log('partition', {archivedKeys, shownKeys});
+        // console.log('partition', {archivedKeys, shownKeys});
 
         // console.log('keys', {filteredGroupKeys, filteredCommunityKeys, sortedGroupAndCommunityKeys, groupSet})
 
