@@ -11,6 +11,7 @@ import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
+import _ from 'lodash';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -183,7 +184,7 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                                 :null}
                             </View>
                             <View style={{flexShrink: 1, marginTop: 4}}>
-                                <LinkText linkColor={baseColor} style={{color: '#666', marginBottom: 2}} text={topic.summary} />
+                                <LinkText linkColor={baseColor} style={{color: '#666', marginBottom: 4}} text={topic.summary} />
                                 {shownQuestions.map(question =>
                                     <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                         <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
@@ -193,7 +194,7 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                             </View>
                         </View>
                         <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
-                            <Text style={{fontSize: 12, color: "#999"}}>Want to talk about this?</Text>
+                            <Text style={{fontSize: 12, color: "#999"}}>Do you want to talk about this?</Text>
                             <View style={{flexDirection: 'row', marginTop: 4}}>
                                 <PillButton color={green} onPress={() => setTopicState('yes')}>Yes</PillButton>
                                 <PillButton color={yellow} onPress={() => setTopicState('maybe')}>Maybe</PillButton>

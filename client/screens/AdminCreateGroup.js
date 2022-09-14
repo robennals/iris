@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, textToKey, WideButton } from '../components/basics';
+import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, WideButton } from '../components/basics';
 import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
@@ -116,7 +116,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
     // console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})
 
     return (
-        <View>
+        <ScreenContentScroll>
             <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
                 <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} thumb={false} size={64} />
                 <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{communityInfo.name}</Text>
@@ -176,7 +176,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
                 {inProgress ? 'Creating Group...' : 'Create Group' }
             </WideButton>
 
-        </View>
+        </ScreenContentScroll>
     )
 }
 
@@ -184,7 +184,7 @@ function parseTsv(tsv) {
     const lines = _.filter(tsv.trim().split('\n'));
     const people = _.map(lines, line => {
         const [name, email, bio] = line.split('\t');
-        return {name: name.trim(), email: email.trim(), bio: bio.trim()}
+        return {name: name?.trim(), email: email?.trim(), bio: bio?.trim()}
     })
     return people;
 }

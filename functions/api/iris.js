@@ -12,6 +12,10 @@ const dayMillis = 24 * hourMillis;
 const name_label = 'Full Name';
 const email_label = 'Email Address';
 
+function normStr(str) {
+    return str.toLowerCase().trim();
+  }  
+
 const accessDeniedResult = {success: false, message: 'access denied'};
 
 const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2'];
@@ -28,13 +32,14 @@ function isMasterUser(user) {
 
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;
-    var user = _.findKey(userEmails, userEmail => userEmail == email)
+    var user = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
 
     if (user) {
         console.log('found existing user ' + user + ' for ' + email);
-        const photoKey = await FBUtil.getDataAsync(['userPrivate', m, 'photo'], null);
+        const photoKey = await FBUtil.getDataAsync(['userPrivate', user, 'photo'], null);
         return {user, name, bio, photoKey}
     } else {
+        console.log('creating new user for' + email);
         user = await FBUtil.createUser(email);
         console.log('created new user ' + user + ' - ' + email);
         return {user, name, bio};        
