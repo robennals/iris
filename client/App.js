@@ -67,7 +67,8 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     adminCreateGroup: 'adminCreateGroup/:community',
     join: 'join/:community',
     newTopic: 'newTopic/:community',
-    editTopic: 'editTopic/:community/:topic'
+    editTopic: 'editTopic/:community/:topic',
+    communityProfile: 'communityProfile/:community'
   }
 }}
 
@@ -130,7 +131,7 @@ export default function App() {
     global_lastMessageTime = 0;
     if (user) {
       watchData(x, ['userPrivate', user, 'lastMessageTime'], async time => {
-        console.log('lastMessageTime ', {time, global_lastMessageTime});
+        // console.log('lastMessageTime ', {time, global_lastMessageTime});
         if (global_lastMessageTime && global_lastMessageTime != time) {
           await playAlertSound();
         }
@@ -212,7 +213,7 @@ export default function App() {
   // console.log('intialUrl', initialUrl);
 
   const parsedUrl = initialUrl ? parseUrl(initialUrl || '') : {};
-  console.log('parsedUrl', initialUrl, parsedUrl);
+  // console.log('parsedUrl', initialUrl, parsedUrl);
 
   if (!gotAuth) {
     return <View style={{justifyContent: 'center', flex: 1, alignItems: 'center'}}><Text>Authenticating...</Text></View>

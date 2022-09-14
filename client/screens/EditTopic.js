@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
 import { FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';

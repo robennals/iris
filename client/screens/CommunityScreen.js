@@ -1,5 +1,4 @@
 import { Entypo } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, SmallMinorButton, WideButton } from '../components/basics';
@@ -88,14 +87,18 @@ export function CommunityScreen({navigation, route}) {
     return (
         <KeyboardSafeView style={{flex: 1}}>
             <HeaderSpaceView style={{flex:1 }}>
-                {isMasterUser(getCurrentUser) ? 
-                    <CommunityAdminActions community={community} />
-                : null}     
-                <TopicList topics={topics} community={community} communityInfo={communityInfo} topicStates={topicStates} />
-                <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd'}}>
-                    <WideButton alwaysActive
-                        onPress={() => navigation.navigate('newTopic', {community})} 
-                        style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
+                <View style={{backgroundColor: 'white', flex: 1}}>
+                    {isMasterUser(getCurrentUser) ? 
+                        <CommunityAdminActions community={community} />
+                    : null}     
+                    <TopicList topics={topics} community={community} communityInfo={communityInfo} topicStates={topicStates} />
+                    {isMasterUser() ?
+                        <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd'}}>
+                            <WideButton alwaysActive
+                                onPress={() => navigation.navigate('newTopic', {community})} 
+                                style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
+                        </View>
+                    :null}
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -164,10 +167,10 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={16} />  */}
                     <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
                 </View>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
                     <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                            borderRadius: 8, maxWidth: 550, 
+                            borderRadius: 8, maxWidth: 450, flexShrink: 1, flexGrow: 1,
                             // marginHorizontal: 8,
                             ...shadowStyle }}>
                         <View style={{padding: 8}}>
@@ -180,10 +183,11 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                                 :null}
                             </View>
                             <View style={{flexShrink: 1, marginTop: 4}}>
+                                <LinkText linkColor={baseColor} style={{color: '#666', marginBottom: 2}} text={topic.summary} />
                                 {shownQuestions.map(question =>
                                     <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                         <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
-                                        <LinkText color={baseColor} key={question} style={{color: '#666', marginBottom: 2}} text={question} />
+                                        <LinkText linkColor={baseColor} key={question} style={{color: '#666', marginBottom: 2}} text={question} />
                                     </View>
                                 )}                        
                             </View>

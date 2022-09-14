@@ -4,6 +4,7 @@ import { FixedTouchable, ScreenContentNoScroll, ScreenContentScroll, WideButton 
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { GroupPreview } from '../components/grouppreview';
+import { Catcher } from '../components/catcher';
 
 export function CommunityGroupsScreen({navigation, route}) {
     const {community} = route.params;
@@ -26,7 +27,9 @@ export function CommunityGroupsScreen({navigation, route}) {
             <ScrollView>
                 {sortedGroupKeys.map(k => 
                     <FixedTouchable key={k} onPress={() => navigation.navigate('group', {group: k})}>
-                        <GroupPreview key={k} group={k} groupInfo={groupSet[k]} />
+                        <Catcher key={k}>
+                            <GroupPreview key={k} group={k} groupInfo={groupSet[k]} />
+                        </Catcher>
                     </FixedTouchable>
                 )}
             </ScrollView>

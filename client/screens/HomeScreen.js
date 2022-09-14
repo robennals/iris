@@ -22,8 +22,9 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 
     var summaryLine = '';
     if (communityInfo.lastMessage) {
-        summaryLine = _.get(communityInfo,['lastMessage','fromName'],'') + ': ' + 
-            firstLine(_.get(communityInfo,['lastMessage','text'],''))
+        const prefix = communityInfo?.lastMessage?.fromName ? groupInfo.lastMessage.fromName + ': ' : '';
+
+        summaryLine = prefix + firstLine(_.get(communityInfo,['lastMessage','text'],''))
     }
     return (
         <View style={[styles.groupPreview, 
@@ -45,30 +46,45 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 }
 
 
+function mergeObjectSets(a, b) {
+    if (!b) return a;
+
+    const keys = {..._.keys(a), ..._.keys(b)};
+    const out = {};
+    _.forEach(keys, k => {
+        const aObj = a[k] || {};
+        const bObj = b[k] || {};
+        out[k] = {...aObj, ...bObj};
+    })
+    return out;
+}
 
 export class GroupList extends React.Component {
-    state = {groupSet: null, showArchived: false, communitySet: {}, selected: null, search: '', name: null, photo: null, allCommunities: {}}
+    state = {groupSet: null, showArchived: false, selected: null, 
+        localCommSet: null, masterCommSet: null,
+        search: '', name: null, photo: null, allCommunities: {}}
 
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
         watchData(this, ['userPrivate', getCurrentUser(), 'name'], name => this.setState({name}));        
         watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}));
         watchData(this, ['community'], allCommunities => this.setState({allCommunities}));
+        watchData(this, ['userPrivate', getCurrentUser(), 'comm'], localCommSet => this.setState({localCommSet}));
 
         if (isMasterUser()) {
-            watchData(this, ['community'], communitySet => this.setState({communitySet}));
-        } else {
-            watchData(this, ['userPrivate', getCurrentUser(), 'comm'], communitySet => this.setState({communitySet}));
-        }
+            watchData(this, ['community'], masterCommSet => this.setState({masterCommSet}));
+        } 
     }
     async componentWillUnmount() {
         internalReleaseWatchers(this);
     }
 
     async selectGroupOrCommunity(k) {
-        const {communitySet} = this.state;
+        const {localCommSet, masterCommSet} = this.state;
         const {navigation, singleScreen} = this.props;
         reloadIfVersionChanged();
+
+        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : localCommSet;
 
         const thingType = communitySet[k] ? 'community' : 'group';
         const dataName = communitySet[k] ? 'comm' : 'group';
@@ -91,11 +107,14 @@ export class GroupList extends React.Component {
 
     render() {
         const {navigation, showSelected, shrink} = this.props;
-        const {groupSet, communitySet, selected, search, name, photo, allCommunities, showArchived} = this.state;
+        const {groupSet, localCommSet, masterCommSet, selected, search, name, photo, allCommunities, showArchived} = this.state;
 
-        if (!groupSet) {
+        if (!groupSet || !localCommSet) {
             return null;
         }
+
+        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : localCommSet;
+
 
         const groupKeys = Object.keys(groupSet || {});
         const communityKeys = Object.keys(communitySet || {});
@@ -107,9 +126,10 @@ export class GroupList extends React.Component {
             filteredCommunityKeys = _.filter(communityKeys, k => searchMatches(communitySet[k].name, search));
         }
         const filteredGroupAndCommunityKeys = [...filteredGroupKeys, ...filteredCommunityKeys];
-        const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(groupSet,[k,'lastMessage','time'],0)).reverse();
+        const allSet = {...groupSet, ...communitySet};
+        const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(allSet,[k,'lastMessage','time'],0)).reverse();
 
-        const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => _.get(groupSet,[k,'archived']) && !isGroupUnread(groupSet[k]));
+        const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => _.get(allSet,[k,'archived']) && !isGroupUnread(groupSet[k]));
 
         // console.log('partition', {archivedKeys, shownKeys});
 

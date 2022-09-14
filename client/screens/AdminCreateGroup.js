@@ -8,11 +8,21 @@ import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { PopupSelector } from '../components/shim';
 import { Entypo } from '@expo/vector-icons';
 import { baseColor } from '../data/config';
+import { Catcher } from '../components/catcher';
 
-function IntakeMember({intake, questionTitles, selected, onSelect}) {
-    const answers = _.map(questionTitles, q => intake.answers[textToKey(q)])
+function topicSelected(state) {
+    return state == 'yes' || state == 'maybe';
+}
+
+function Member({memberKey, member, questionTitles, allTopics, sortedTopicKeys, selected, onSelect}) {
+    const answers = _.map(questionTitles, q => member.answer[textToKey(q)])
     const answerSummary = _.join(answers, ', ');
-    const topicSummary = _.join(_.sortBy(Object.keys(intake.selectedTopics),x=>x), ', ');
+    const memberTopics = sortedTopicKeys.filter(t => topicSelected(member.topic?.[t]))
+    const memberTopicNames = memberTopics.map(t => allTopics[t].name);
+    const topicSummary = _.join(memberTopicNames, ', ');
+
+    const name = member.answer[name_label];
+    const email = member.answer[email_label];
 
     return (
         <FixedTouchable onPress={() => onSelect(!selected)} >
@@ -26,10 +36,10 @@ function IntakeMember({intake, questionTitles, selected, onSelect}) {
                         <Entypo name='check' size={40} style={{marginTop: 4, color: 'white'}} />
                     </View>
                 : 
-                    <MemberPhotoIcon photoKey={intake.photoKey} user={intake.user} size={50} />
+                    <MemberPhotoIcon photoKey={member.photoKey} user={memberKey} size={50} />
                 }
                 <View style={{marginLeft: 8}}>
-                    <Text style={{fontWeight: 'bold', marginBottom: 2}}>{intake.name} <Text style={{fontWeight: '400'}}>{'<' + intake.email + '>'}</Text></Text>
+                    <Text style={{fontWeight: 'bold', marginBottom: 2}}>{name} <Text style={{fontWeight: '400'}}>{'<' + email + '>'}</Text></Text>
                     <Text>{answerSummary}</Text>
                     <Text style={{color: '#666', fontSize: 13}}>{topicSummary}</Text>
                 </View>
@@ -46,7 +56,9 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const [confirm, setConfirm] = useState('');
     const [inProgress, setInProgress] = useState(false);
     const [communityInfo, setCommunityInfo] = useState(null);
-    const [intake, setIntake] = useState(null);
+    // const [intake, setIntake] = useState(null);
+    const [members, setMembers] = useState(null);
+    const [allTopics, setAllTopics] = useState(null);
     const [topic, setTopic] = useState('choose');
     const [selectedMembers, setSelectedMembers] = useState({});
     const [method, setMethod] = useState(null);
@@ -54,12 +66,13 @@ export function AdminCreateGroupScreen({navigation, route}) {
 
     useEffect(() => {
         var x = {};
+        watchData(x, ['commMember', community], setMembers);
+        watchData(x, ['topic', community], setAllTopics);
         watchData(x, ['community', community], setCommunityInfo);
-        watchData(x, ['intake', community], setIntake);
         return () => internalReleaseWatchers();
     }, [community])
 
-    if (!community || !communityInfo || !intake) return null;
+    if (!community || !members || !communityInfo) return null;
 
     const textBoxStyle = {
         backgroundColor: 'white',
@@ -77,8 +90,9 @@ export function AdminCreateGroupScreen({navigation, route}) {
 
     async function onCreateGroupClicked() {
         setInProgress(true);
-        const picked = Object.keys(selectedMembers).filter(x => selectedMembers[x]).map(k => intake[k]);
-        await adminCreateGroupAsync({community, topic, privateName, people, picked});
+        // const picked = Object.keys(selectedMembers).filter(x => selectedMembers[x]).map(k => intake[k]);
+        const memberKeys = _.keys(selectedMembers).filter(k => selectedMembers[k]);
+        await adminCreateGroupAsync({community, topicKey: topic, privateName, tsvMembers: people, memberKeys});
         setConfirm('Created group "' + topic + '" with ' + memberCount + ' members' + '\n' + confirm)
         // setName('');
         // setQuestions('');
@@ -87,14 +101,19 @@ export function AdminCreateGroupScreen({navigation, route}) {
         navigation.goBack();
     }
     
-    const topics = parseTopics(communityInfo.topics);
+    // const topics = parseTopics(communityInfo.topics);
     const questions = parseQuestions(communityInfo.questions);
-    const topicItems = [{id: 'choose', label: 'Choose a Topic'}, ... topics.map(t => ({id: t.title, label: t.title}))]
+    const allTopicKeys = _.keys(allTopics);
+    const sortedTopicKeys = _.sortBy(allTopicKeys, k => allTopics[k].time).reverse();
+    const topicItems = [{id: 'choose', label: 'Choose a Topic'}, ... allTopicKeys.map(k => ({id: k, label: allTopics[k].name}))]
     const questionTitles = questions.map(q => q.question).filter(x => x != name_label && x != email_label);
-    const intakeKeysForTopic = Object.keys(intake).filter(k => intake[k].selectedTopics[topic] || topic == 'choose');
+    // const intakeKeysForTopic = Object.keys(intake).filter(k => intake[k].selectedTopics[topic] || topic == 'choose');
+    console.log('stuff', {members, allTopics});
+    const realMemberKeys = _.keys(members).filter(k => members[k].answer);
+    const memberKeysForTopic = realMemberKeys.filter(k => topicSelected(members[k].topic?.[topic]) || topic == 'choose');
 
     const memberCount = people.length + Object.keys(selectedMembers).filter(k => selectedMembers[k]).length;
-    console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})
+    // console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})
 
     return (
         <View>
@@ -128,10 +147,12 @@ export function AdminCreateGroupScreen({navigation, route}) {
             {method != 'tsv' ?
                 <FormTitle title='Members (from signups)'>
                     <ScrollView style={{height: 400, marginHorizontal: 16, marginVertical: 8, borderColor: '#ddd', borderRadius: 8, borderWidth: StyleSheet.hairlineWidth, padding: 8}}>
-                        {intakeKeysForTopic.map(k => 
-                            <IntakeMember key={k} intake={intake[k]} questionTitles={questionTitles} 
-                                selected={selectedMembers[k]} 
-                                onSelect={selected => setSelectedMembers({...selectedMembers, [k]: selected})} />
+                        {memberKeysForTopic.map(k => 
+                            <Catcher key={k}>
+                                <Member key={k} memberKey={k} member={members[k]} questionTitles={questionTitles} 
+                                    selected={selectedMembers[k]} allTopics={allTopics} sortedTopicKeys={sortedTopicKeys}
+                                    onSelect={selected => setSelectedMembers({...selectedMembers, [k]: selected})} />
+                            </Catcher>
                         )}
                     </ScrollView>
                 </FormTitle>

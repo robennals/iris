@@ -43,7 +43,9 @@ async function getIntakeLogsAsync({key}) {
     var entries = [];
     _.forEach(_.keys(intakeLogs), communityKey => {
         const community = communities[communityKey];
-        const communityName = community.name;
+        console.log('community', communityKey, community?.name);
+
+        const communityName = community?.name;
         _.forEach(_.keys(intakeLogs[communityKey]), logKey => {
 
             const intake = intakeLogs[communityKey][logKey];            

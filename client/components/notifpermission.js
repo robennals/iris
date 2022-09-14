@@ -101,7 +101,7 @@ export class EnableNotifsBanner extends React.Component {
     render() {
       const {alwaysAsk, style} = this.props;
       const {notifsEnabled, denied, later} = this.state;
-      console.log('notifsEnabled', notifsEnabled, denied);
+      // console.log('notifsEnabled', notifsEnabled, denied);
       if (notifsEnabled) return null;
       // console.log('stuff', {alwaysAsk, later});
       if (!alwaysAsk && later) return null;

@@ -184,7 +184,7 @@ export function ChatScreen({navigation, route}) {
     const messageKeys = Object.keys(allMessages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
     const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
-    console.log('byMeCount', byMeCount);
+    // console.log('byMeCount', byMeCount);
     
     return (
       <GroupContext.Provider value={{group}} >

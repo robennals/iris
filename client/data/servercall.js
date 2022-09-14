@@ -149,8 +149,8 @@ export async function reportMemberAsync({group, member, block}) {
     return await callServerApiAsync('blockMember', {group, member, block});
 }
 
-export async function adminCreateGroupAsync({community, topic, privateName, people, picked}) {
-    return await callServerApiAsync('adminCreateGroup', {community, topic, privateName, people, picked});
+export async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembers, memberKeys}) {
+    return await callServerApiAsync('adminCreateGroup', {community, topicKey, privateName, tsvMembers, memberKeys});
 }
 
 export async function sendMessageAsync({messageKey, group, text, replyTo}) {
@@ -166,9 +166,9 @@ export async function createOrUpdateCommunityAsync({community, photoData, thumbD
         community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics});
 }
 
-export async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics}) {
+export async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, topics}) {
     return await callServerApiAsync('submitCommunityForm', {
-        community, logKey, photoData, thumbData, name, email, answers, selectedTopics});
+        community, logKey, photoData, thumbData, name, email, answers, topics});
 }
 
 export async function adminCommandAsync({command, params}) {

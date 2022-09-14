@@ -23,6 +23,7 @@
     },
     "commMember": {
       "$community":{
+        ".read": "root.child('special').child('master').child(auth.uid).exists()",
         "$user": {
           ".read": "$user == auth.uid || root.child('special').child('master').child(auth.uid).exists()",
           ".write": "$user == auth.uid || root.child('special').child('master').child(auth.uid).exists()"

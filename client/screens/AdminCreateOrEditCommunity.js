@@ -101,13 +101,13 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
                     style={[textBoxStyle, {height: 100}]}
                 />
             </FormTitle>
-            <FormTitle title='Topics'>
+            {/* <FormTitle title='Topics'>
                 <TextInput multiline placeholder='Each topic starts wih "#". Followed by a list of questions, each of which starts with "*".'
                     onChangeText={setTopics} 
                     value={merged.topics}
                     style={[textBoxStyle, {height: 200}]}
                 />
-            </FormTitle>
+            </FormTitle> */}
 
             <WideButton alwaysActive onPress={onCreateCommunityClicked} style={{alignSelf: 'flex-start'}} 
                 disabled={uploading || !merged.name || !merged.info || !merged.questions || !(photoData || old.photoKey) || !merged.topics} >

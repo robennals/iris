@@ -103,7 +103,8 @@ const shadowStyle = {
     shadowOpacity: 0.5, elevation: 3}
 
 function Topic({topic, selected, onChangeSelected}) {
-    const shownQuestions = topic.questions.filter(q => q[0] != '>');
+    const parsedQuestions = JSON.parse(topic.questions);
+    const shownQuestions = parsedQuestions.filter(q => q[0] != '>');
     return (
         <View style={{marginHorizontal: 16, marginVertical: 4}}>
             <FixedTouchable onPress={() => onChangeSelected(!selected)}>
@@ -121,7 +122,8 @@ function Topic({topic, selected, onChangeSelected}) {
                         : null}
                     </View>
                     <View style={{marginLeft: 12, flexShrink: 1}}>
-                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.title}</Text>                       
+                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{topic.name}</Text>                       
+                        {topic.summary ? <LinkText style={{color: '#666', marginBottom: 4}} text={topic.summary} /> : null}
                         {shownQuestions.map(question =>
                             <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
                                 <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
@@ -227,6 +229,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
     const [info, setInfo] = useState(null);
     const [answers, setAnswers] = useState({});
     const [valid, setValid] = useState({});
+    const [topics, setTopics] = useState(null);
     const [selectedTopics, setSelectedTopics] = useState({});
     const [photoData, setPhotoData] = useState(null);
     const [thumbData, setThumbData] = useState(null);
@@ -239,6 +242,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
     useEffect(() => {
         var x = {};
         watchData(x, ['community', community], setInfo);
+        watchData(x, ['topic', community], setTopics);
         const k = newKey();
         setLogKey(k);
         logIntakeAsync({logKey: k, community, stage:'visit', data: null});
@@ -270,10 +274,13 @@ export function IntakeScreen({community:paramCommunity, route}) {
 
     // console.log('intake', info, community);
 
-    if (!info) return null;
+    if (!info || !topics) return null;
+
+    const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time).reverse();
+    const shownTopicKeys = sortedTopicKeys.slice(0, 10);
 
     const questions = parseQuestions(info.questions);
-    const topics = parseTopics(info.topics);
+    // const topics = parseTopics(info.topics);
     // console.log('questions', questions);
     // console.log('answers', answers);
     // console.log('topics', topics, selectedTopics);
@@ -283,7 +290,8 @@ export function IntakeScreen({community:paramCommunity, route}) {
         const email = answers[email_label];
         setInProgress(true);
         logIntakeAsync({community, logKey, stage:'submit'});
-        await submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics});
+        const yesTopics = _.mapValues(selectedTopics, v => 'yes');
+        await submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, topics:yesTopics});
         logIntakeAsync({community, logKey, stage:'received'});
         setConfirmed(true);
     }
@@ -335,10 +343,10 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>What Topics would you like to Discuss?</Text>
                 <Text style={{color: '#666'}}>Choosing more topics increases the chance of a good match.</Text>
             </View>
-            {topics.map(topic =>
-                <Topic key={topic.title} topic={topic}
-                    selected={selectedTopics[textToKey(topic.title)]}
-                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [textToKey(topic.title)]: selected})}
+            {shownTopicKeys.map(topicKey =>
+                <Topic key={topicKey} topic={topics[topicKey]}
+                    selected={selectedTopics[topicKey]}
+                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
                 />
             )}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />

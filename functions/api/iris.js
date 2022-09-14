@@ -9,6 +9,9 @@ const minuteMillis = 60 * secondMillis;
 const hourMillis = 60 * minuteMillis;
 const dayMillis = 24 * hourMillis;
 
+const name_label = 'Full Name';
+const email_label = 'Email Address';
+
 const accessDeniedResult = {success: false, message: 'access denied'};
 
 const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2'];
@@ -132,7 +135,7 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     updates['/group/' + group + '/member/zzz_irisbot/name'] = 'Irisbot';
 
     var timeIncrement = 0;
-    const firstMessageText = 'This is a private conversation about ' + topic 
+    const firstMessageText = 'This is a private conversation about ' + topic.name 
         + ' between ' + memberAnds + '.';
         + '.\nHere are some questions to get you started:';
     botMessageAsync({group, text: firstMessageText, time, updates});
@@ -142,11 +145,11 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
 
     // console.log('firstMessage', firstMessageText);
-
-    const topicsTxt = await FBUtil.getDataAsync(['community', community, 'topics']);
+    
+    // const topicsTxt = await FBUtil.getDataAsync(['community', community, 'topics']);
     // console.log('topicsTxt', community, topicsTxt);
-    const topics = parseTopics(topicsTxt);
-    const selectedTopic = _.find(topics, t => t.title == topic);
+    // const topics = parseTopics(topicsTxt);
+    // const selectedTopic = _.find(topics, t => t.title == topic);
 
     // if (selectedTopic && selectedTopic.questions) {
     //     const questions = selectedTopic?.questions?.map(q => stripHiddenSymbolFromQuestion(q));
@@ -159,10 +162,11 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     //     updates['special/irisBotGroup/' + group + '/pending'] = JSON.stringify(otherQuestions);
     //     updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
     // }
-    
+
     // var questions = [];
-    if (selectedTopic) {
-        selectedTopic.questions.forEach(question => {
+    if (topic.questions) {
+        const parsedQuestions = JSON.parse(topic.questions);
+        parsedQuestions.forEach(question => {
             timeIncrement++;
             // questions.push(question);
             botMessageAsync({group, text: stripHiddenSymbolFromQuestion(question), time: time+timeIncrement, updates});
@@ -233,29 +237,43 @@ async function adminJoinGroupAsync({group, userId}) {
 exports.adminJoinGroupAsync = adminJoinGroupAsync;
 
 
-async function adminCreateGroupAsync({community, topic, privateName, people, picked, userId}) {
-    console.log('adminCreateGroupAsync', community, topic, privateName);
+async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembers, memberKeys, userId}) {
+    console.log('adminCreateGroupAsync', community, topicKey, privateName);
 
     if (!isMasterUser(userId)) {
         return accessDeniedResult;
     }
 
+    const pAllMembers = FBUtil.getDataAsync(['commMember', community]);
+    const pTopic = FBUtil.getDataAsync(['topic', community, topicKey]);
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
+    const allMembers = await pAllMembers; const topic = await pTopic;
     const group = FBUtil.newKey();
-    
-    const pMembers = _.map(people, person => createMemberAsync(person, userEmails));
-    const members = [...picked, ...await Promise.all(pMembers)];
 
-    // console.log('members', members);
+    const pickedMembers = memberKeys.map(k => {
+        const member = allMembers[k];
+        return {
+            name: member.answer[name_label],
+            email: member.answer[email_label],
+            photoKey: member.photoKey,
+            answers: {...member.answer, [email_label]: null},
+            user: k
+        }
+    })
+
+    const pMembers = _.map(tsvMembers, person => createMemberAsync(person, userEmails));
+    const members = [...pickedMembers, ...await Promise.all(pMembers)];
+
+    console.log('members', members);
 
     const time = Date.now();
     const lastMessage = {text: 'Group Created', time}
 
     var updates = {};
-    updates['group/' + group + '/name'] = topic;
+    updates['group/' + group + '/name'] = topic.name;
     updates['group/' + group + '/community'] = community;
     updates['group/' + group + '/privateName'] = privateName;
-    updates['adminCommunity/' + community + '/group/' + group + '/name'] = topic;
+    updates['adminCommunity/' + community + '/group/' + group + '/name'] = topic.name;
     updates['adminCommunity/' + community + '/group/' + group + '/community'] = community;
     updates['adminCommunity/' + community + '/group/' + group + '/privateName'] = privateName;
     updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
@@ -264,7 +282,7 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
 
     var notifs = []
     const notifBase = {
-        title: 'New Group Chat: ' + topic,
+        title: 'New Group Chat: ' + topic.name,
         body: 'You have been added to a new group chat.',
         data: {
             group, groupName: topic, time, type: 'newGroup'
@@ -279,13 +297,13 @@ async function adminCreateGroupAsync({community, topic, privateName, people, pic
         updates['group/' + group + '/member/' + user] = userData;
         updates['adminCommunity/' + community + '/group/' + group + '/member/' + user] = userData;
         updates['userPrivate/' + user + '/name'] = name;
-        updates['userPrivate/' + user + '/group/' + group] = {name:topic, lastMessage, community}
+        updates['userPrivate/' + user + '/group/' + group] = {name:topic.name, lastMessage, community}
 
         const notif = {...notifBase, toUser: user};
         notifs.push(notif);
     })
 
-    console.log('updates', updates);
+    // console.log('updates', updates);
 
     // return {success: false, message: 'Not completed yet'};
 
@@ -415,8 +433,8 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
 }
 exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;
 
-async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics, userId}) {
-    console.log('submit communityForm', {community, name, email, answers, selectedTopics});
+async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics=null, topics=null, userId}) {
+    console.log('submit communityForm', {community, name, email, answers, selectedTopics, topics});
 
     var uid = userId;
     var created = false;
@@ -425,10 +443,15 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         uid = result.uid;
         created = result.created;
     }
-
+    
     const pPrevIntake = FBUtil.getDataAsync(['userPrivate', uid, 'communityIntake', community], null);
+    const pCommTopics = FBUtil.getDataAsync(['topic', community]);
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
-    const prevIntake = await pPrevIntake;
+    const prevIntake = await pPrevIntake; const commTopics = await pCommTopics;
+
+    if (selectedTopics && !topics) {
+        topics = oldTopicsToNew(commTopics, selectedTopics);
+    }
 
     const newPhotoKey = FBUtil.newKey();
     var pPhotoUpload; var pThumbUpload;
@@ -443,7 +466,7 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     var updates = {};
     const confirmed = userId ? true : false
     updates['intake/' + community + '/' + key] = {
-        user: uid, logKey, photoKey: newPhotoKey, name, email, answers, selectedTopics, time, confirmed
+        user: uid, logKey, photoKey: newPhotoKey, name, email, answers, selectedTopics, topics, time, confirmed
     }
     if (userId || created) {
         updates['userPrivate/' + uid + '/photo'] = newPhotoKey;
@@ -453,11 +476,12 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     updates['userPrivate/' + uid + '/comm/' + community] = {
         name: communityName,
         confirmed,
-        lastMessage: {text: 'Joined Community', time}
+        lastMessage: {text: 'You Joined the community', time}
     }
 
     if (confirmed || !prevIntake) {
         updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
+        updates['commMember/' + community + '/' + uid] = {answer: answers, topic: topics, confirmed, photoKey: newPhotoKey};
     }
 
     var emails = [];
@@ -473,6 +497,9 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         })
     }
 
+    // console.log('updates', updates);
+    // return {success: true}
+
     return {success: true, updates, emails}
 }
 exports.submitCommunityFormAsync = submitCommunityFormAsync;
@@ -481,19 +508,26 @@ exports.submitCommunityFormAsync = submitCommunityFormAsync;
 async function confirmSignupAsync({community, intake}) {
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
     const intakeItem = await FBUtil.getDataAsync(['intake/' + community + '/' + intake], null);
-
+ 
     const uid = intakeItem.user;
+    const commMember = await FBUtil.getDataAsync(['commMember/' + community + '/' + uid], null);
+    const commTopics = await FBUtil.getDataAsync(['topic', community]);
+
     if (!intakeItem || !uid) {
         return {success: 'false', message: 'malformed request'};
     }
+
+    const topic = intakeItem.topics || oldTopicsToNew(commTopics, intakeItem.selectedTopics);
 
     const template = FS.readFileSync('template/confirmsuccess.html').toString();
     const html = Mustache.render(template, {communityName});
 
     var updates = {};
+    // if (!commMember) {
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/comm/' + community + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
+    updates['commMember/' + community + '/' + uid] = {answer: intakeItem.answers, topic, confirmed: true, photoKey: intakeItem.photoKey}
 
     if (intakeItem.logKey) {
         updates['/logs/intake/'+ community + '/' + intakeItem.logKey + '/confirmed'] = true;
@@ -543,24 +577,66 @@ async function migrateTopicsAsync() {
 
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
+function textToKey(text) {
+    return text.replace(/[\/\.\$\#\[\]]/g, '_');
+}
+  
+function findTopicKey(communityTopics, topicName) {
+    var result = null;
+    _.forEach(_.keys(communityTopics), t => {
+        if (textToKey(topicName.trim().toLowerCase()) == textToKey(communityTopics[t].name.trim().toLowerCase())) {
+            // console.log('matched topic', topicName, communityTopics[t].name)
+            result = t;
+        }
+    })
+    return result;
+}
+
+function oldTopicsToNew(communityTopics, userTopics) {
+    var out = {};
+    _.forEach(_.keys(userTopics), topicName => {
+        const topicKey = findTopicKey(communityTopics, topicName);
+        if (topicKey) {
+            out[topicKey] = 'yes';
+        } 
+    })
+    return out;
+}
+
 async function migrateIntakeAsync() {
     console.log('migrateIntake');
     const allIntake = await FBUtil.getDataAsync(['intake']);
     const allCommunities = await FBUtil.getDataAsync(['community']);
+    const allTopics = await FBUtil.getDataAsync(['topic']);
     var updates = {};
     const time = Date.now();
     _.forEach(_.keys(allIntake), community => {
         const communityInfo = allCommunities[community];
+        const communityTopics = allTopics[community];
         console.log('communityInfo', community, communityInfo.name);
         _.forEach(_.keys(allIntake[community]), intakeKey => {
             const intake = allIntake[community][intakeKey];
+            var userTopics;
+            if (intake.selectedTopics) {
+                userTopics = oldTopicsToNew(communityTopics, intake.selectedTopics);
+            } else if (intake.topics) {
+                userTopics = intake.topics;
+            } else {
+                userTopics = {};
+            }
             updates['userPrivate/' + intake.user + '/comm/' + community] = {
                 name: communityInfo.name,
                 confirmed: intake.confirmed,
+                photoKey: communityInfo.photoKey,
+                photoUser: communityInfo.photoUser,
                 lastMessage: {text: 'Joined Community', time}
             } 
+            updates['commMember/' + community + '/' + intake.user + '/answer'] = intake.answers;
+            updates['commMember/' + community + '/' + intake.user + '/confirmed'] = intake.confirmed;
+            updates['commMember/' + community + '/' + intake.user + '/topic'] = userTopics;
+            updates['commMember/' + community + '/' + intake.user + '/photoKey'] = intake.photoKey;
             updates['userPrivate/' + intake.user + '/communityIntake/' + community] = {
-                answers: intake.answers
+                answer: intake.answers, topic: userTopics
             }
         })
     })
@@ -592,8 +668,8 @@ async function adminCommandAsync({command, params, userId}) {
     switch (command) {
         case 'migrateTopics':
             return await migrateTopicsAsync();
-        // case 'migrateIntake':
-        //     return await migrateIntakeAsync();
+        case 'migrateIntake':
+            return await migrateIntakeAsync();
         // case 'removeCommunities':
         //     return await adminRemoveCommunities();
         default:
@@ -647,10 +723,11 @@ async function editTopicAsync({community, topic, name, questions, summary, userI
     var topicKey = topic ? topic : FBUtil.newKey();
     var oldTopic = null;
     const pMembers = FBUtil.getDataAsync(['commMember', community]);
+    const pCommunityName = FBUtil.getDataAsync(['community', community, 'name']);
     if (topic) {
         oldTopic = await FBUtil.getDataAsync(['topic', community, topic], null);
     }
-    const members = await pMembers;
+    const members = await pMembers; const communityName = await pCommunityName;
 
     console.log('editTopic', topic, members, community);
 
@@ -660,13 +737,25 @@ async function editTopicAsync({community, topic, name, questions, summary, userI
         approved: isMaster, from: userId
     }
     const lastMessage = {text: 'New topic: ' + name, time};
+    var notifs = [];
+    const summaryText = summary ? (' - ' + summary) : '';
+    const questionText = _.join(JSON.parse(questions), '\n');
+    const notifBase = {
+        title: 'New Topic in ' + communityName,
+        body: name + summaryText + '\n' + questionText,
+        data: {
+            community, topicKey, time, type: 'topic'
+        }
+    }
+
     updates['community/' + community + '/lastMessage'] = lastMessage
     if (!topic) {
         _.forEach(_.keys(members), member => {
             updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
+            notifs.push({...notifBase, toUser: member});
         })
     }
-    // console.log('updates', updates);
-    return {success: true, updates}
+    console.log('updates', updates, notifs);
+    return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;

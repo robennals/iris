@@ -4,37 +4,43 @@ import { email_label, name_label, parseQuestions, parseTopics, ScreenContentScro
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import _ from 'lodash';
 
-function tabLineForIntakeLine({intakeItem, questionNames, topicNames}) {
-    const basics = [intakeItem.name, intakeItem.email];
-    const answers = questionNames.map(q => intakeItem.answers[q]);
-    const topics = topicNames.map(t => intakeItem.selectedTopics[t]);
-    const allCells = [...basics, ...answers, ...topics];
+function tabLineForMember({member, questionNames, topicKeys}) {
+    console.log('tabLine', {member, topicKeys});
+    const basics = [member?.answer?.[name_label] || '', member?.answer?.[email_label] || ''];
+    const answers = questionNames.map(q => member?.answer?.[q]);
+    const topics = topicKeys.map(t => member?.topic?.[t] || '');
+    const confirmed = (member.confirmed == 'false' ? 'NO' : 'yes');
+    const allCells = [...basics, confirmed, ...answers, ...topics];
     return _.join(allCells, '\t');
 }
 
 export function CommunitySignupsScreen({route}) {
     const {community} = route.params;
-    const [intake, setIntake] = useState(null);
+    // const [intake, setIntake] = useState(null);
+    const [topics, setTopics] = useState(null);
+    const [members, setMembers] = useState(null);
     const [info, setInfo] = useState(null);
     useEffect(() => {
         var x = {};
-        watchData(x, ['intake', community], setIntake);
+        // watchData(x, ['intake', community], setIntake);
+        watchData(x, ['commMember', community], setMembers);
         watchData(x, ['community', community], setInfo);
+        watchData(x, ['topic', community], setTopics);
         return () => internalReleaseWatchers(x);
     }, [community]);
 
-    if (!intake || !info) return null;
+    if (!members || !info || !topics) return null;
 
-    console.log('stuff', {community, intake, info});
+    // console.log('stuff', {community, members, info});
 
     const questions = parseQuestions(info.questions);
-    const topics = parseTopics(info.topics);
+    // const topics = parseTopics(info.topics);
     const questionNames = questions.map(q => q.question).filter(n => n != email_label && n != name_label);
-    const topicNames = topics.map(t => t.title);
+    const topicNames = _.keys(topics).map(k => topics[k].name);
 
-    const columns = ['Name', 'Email', ... questionNames, ... topicNames] 
+    const columns = ['Name', 'Email', 'Confirmed', ... questionNames, ... topicNames] 
     const columnText = _.join(columns, '\t');
-    const itemLines = Object.keys(intake).map(k => tabLineForIntakeLine({intakeItem: intake[k], questionNames, topicNames}));
+    const itemLines = Object.keys(members).map(k => tabLineForMember({member: members[k], questionNames, topicKeys: _.keys(topics)}));
     const allLines = [columnText, ...itemLines];
     const tabText = _.join(allLines, '\n') + '\n';
 
