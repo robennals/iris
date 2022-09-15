@@ -486,7 +486,10 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
 
     if (confirmed || !prevIntake) {
         updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
-        updates['commMember/' + community + '/' + uid] = {answer: answers, topic: topics, confirmed, photoKey: newPhotoKey};
+        updates['commMember/' + community + '/' + uid] = {
+            answer: answers, topic: topics, confirmed, intakeTime: time,
+            photoKey: newPhotoKey
+        };
     }
 
     var emails = [];
@@ -527,12 +530,15 @@ async function confirmSignupAsync({community, intake}) {
     const template = FS.readFileSync('template/confirmsuccess.html').toString();
     const html = Mustache.render(template, {communityName});
 
+    const time = Date.now();
     var updates = {};
     // if (!commMember) {
     updates['intake/' + community + '/' + intake + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/comm/' + community + '/confirmed'] = true;
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
-    updates['commMember/' + community + '/' + uid] = {answer: intakeItem.answers, topic, confirmed: true, photoKey: intakeItem.photoKey}
+    updates['commMember/' + community + '/' + uid] = {
+        answer: intakeItem.answers, topic, confirmed: true, intakeTime: time,
+        photoKey: intakeItem.photoKey}
 
     if (intakeItem.logKey) {
         updates['/logs/intake/'+ community + '/' + intakeItem.logKey + '/confirmed'] = true;
@@ -579,112 +585,6 @@ async function migrateTopicsAsync() {
     // return {success: false, message: 'in progress'}
     return {sucess: true, updates}
 }
-
-const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
-
-function textToKey(text) {
-    return text.replace(/[\/\.\$\#\[\]]/g, '_');
-}
-  
-function findTopicKey(communityTopics, topicName) {
-    var result = null;
-    _.forEach(_.keys(communityTopics), t => {
-        if (textToKey(topicName.trim().toLowerCase()) == textToKey(communityTopics[t].name.trim().toLowerCase())) {
-            // console.log('matched topic', topicName, communityTopics[t].name)
-            result = t;
-        }
-    })
-    return result;
-}
-
-function oldTopicsToNew(communityTopics, userTopics) {
-    var out = {};
-    _.forEach(_.keys(userTopics), topicName => {
-        const topicKey = findTopicKey(communityTopics, topicName);
-        if (topicKey) {
-            out[topicKey] = 'yes';
-        } 
-    })
-    return out;
-}
-
-async function migrateIntakeAsync() {
-    console.log('migrateIntake');
-    const allIntake = await FBUtil.getDataAsync(['intake']);
-    const allCommunities = await FBUtil.getDataAsync(['community']);
-    const allTopics = await FBUtil.getDataAsync(['topic']);
-    var updates = {};
-    const time = Date.now();
-    _.forEach(_.keys(allIntake), community => {
-        const communityInfo = allCommunities[community];
-        const communityTopics = allTopics[community];
-        console.log('communityInfo', community, communityInfo.name);
-        _.forEach(_.keys(allIntake[community]), intakeKey => {
-            const intake = allIntake[community][intakeKey];
-            var userTopics;
-            if (intake.selectedTopics) {
-                userTopics = oldTopicsToNew(communityTopics, intake.selectedTopics);
-            } else if (intake.topics) {
-                userTopics = intake.topics;
-            } else {
-                userTopics = {};
-            }
-            updates['userPrivate/' + intake.user + '/comm/' + community] = {
-                name: communityInfo.name,
-                confirmed: intake.confirmed,
-                photoKey: communityInfo.photoKey,
-                photoUser: communityInfo.photoUser,
-                lastMessage: {text: 'Joined Community', time}
-            } 
-            updates['commMember/' + community + '/' + intake.user + '/answer'] = intake.answers;
-            updates['commMember/' + community + '/' + intake.user + '/confirmed'] = intake.confirmed;
-            updates['commMember/' + community + '/' + intake.user + '/topic'] = userTopics;
-            updates['commMember/' + community + '/' + intake.user + '/photoKey'] = intake.photoKey;
-            updates['userPrivate/' + intake.user + '/communityIntake/' + community] = {
-                answer: intake.answers, topic: userTopics
-            }
-        })
-    })
-    // console.log('updates', updates);
-    // return {success: false, message: 'not finished'};
-    return {success: true, updates};
-}
-
-async function adminRemoveCommunities() {
-    const allUsers = await FBUtil.getDataAsync(['userPrivate']);
-    const userKeys = _.keys(allUsers);
-    var updates = {};
-    userKeys.forEach(k => {
-        updates['userPrivate/' + k + '/community'] = null;
-    })
-    console.log('updates', updates);
-    return {success: true, updates}
-}
-
-async function adminCommandAsync({command, params, userId}) {
-
-    const paramList = params.trim().split('\n').map(x => x.trim()).filter(x => x);
-    console.log('adminCommand', command, paramList);
-
-    if (userId != rob_userId) {
-        return {success: false, message: 'Access denied'}
-    }
-
-    switch (command) {
-        case 'migrateTopics':
-            return await migrateTopicsAsync();
-        case 'migrateIntake':
-            return await migrateIntakeAsync();
-        // case 'removeCommunities':
-        //     return await adminRemoveCommunities();
-        default:
-            return {success: false, message: 'Unknown admin command'}
-    }
-
-    return {success: true}
-}
-
-exports.adminCommandAsync = adminCommandAsync;
 
 
 async function leaveCommunityAsync({community, userId}) {
@@ -734,7 +634,7 @@ async function editTopicAsync({community, topic, name, questions, summary, userI
     }
     const members = await pMembers; const communityName = await pCommunityName;
 
-    console.log('editTopic', topic, members, community);
+    // console.log('editTopic', topic, members, community);
 
     const time = Date.now();
     updates['topic/' + community + '/' + topicKey] = {

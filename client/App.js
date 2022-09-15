@@ -49,6 +49,12 @@ import { CommunityGroupsScreen } from './screens/CommunityGroups';
 import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 import { EditTopicScreen } from './screens/EditTopic';
+// import mixpanel from 'mixpanel-browser';
+
+
+// TODO: turn off debug for production
+// mixpanel.init('c9edc36b0c9edd86c4fa8a64aa9818d1', {debug: true}); 
+// mixpanel.track('Sign up');
 
 LogBox.ignoreLogs(['AsyncStorage'])
 

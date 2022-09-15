@@ -7,6 +7,7 @@ const Cron = require('./cron');
 const Migrate = require('./migrate');
 const Export = require('./export');
 const Iris = require('./iris');
+const IrisMigrate = require('./irismigrate');
 const Analysis = require('./analysis');
 
 async function apiActionAsync({action, components, params}) {
@@ -100,7 +101,7 @@ async function apiActionAsync({action, components, params}) {
             return Iris.confirmSignupAsync(params);
         }
         case 'adminCommand': {
-            return Iris.adminCommandAsync(params);
+            return IrisMigrate.adminCommandAsync(params);
         }
         case 'leaveCommunity': {
             return Iris.leaveCommunityAsync(params);

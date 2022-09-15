@@ -24,6 +24,11 @@ function isThisYear({date, nowDate}) {
       (date.getFullYear() == nowDate.getFullYear()))
 }
 
+export function formatFullTime(time) {
+  const date = new Date(time);
+  return date.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'}) 
+}
+
 export function formatMessageTime(time) {
   const now = Date.now();
   const nowDate = new Date(now);
