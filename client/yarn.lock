@@ -3676,7 +3676,7 @@ expo-constants@~13.2.0, expo-constants@~13.2.2, expo-constants@~13.2.3:
     "@expo/config" "~7.0.0"
     uuid "^3.3.2"
 
-expo-device@^4.1.1:
+expo-device@^4.1.1, expo-device@~4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/expo-device/-/expo-device-4.3.0.tgz#a25257febe8dd18378f556ef61b5ff73ee687a6b"
   integrity sha512-NRmsEuZVxx0EvD/dHZdng87wDgN9msfyjqp5DbNIyzvMGhxOrGtE/iEivvMyOdQpVotHGK8rBRbFKJzOtYB5lg==
@@ -6524,6 +6524,11 @@ react-native-animatable@1.3.3:
   integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
   dependencies:
     prop-types "^15.7.2"
+
+react-native-async-storage@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-async-storage/-/react-native-async-storage-0.0.1.tgz#5f2ef5ff30eae64b4248e265b534e72ea41cdc69"
+  integrity sha512-EwOIpNfwMiELMnS7HDzgyX2xO4TALK95O473Z6Kai5Il5j/03yTTErwMtvoYnA0OKUHd1R54ptmbbMukUH03Xg==
 
 react-native-auto-grow-textinput@^1.2.1:
   version "1.2.1"

@@ -9,9 +9,8 @@ import { FixedTouchable } from './basics';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import _ from 'lodash';
-// import { ScrollView } from 'react-native-gesture-handler';
 // import { Mixpanel } from 'mixpanel-react-native';
-// import ExpoMixpanelAnalytics from '@bothrs/expo-mixpanel-analytics';
+// import {ExpoMixpanelAnalytics} from './expomixpanel';
 // const mixpanel = new ExpoMixpanelAnalytics('c9edc36b0c9edd86c4fa8a64aa9818d1');
 
 
