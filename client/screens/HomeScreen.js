@@ -14,6 +14,7 @@ import { AppPromo } from '../components/apppromo';
 import * as Notifications from 'expo-notifications';
 import { reloadIfVersionChanged } from '../data/versioncheck';
 import { GroupPreview, isGroupUnread } from '../components/grouppreview';
+import { track } from '../components/shim';
 
 
 
@@ -80,14 +81,23 @@ export class GroupList extends React.Component {
     }
 
     async selectGroupOrCommunity(k) {
-        const {localCommSet, masterCommSet} = this.state;
+        const {localCommSet, masterCommSet, groupSet} = this.state;
         const {navigation, singleScreen} = this.props;
         reloadIfVersionChanged();
 
         const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : localCommSet;
 
+        const isCommunity = communitySet[k];
+
+        if (isCommunity) {
+            track('View Community', {community: k, communityName: communitySet[k].name});
+        } else {
+            track('View Group', {group: k, groupName: groupSet[k].name});
+        }
+
         const thingType = communitySet[k] ? 'community' : 'group';
         const dataName = communitySet[k] ? 'comm' : 'group';
+
 
         this.setState({selected: k});
         if (singleScreen || Platform.OS == 'web') {           

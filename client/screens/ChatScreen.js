@@ -158,12 +158,16 @@ export function ChatScreen({navigation, route}) {
     const [members, setMembers] = useState(null);
     const [archived, setArchived] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
+    const [groupName, setGroupName] = useState(null);
+    const [community, setCommunity] = useState(null);
     const scrollRef = React.createRef();
     const chatInputRef = React.createRef();
 
     useEffect(() => {
         var x = {}
         watchData(x, ['group', group, 'message'], setMessages);
+        watchData(x, ['group', group, 'name'], setGroupName);
+        watchData(x, ['group', group, 'community'], setCommunity, null);
         watchData(x, ['group', group, 'member'], setMembers);
         watchData(x, ['group', group, 'archived'], setArchived, false);
         watchData(x, ['userPrivate', getCurrentUser(), 'localMessage', group], setLocalMessages);
@@ -207,7 +211,10 @@ export function ChatScreen({navigation, route}) {
                 (archived && !isMasterUser(getCurrentUser()) ? 
                 null
                 :
-                    <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} members={members} replyTo={replyTo} onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+                    <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} 
+                        members={members} replyTo={replyTo} groupName={groupName}
+                        community={community}
+                        onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
                 )
             }
           </View>

@@ -5,6 +5,7 @@ import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../compon
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
+import { track } from '../components/shim';
 import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, requestDelayedSignout, watchData } from '../data/fbutil'
 import { releaseServerTokenWatch } from '../data/servercall';
 
@@ -23,6 +24,7 @@ export function MyProfileScreen({navigation}) {
     console.log('photo', photo, uploading);
 
     async function signOut() {
+        track('Sign Out',{fromProfile: true});
         console.log('SIGNOUT!!');
         requestDelayedSignout();
         await navigation.popToTop();

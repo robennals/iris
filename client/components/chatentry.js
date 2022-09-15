@@ -4,8 +4,9 @@ import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-n
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, SERVER_TIMESTAMP, setDataAsync } from '../data/fbutil';
 import { sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
+import { track } from './shim';
 
-export function ChatEntryBox({group, messages, members, replyTo, onClearReply, chatInputRef, byMeCount = 0}) {
+export function ChatEntryBox({group, messages, groupName, community, members, replyTo, onClearReply, chatInputRef, byMeCount = 0}) {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
@@ -39,6 +40,8 @@ export function ChatEntryBox({group, messages, members, replyTo, onClearReply, c
         setInProgress(true);
         // setText('');
         // setTextKey(textKey+1);
+        console.log('Send Message');
+        track('Send Message', {length: text.length, isReply: replyTo ? true : false, group, community, groupName});
         await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
             time: getFirebaseServerTimestamp(),
             text, replyTo, from: getCurrentUser(),

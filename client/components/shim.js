@@ -9,14 +9,21 @@ import { FixedTouchable } from './basics';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import _ from 'lodash';
-// import { Mixpanel } from 'mixpanel-react-native';
-// import {ExpoMixpanelAnalytics} from './expomixpanel';
-// const mixpanel = new ExpoMixpanelAnalytics('c9edc36b0c9edd86c4fa8a64aa9818d1');
+import {ExpoMixpanelAnalytics} from './expomixpanel';
+const mixpanel = new ExpoMixpanelAnalytics('c9edc36b0c9edd86c4fa8a64aa9818d1');
 
 
-// export function track(eventName, params) {
-//   mixpanel.track(eventName, params);
-// }
+export function track(eventName, params) {
+  mixpanel.track(eventName, params);
+}
+
+export function identify(userId) {
+  mixpanel.identify(userId);
+}
+
+export function resetMixpanel() {
+  mixpanel.reset();
+}
 
 export function getCurrentDomain(){ 
     return appDomain

@@ -6,7 +6,7 @@ import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon } from '../components/photo';
-import { BottomFlatScroller, setTitle, useCustomNavigation } from '../components/shim';
+import { BottomFlatScroller, setTitle, track, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
@@ -78,6 +78,7 @@ export function CommunityScreen({navigation, route}) {
     }
 
     const isMaster = isMasterUser();
+    if (!topicStates || !topics) return null;
 
     // if (role == false && !isMasterUser()) {
     //     return (
@@ -150,6 +151,7 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
     const state = _.get(topicStates, topicKey);
 
     async function setTopicState(state) {
+        track('Set Topic State', {topic: topicKey, topicName: topic.name, state});
         console.log('setTopicState', community, topicKey, state);
         setExpanded(false);
         await setDataAsync(['commMember', community, getCurrentUser(), 'topic', topicKey], state);

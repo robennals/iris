@@ -5,10 +5,11 @@ import { getCurrentUser, watchData } from '../data/fbutil';
 import { setProfilePhotoAsync } from '../data/servercall';
 import { FixedTouchable, WideButton } from './basics';
 import { pickImage } from './photo';
-import { resizeImageAsync } from './shim';
+import { resizeImageAsync, track } from './shim';
 
 
 export async function chooseProfilePhotoAsync(setUploading) {
+    track('Set Profile Photo');
     const bigPhoto = await pickImage();
     setUploading(true);
     const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})

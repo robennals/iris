@@ -3,6 +3,7 @@ import {Platform, View, Text, Image, StyleSheet, Linking, TextInput, ScrollView}
 import { Link, FormInput, FixedTouchable, ScreenContentScroll, WideButton, LogoHeader, validateEmail } from '../components/basics';
 import { requestLoginCode, signinWithLoginCode } from '../data/servercall';
 import { appName, appDomain, baseColor } from '../data/config';
+import { track } from '../components/shim';
 
 
 
@@ -22,6 +23,7 @@ export class SignInScreen extends React.Component {
   state = {email: null, code: null, name: null, mode: null, signingIn: false, errorMessage: null, inProgress: false};
 
   async sendLoginCode(email){
+    track('Enter Login Email', {email});
     console.log('sendLoginCode', email);
     if (!email) {
       this.setState({errorMessage: 'You must provide an email address to log in'})
@@ -42,6 +44,7 @@ export class SignInScreen extends React.Component {
   
   // TODO: code should be in POST rather than GET
   async loginWithCode(code) {
+    track('Enter Login Code');
     this.setState({signingIn: true});
 
     const email = this.state.email || this.props.email;

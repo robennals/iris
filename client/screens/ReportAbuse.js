@@ -5,6 +5,7 @@ import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbut
 import { Picker, Text, View } from 'react-native';
 import { reportAbuseAsync } from '../data/servercall';
 import _ from 'lodash';
+import { track } from '../components/shim';
 
 export function ReportAbuseScreen({navigation, route}){
     const {group, member} = route.params;
@@ -28,6 +29,7 @@ export function ReportAbuseScreen({navigation, route}){
     }, [members, member])
 
     async function submit() {
+        track('Report Abuse', {group, member, abuseType});
         await reportAbuseAsync({group, member, abuseType, details});        
         navigation.goBack();
     }

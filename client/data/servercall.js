@@ -1,4 +1,4 @@
-import { getCurrentDomain } from "../components/shim";
+import { getCurrentDomain, track } from "../components/shim";
 import { firebaseApp } from "./config";
 import { internalReleaseWatchers, onFirebaseAuthStatechanged, releaseWatcher, signInWithTokenAsync, watchData } from "./fbutil";
 import _ from 'lodash';
@@ -178,6 +178,7 @@ export async function adminCommandAsync({command, params}) {
 }
 
 export async function leaveCommunityAsync({community}) {
+    track('Leave Community', {community});
     return await callServerApiAsync('leaveCommunity', {community});
 }
 

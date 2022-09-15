@@ -6,7 +6,7 @@ import { getCurrentUser, setDataAsync, getDataAsync, getFirebaseNotifTokenAsync,
 import _ from 'lodash'
 import { FixedTouchable, MinorButton, WideButton } from './basics';
 import { Ionicons } from '@expo/vector-icons';
-import { checkIfNotifsGranted, getNotifToken, requestNotifPermission } from './shim';
+import { checkIfNotifsGranted, getNotifToken, requestNotifPermission, track } from './shim';
 import { serverTimestamp } from 'firebase/database';
 
 // export async function checkIfNotifsGranted() {
@@ -79,12 +79,15 @@ export class EnableNotifsBanner extends React.Component {
     }
 
     async setupNotifToken() {
+      track('Enable Notifs Clicked');
       const permissionGranted = requestNotifPermission();
       // const notifStatus = await Notifications.requestPermissionsAsync();
       if (permissionGranted) {
+        track('Notif Permission Granted');
         await refreshNotifToken();
         this.setState({notifsEnabled: true});
       } else {
+        track('Notif Permission Denied');
         this.setState({denied: true});
       }
     }

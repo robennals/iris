@@ -25,7 +25,7 @@ import { GroupProfileScreen } from './screens/GroupProfileScreen';
 import { ThreadScreen, ThreadScreenHeader } from './screens/ThreadScreen';
 import { NotifIcon } from './components/notificon';
 import { NotifScreen } from './screens/NotifScreen';
-import { track, webInit } from './components/shim';
+import { identify, resetMixpanel, track, webInit } from './components/shim';
 import { PhotoScreen } from './screens/PhotoScreen';
 import { CustomNavigator } from './components/customnavigator';
 import { NotifLine } from './components/notifline';
@@ -50,7 +50,7 @@ import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 import { EditTopicScreen } from './screens/EditTopic';
 
-// track('Start up');
+track('Start up');
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
@@ -106,6 +106,13 @@ export default function App() {
     // console.log('initial setup');
     onFirebaseAuthStatechanged(async fbUser => {
       setUser(fbUser && fbUser.uid)
+      if (fbUser && fbUser.uid) {
+        identify(fbUser.uid);
+      } else {
+        console.log('reset!');
+        resetMixpanel();
+      }
+
       setLoadStatus(loadStatus + ' : Got Auth...');
       setGotAuth(true);
       await SplashScreen.hideAsync();
