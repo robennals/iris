@@ -757,10 +757,11 @@ async function editTopicAsync({community, topic, name, questions, summary, userI
     if (!topic) {
         _.forEach(_.keys(members), member => {
             updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
-            notifs.push({...notifBase, toUser: member});
+            // notifs.push({...notifBase, toUser: member});
         })
     }
-    console.log('updates', updates, notifs);
-    return {success: true, updates, notifs}
+    // console.log('updates', updates, notifs);
+    return {success: true, updates}
+    // return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;
