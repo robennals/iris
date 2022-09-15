@@ -11,7 +11,7 @@ function tabLineForMember({member, questionNames, topicKeys}) {
     const basics = [member?.answer?.[name_label] || '', member?.answer?.[email_label] || ''];
     const answers = questionNames.map(q => member?.answer?.[q]);
     const topics = topicKeys.map(t => member?.topic?.[t] || '');
-    const confirmed = (member.confirmed == 'false' ? 'NO' : 'yes');
+    const confirmed = (member.confirmed == false ? 'NO' : 'yes');
     const allCells = [fullTime, ...basics, confirmed, ...answers, ...topics];
     return _.join(allCells, '\t');
 }
