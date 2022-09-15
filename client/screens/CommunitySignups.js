@@ -43,7 +43,8 @@ export function CommunitySignupsScreen({route}) {
     const columns = ['Time', 'Name', 'Email', 'Confirmed', ... questionNames, ... topicNames] 
     const columnText = _.join(columns, '\t');
     const sortedMemberKeys = _.sortBy(_.keys(members), k => members[k].intakeTime);
-    const itemLines = sortedMemberKeys.map(k => tabLineForMember({member: members[k], questionNames, topicKeys: _.keys(topics)}));
+    const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time);
+    const itemLines = sortedMemberKeys.map(k => tabLineForMember({member: members[k], questionNames, topicKeys: sortedTopicKeys}));
     const allLines = [columnText, ...itemLines];
     const tabText = _.join(allLines, '\n') + '\n';
 

@@ -9,6 +9,7 @@ import { PopupSelector } from '../components/shim';
 import { Entypo } from '@expo/vector-icons';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
+import { formatFullTime, formatTime } from '../components/time';
 
 function topicSelected(state) {
     return state == 'yes' || state == 'maybe';
@@ -39,7 +40,7 @@ function Member({memberKey, member, questionTitles, allTopics, sortedTopicKeys, 
                     <MemberPhotoIcon photoKey={member.photoKey} user={memberKey} size={50} />
                 }
                 <View style={{marginLeft: 8}}>
-                    <Text style={{fontWeight: 'bold', marginBottom: 2}}>{name} <Text style={{fontWeight: '400'}}>{'<' + email + '>'}</Text></Text>
+                    <Text style={{fontWeight: 'bold', marginBottom: 2}}>{name} <Text style={{fontWeight: '400'}}>{'<' + email + '>'} <Text style={{color: '#666', fontSize: 12}}> {formatTime(member.intakeTime)}</Text></Text></Text>
                     <Text>{answerSummary}</Text>
                     <Text style={{color: '#666', fontSize: 13}}>{topicSummary}</Text>
                 </View>
@@ -110,7 +111,8 @@ export function AdminCreateGroupScreen({navigation, route}) {
     // const intakeKeysForTopic = Object.keys(intake).filter(k => intake[k].selectedTopics[topic] || topic == 'choose');
     console.log('stuff', {members, allTopics});
     const realMemberKeys = _.keys(members).filter(k => members[k].answer);
-    const memberKeysForTopic = realMemberKeys.filter(k => topicSelected(members[k].topic?.[topic]) || topic == 'choose');
+    const sortedMemberKeys = _.sortBy(realMemberKeys, k => members[k].intakeTime);
+    const memberKeysForTopic = sortedMemberKeys.filter(k => topicSelected(members[k].topic?.[topic]) || topic == 'choose');
 
     const memberCount = people.length + Object.keys(selectedMembers).filter(k => selectedMembers[k]).length;
     // console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})

@@ -25,7 +25,7 @@ import { GroupProfileScreen } from './screens/GroupProfileScreen';
 import { ThreadScreen, ThreadScreenHeader } from './screens/ThreadScreen';
 import { NotifIcon } from './components/notificon';
 import { NotifScreen } from './screens/NotifScreen';
-import { webInit } from './components/shim';
+import { track, webInit } from './components/shim';
 import { PhotoScreen } from './screens/PhotoScreen';
 import { CustomNavigator } from './components/customnavigator';
 import { NotifLine } from './components/notifline';
@@ -49,16 +49,12 @@ import { CommunityGroupsScreen } from './screens/CommunityGroups';
 import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 import { EditTopicScreen } from './screens/EditTopic';
-// import mixpanel from 'mixpanel-browser';
 
-
-// TODO: turn off debug for production
-// mixpanel.init('c9edc36b0c9edd86c4fa8a64aa9818d1', {debug: true}); 
-// mixpanel.track('Sign up');
+// track('Start up');
 
 LogBox.ignoreLogs(['AsyncStorage'])
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 
 const prefix = Linking.createURL('/');
 const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {

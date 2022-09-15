@@ -1,6 +1,6 @@
 import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, ScrollView } from 'react-native';
 import { email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
 import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
@@ -277,7 +277,8 @@ export function IntakeScreen({community:paramCommunity, route}) {
     if (!info || !topics) return null;
 
     const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time).reverse();
-    const shownTopicKeys = sortedTopicKeys.slice(0, 10);
+    // const shownTopicKeys = sortedTopicKeys.slice(0, 10);
+    const shownTopicKeys = sortedTopicKeys;
 
     const questions = parseQuestions(info.questions);
     // const topics = parseTopics(info.topics);
@@ -343,12 +344,14 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>What Topics would you like to Discuss?</Text>
                 <Text style={{color: '#666'}}>Choosing more topics increases the chance of a good match.</Text>
             </View>
-            {shownTopicKeys.map(topicKey =>
-                <Topic key={topicKey} topic={topics[topicKey]}
-                    selected={selectedTopics[topicKey]}
-                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
-                />
-            )}
+            <ScrollView style={{marginHorizontal: 16, borderRadius: 16, paddingVertical: 8, maxHeight: 500, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}> 
+                {shownTopicKeys.map(topicKey =>
+                    <Topic key={topicKey} topic={topics[topicKey]}
+                        selected={selectedTopics[topicKey]}
+                        onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
+                    />
+                )}
+            </ScrollView>
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
             <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || !answers[email_label] || !answers[name_label] || !thumbData || inProgress || topicCount < 1}>
                 {inProgress ? 'Submitting...' : 'Submit'}
