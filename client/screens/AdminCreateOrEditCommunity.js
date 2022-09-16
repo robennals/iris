@@ -8,6 +8,7 @@ import { getUrlForImage, GroupPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
 import { watchData } from '../data/fbutil';
 import { createCommunityAsync, createOrUpdateCommunityAsync, updateCommunityAsync } from '../data/servercall';
+import _ from 'lodash';
 
 
 export function AdminCreateOrEditCommunityScreen({navigation, route}) {

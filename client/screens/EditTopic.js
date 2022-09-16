@@ -4,13 +4,16 @@ import { FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButto
 import { CommunityPhotoIcon } from '../components/photo';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import { editTopicAsync } from '../data/servercall';
+import _ from 'lodash';
 
 function questionJsonToText(questions) {
+    console.log('questions', questions);
     if (!questions) {
         return '';
     }
     try {
         const questionList = JSON.parse(questions);
+        console.log('parsed', questionList);
         return _.join(questionList, '\n');
     } catch (e) {
         return '';
@@ -44,9 +47,15 @@ export function EditTopicScreen({navigation, route}) {
         return () => internalReleaseWatchers(x);
     }, [community])
 
+    const oldQuestions = questionJsonToText(old.questions);
+    console.log('oldQuestions', oldQuestions, '-');
+
     const merged = mergeEditedParams({
-        oldObj: {...old, questions: questionJsonToText(old.questions)}, 
+        oldObj: {...old, questions: oldQuestions}, 
         newObj: {name, summary, questions}})
+
+    console.log('merged', merged, old);
+
 
     async function onSubmit() {
         await editTopicAsync({community, topic: topic || null, name: merged.name, 
@@ -73,7 +82,7 @@ export function EditTopicScreen({navigation, route}) {
                     <FormInput value={merged.summary} onChangeText={setSummary} />                
                 </FormTitle>
                 <FormTitle title='Three Short Questions (one per line)'>
-                    <FormInput value={merged.questions} onChangeText={setQuestions} multiline extraStyle={{flex: null, height: 72}} />
+                    <FormInput value={merged.questions || ''} onChangeText={setQuestions} multiline extraStyle={{flex: null, height: 72}} />
                 </FormTitle>
                 <WideButton onPress={onSubmit} style={{marginTop: 32, alignSelf: 'flex-start'}} 
                     inProgress={topic ? 'Updating...' : 'Creating Topic...'}>

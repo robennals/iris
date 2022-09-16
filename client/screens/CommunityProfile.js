@@ -3,6 +3,8 @@ import { Text, View } from 'react-native';
 import { ScreenContentScroll } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { watchData } from '../data/fbutil';
+import _ from 'lodash';
+
 
 export function CommunityProfileScreen({route}) {
     const {community} = route.params;

@@ -4,6 +4,7 @@ import { MinorButton, ScreenContentScroll, WideButton } from '../components/basi
 import { CommunityPhotoIcon } from '../components/photo';
 import { getCurrentUser, internalReleaseWatchers, watchData } from '../data/fbutil';
 import { leaveCommunityAsync } from '../data/servercall';
+import _ from 'lodash';
 
 function CommunityToLeave({communities, communityKey}) {
     const [info, setInfo] = useState({});
