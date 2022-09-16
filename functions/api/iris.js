@@ -459,8 +459,10 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     
     const pPrevIntake = FBUtil.getDataAsync(['userPrivate', uid, 'communityIntake', community], null);
     const pCommTopics = FBUtil.getDataAsync(['topic', community]);
+    const pCommInfo = FBUtil.getDataAsync(['community', community]);
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
-    const prevIntake = await pPrevIntake; const commTopics = await pCommTopics;
+    const prevIntake = await pPrevIntake; const commTopics = await pCommTopics; 
+    const commInfo = await pCommInfo;
 
     if (selectedTopics && !topics) {
         topics = oldTopicsToNew(commTopics, selectedTopics);
@@ -489,6 +491,8 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     updates['userPrivate/' + uid + '/comm/' + community] = {
         name: communityName,
         confirmed,
+        photoKey: commInfo.photoKey,
+        photoUser: commInfo.photoUser,
         lastMessage: {text: 'You Joined the community', time}
     }
 
@@ -630,7 +634,7 @@ function logIntakeAsync({logKey, community, stage, data, ip, userId}) {
 exports.logIntakeAsync = logIntakeAsync;
 
 
-async function editTopicAsync({community, topic, name, questions, summary, userId}) {
+async function editTopicAsync({community, topic=null, name, questions, summary, userId}) {
     const isMaster = isMasterUser(userId);
     var updates = {};
     var topicKey = topic ? topic : FBUtil.newKey();
@@ -642,27 +646,29 @@ async function editTopicAsync({community, topic, name, questions, summary, userI
     }
     const members = await pMembers; const communityName = await pCommunityName;
 
-    // console.log('editTopic', topic, members, community);
+    console.log('editTopic', topic, topicKey);
 
     const time = Date.now();
     updates['topic/' + community + '/' + topicKey] = {
         name, questions, summary, time: oldTopic?.time || time,
         approved: isMaster, from: userId
     }
-    const lastMessage = {text: 'New topic: ' + name, time};
     var notifs = [];
     const summaryText = summary ? (' - ' + summary) : '';
     const questionText = _.join(JSON.parse(questions), '\n');
-    const notifBase = {
-        title: 'New Topic in ' + communityName,
-        body: name + summaryText + '\n' + questionText,
-        data: {
-            community, topicKey, time, type: 'topic'
-        }
-    }
 
-    updates['community/' + community + '/lastMessage'] = lastMessage
     if (!topic) {
+        const notifBase = {
+            title: 'New Topic in ' + communityName,
+            body: name + summaryText + '\n' + questionText,
+            data: {
+                community, topicKey, time, type: 'topic'
+            }
+        }
+    
+        const lastMessage = {text: 'New topic: ' + name, time};
+        updates['community/' + community + '/lastMessage'] = lastMessage
+
         _.forEach(_.keys(members), member => {
             updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
             // notifs.push({...notifBase, toUser: member});
