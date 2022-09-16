@@ -3,6 +3,7 @@ const _ = require('lodash');
 const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
+const { importMixPanelEventsAsync } = require('../output/mixpanel');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -134,6 +135,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateIntakeTimeAsync();
         // case 'removeCommunities':
         //     return await adminRemoveCommunities();
+        case 'migrateMixPanel':
+            return await migratePastMixPanelMessagesAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }
@@ -142,3 +145,43 @@ async function adminCommandAsync({command, params, userId}) {
 }
 
 exports.adminCommandAsync = adminCommandAsync;
+
+
+async function migratePastMixPanelMessagesAsync() {
+    const groups = await FBUtil.getDataAsync(['group']);
+    const communities = await FBUtil.getDataAsync(['community']);
+    var events = [];
+    _.forEach(_.keys(groups), group => {
+        const groupName = groups[group].name;
+        const community = groups[group].community;
+        console.log('group', group, groupName, community);
+        const communityName = community ? communities[community].name : null;
+        console.log('community', communityName);
+        const messageKeys = _.keys(groups[group].message);
+        // console.log('message count', messageKeys.length);
+        _.forEach(messageKeys, m => {
+            const message = groups[group].message[m];
+            // console.log('message', m, message.text);
+            events.push({
+                event: 'Server Send Message', 
+                properties: {
+                    time: message.time,
+                    length: message.text?.length,
+                    distinct_id: message.from,
+                    replyTo: message.replyTo ? true : false,
+                    group, groupName, community, communityName,
+                    '$insert_id': m
+                }
+            })
+        })
+    })
+    
+    console.log('sending to mixpanel...');
+
+    const result = await importMixPanelEventsAsync(events);
+    console.log('result', result);
+
+    // console.log('events', events);
+    return {success: true}
+}
+
