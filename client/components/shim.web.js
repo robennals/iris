@@ -10,9 +10,11 @@ import {Audio} from 'expo-av';
 import { Entypo } from '@expo/vector-icons';
 import { querystringDecode } from '@firebase/util';
 import { getFirebaseNotifTokenAsync } from '../data/fbutil';
-import mixpanel from 'mixpanel-browser';
+// import mixpanel from 'mixpanel-browser';
+import {ExpoMixpanelAnalytics} from './expomixpanel';
+const mixpanel = new ExpoMixpanelAnalytics('c9edc36b0c9edd86c4fa8a64aa9818d1');
 
-mixpanel.init('c9edc36b0c9edd86c4fa8a64aa9818d1', {debug: true, ignore_dnt: true}); 
+// mixpanel.init('c9edc36b0c9edd86c4fa8a64aa9818d1', {debug: true, ignore_dnt: true}); 
 
 export function track(eventName, params) {
   mixpanel.track(eventName, params);

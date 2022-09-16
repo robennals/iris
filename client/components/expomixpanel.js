@@ -3,6 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Constants from "expo-constants";
 import * as Device from "expo-device";
+import * as Network from 'expo-network';
+
 
 import { Buffer } from "buffer";
 
@@ -27,17 +29,27 @@ export class ExpoMixpanelAnalytics {
       app_version_string: Constants.manifest?.version,
       device_name: Constants.deviceName,
       expo_app_ownership: Constants.appOwnership || undefined,
+    //   Ip: Network.
       '$os': Platform.OS,
       os_version: Platform.Version,
     };
+
+    if (Platform.OS == 'web') {
+        Network.getIpAddressAsync().then(ipAddress => {
+            Object.assign(this.constants, {
+                '$ip': ipAddress,
+                ip: ipAddress
+            })
+        })
+    }
 
     Constants.getWebViewUserAgentAsync().then((userAgent) => {
       // @ts-ignore
       const { width, height } = Dimensions.get("window");
       Object.assign(this.constants, {
-        screen_height: height,
-        screen_size: `${width}x${height}`,
-        screen_width: width,
+        'Screen Height': height,
+        // screen_size: `${width}x${height}`,
+        'Screen Width': width,
         user_agent: userAgent,
       });
       if (
@@ -48,7 +60,7 @@ export class ExpoMixpanelAnalytics {
         this.platform = Device.modelId;
         this.model = Device.modelName || undefined;
       } else {
-        this.platform = "android";
+        this.platform = Platform.OS;
       }
 
       AsyncStorage.getItem(this.storageKey, (_, result) => {

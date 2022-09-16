@@ -26,10 +26,14 @@ admin.initializeApp({
 exports.api = functions.https.onRequest((async (request, response) => {
     console.log('API', request.path);
 
-    const ip = request.headers['x-forwarded-for'] ||
+    const ipList = request.headers['x-forwarded-for'] ||
      request.headers['x-appengine-user-ip'] ||
      request.headers['fastly-client-ip'] ||
      request.socket.remoteAddress || 'no-ip'
+    const ip = ipList?.split(',')[0];
+    console.log('ipList', ipList);
+    console.log('ip', ip);
+
 
     if (request.method == 'OPTIONS') {
         cors(request, response, () => {

@@ -3,6 +3,7 @@ const _ = require('lodash');
 const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
+const { mixpanel } = require('../output/mixpanel');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -318,7 +319,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
 
 // TODO: Send notification to other group members on mobile
-async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
+async function sendMessageAsync({messageKey, group, text, replyTo, userId, ip}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
@@ -366,6 +367,12 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId}) {
             const notif = {...notifBase, toUser: member}
             notifs.push(notif);
         }
+    })
+
+    mixpanel.track('Server Send Message', {
+        distinct_id: userId,
+        ip: ip, length: text.length, replyTo: replyTo ? true : false,
+        group, community, groupName
     })
 
     // console.log('notifs', notifs);
