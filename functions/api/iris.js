@@ -371,6 +371,7 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId, ip}) 
 
     mixpanel.track('Server Send Message', {
         distinct_id: userId,
+        '$insert_id': key,
         ip: ip, length: text.length, replyTo: replyTo ? true : false,
         group, community, groupName
     })
