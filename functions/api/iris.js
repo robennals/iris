@@ -646,7 +646,7 @@ async function editTopicAsync({community, topic=null, name, questions, summary, 
     }
     const members = await pMembers; const communityName = await pCommunityName;
 
-    console.log('editTopic', topic, topicKey);
+    // console.log('editTopic', topic, topicKey);
 
     const time = Date.now();
     updates['topic/' + community + '/' + topicKey] = {
