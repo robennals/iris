@@ -7,8 +7,21 @@ import { EnableNotifsBanner } from '../components/notifpermission';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
 import { track } from '../components/shim';
-import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, requestDelayedSignout, watchData } from '../data/fbutil'
+import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, isMasterUser, requestDelayedSignout, watchData } from '../data/fbutil'
 import { releaseServerTokenWatch } from '../data/servercall';
+
+function FakeErrorButton() {
+    const [bad, setBad] = useState(false);
+    if (bad) {
+        return undefined.foo.foo;
+    } else {
+        return (        
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={() => setBad(true)}>
+                Fake Error
+            </WideButton>
+        )
+    }
+}
 
 export function MyProfileScreen({navigation}) {
     const [photo, setPhoto] = useState();
@@ -59,16 +72,17 @@ export function MyProfileScreen({navigation}) {
                 <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
             </View>
 
-            <Catcher>
-                <Text>{undefined.foo.foo.foo}</Text>
-            </Catcher>
-
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
             <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                 <WideButton style={{alignSelf: 'center'}} onPress={() => signOut()}>
                     Sign Out
                 </WideButton>
                 <WideButton onPress={() => navigation.navigate('unsubscribe')} >Leave Communities</WideButton>
+                {isMasterUser() ? 
+                    <Catcher context={{fake: 'yes'}}>
+                        <FakeErrorButton />
+                    </Catcher>
+                : null}
             </View>
             <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:account@iris-talk.com'>account@iris-talk.com</Link></Text>
             

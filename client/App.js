@@ -53,7 +53,8 @@ import * as Sentry from 'sentry-expo';
 
 Sentry.init({
   dsn: 'https://0c46551eb8ee400c8aa4a6bd6c316f4c@o1414339.ingest.sentry.io/6754623',
-  enableInExpoDevelopment: true
+  // enableInExpoDevelopment: true,
+  // debug: true
 });
 
 

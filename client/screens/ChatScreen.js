@@ -18,6 +18,7 @@ import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
 import { adminJoinGroupAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
+import { Catcher } from '../components/catcher';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -257,7 +258,7 @@ function MessageList({group, messages, sortedMessageKeys, members, memberHues, o
                     <View style={{height: 16}} />
                 },
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
-                    <Message key={k} messages={messages} members={members} 
+                    <Message key={k} messages={messages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues}
                         onReply={onReply}/>})),
@@ -268,7 +269,7 @@ function MessageList({group, messages, sortedMessageKeys, members, memberHues, o
 }
 
 
-function Message({messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply}) {
+function Message({group, messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply}) {
     const message = messages[messageKey];
     const prevMessage = messages[prevMessageKey] ?? {};
     const nextMessage = messages[nextMessageKey] ?? {};
@@ -333,10 +334,13 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
                             </View>
                         }
                         {message.replyTo ?
-                            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
-                                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
-                            </View> 
+                            <Catcher label='RepliedMessage' context={{group, messageKey}}>
+                                <RepliedMessage message={message} messages={messages} members={members} />
+                                {/* <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                                    <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
+                                    <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
+                                </View> */}
+                            </Catcher> 
                         : null}
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
                         {message.pending ?
@@ -362,6 +366,27 @@ function Message({messages, members, messageKey, prevMessageKey, nextMessageKey,
         </View>
         // </Swipeable>
     )
+}
+
+function RepliedMessage({message, messages, members}) {
+    const myMessage = message.from == getCurrentUser();
+    const repliedMessage = messages[message.replyTo];
+    if (repliedMessage) {
+        return (
+            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[repliedMessage.from]?.name}</Text>
+                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{repliedMessage.text}</Text>
+            </View>
+        )
+    } else {
+        return (
+            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>Missing message</Text>
+            </View>
+        )
+        
+    }
+
 }
 
 

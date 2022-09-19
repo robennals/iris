@@ -62,7 +62,7 @@ export function GroupProfileScreen({navigation, route}) {
 
     var selectedTopicQuestions = [];
     var bioQuestions = [];
-    console.log('communityInfo', communityInfo)
+    // console.log('communityInfo', communityInfo)
     if (communityInfo) {
         const topics = parseTopics(communityInfo.topics);
         const selectedTopic = _.find(topics, t => t.title == name);
@@ -72,8 +72,8 @@ export function GroupProfileScreen({navigation, route}) {
     }
 
 
-    console.log('selectedTopicquestions', selectedTopicQuestions);
-    console.log('bioQuestions', bioQuestions);
+    // console.log('selectedTopicquestions', selectedTopicQuestions);
+    // console.log('bioQuestions', bioQuestions);
 
     const filteredQuestions = selectedTopicQuestions?.filter(q => q[0] != '>')
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Platform, Text, View } from 'react-native';
 import _ from 'lodash';
 import * as Sentry from 'sentry-expo';
-import { captureException, ErrorBoundary } from './shim';
+import { captureException, captureMessage, ErrorBoundary, setContext } from './shim';
 
 
 var global_testMode = false;
@@ -14,16 +14,44 @@ function ErrorHolder(props) {
   return <Text>Error</Text>
 }
 
-export function Catcher({children}) {
-  return <ErrorBoundary fallback={props => <ErrorHolder props={props} />}>{children}</ErrorBoundary>
+export function BAD_Catcher({context, children}) {
+  return (
+    <ErrorBoundary 
+      fallback={props => <ErrorHolder props={props} 
+      beforeCapture={scope => {
+        console.log('before context');
+        if (context) {
+          console.log('context', context);
+          scope.setContext(context);
+          setContext(context);
+        }
+      }}
+    />}>
+      {children}
+    </ErrorBoundary>
+  )
 }
 
-export class OLD_Catcher extends React.Component {
+export class Catcher extends React.Component {
   state = {hasError: false, error: null, info: null}
   componentDidCatch(error, info) {
     console.error('caught error', error);
-    try{
-      captureException(e);
+    try {
+      const componentError = new Error(error.message);
+      componentError.name = `React ErrorBoundary ${componentError.name}`;
+      componentError.stack = info.componentStack;
+    
+      error.cause = componentError;      
+      console.log('Catcher Data', this.props.context);
+
+      if (this.props.context) {
+        console.log('set Context', this.props.context);
+        // setContext(this.props.context);
+        _.forEach(_.keys(this.props.context), k => {
+          console.log(k + ': ' + this.props.context[k]);
+        })
+      }
+      captureException(error);
       if (global_testMode) {
         throw error;
       }  

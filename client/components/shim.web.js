@@ -239,4 +239,10 @@ export function captureException(e) {
   return Sentry.Browser.captureException(e);
 }
 
+export function setContext(dict) {
+  return Sentry.Browser.setContext(dict);
+}
+
+
+
 export const ErrorBoundary = SentryBrowser.ErrorBoundary;

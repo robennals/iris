@@ -2,7 +2,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { AutoGrowTextInput } from 'react-native-auto-grow-textinput';
 import { FixedTouchable, MemberIcon, ScreenContentScroll, WideButton } from '../components/basics';
 import { getCurrentUser, watchData } from '../data/fbutil';
 import { postMessageAsync } from '../data/servercall';
@@ -100,17 +99,6 @@ export function MessageEntryBox({style, onCancel, editText='', editPhotoKey=null
                         onSelectionChange={onSelectionChange}
                         onContentSizeChange={onContentSizeChange}
                     />
-                    {/* <AutoGrowTextInput disabled={inProgress}
-                        value={text || editText}
-                        onSelectionChange={onSelectionChange}
-                        autoFocus={Platform.OS == 'web' && replyTo}
-                        onChangeText={setText}
-                        onFocus={isFocused}
-                        minHeight={Platform.OS == 'web' ? 38 : 30}
-                        style={styles.messageEntryText}
-                        multiline={true}
-                        placeholder={replyTo ? 'Write a reply' : 'What is on your mind?'}
-                    /> */}
                     <TagSuggestion maybeTag={maybeTag} onTag={() => setText(applyTag({text, maybeTag, textInput}))} />
                 </View>
             </View>

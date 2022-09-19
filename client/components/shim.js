@@ -96,5 +96,10 @@ export function captureException(e) {
   return Sentry.Native.captureException(e);
 }
 
+export function setContext(dict) {
+  return Sentry.Native.setContext(dict);
+}
+
+
 export const ErrorBoundary = Sentry.Native.ErrorBoundary;
 
