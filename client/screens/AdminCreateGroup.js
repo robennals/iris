@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
-import { PopupSelector } from '../components/shim';
+import { PopupSelector } from '../components/shimui';
 import { Entypo } from '@expo/vector-icons';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';

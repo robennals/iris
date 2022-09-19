@@ -9,7 +9,7 @@ import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
-import { addFocusListener, BottomFlatScroller, ModalMenu, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
+import { addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { setTitle } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
@@ -17,6 +17,7 @@ import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
 import { adminJoinGroupAsync } from '../data/servercall';
+import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;

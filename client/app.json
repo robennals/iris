@@ -3,14 +3,19 @@
     "name": "Iris Talk",
     "slug": "iris-talk",
     "scheme": "iris-talk",
-    "version": "1.0.21",
+    "version": "1.0.22",
+    "runtimeVersion": "1.0.22",
     "icon": "./assets/icon_ios2_noalpha.png",
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -38,7 +43,7 @@
       "package": "us.mix5",
       "versionCode": 21,
       "permissions": [],
-      "icon": "./assets/icon.png",      
+      "icon": "./assets/icon.png",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon_android_adaptive.png",
@@ -72,10 +77,23 @@
           "icon": "./assets/android_notif.png",
           "color": "#ffffff",
           "sounds": [
-            "./assets/pop_semiquiet.wav",
+            "./assets/pop_semiquiet.wav"
           ]
         }
+      ],
+      "sentry-expo"
+    ],
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "iris-talk",
+            "project": "react-native  ",
+            "authToken": "43de9ae208e2472abf37c3930d2d2231e58c994a9c074b788ed6a8394ffbc6ff"
+          }
+        }
       ]
-    ]
+    }
   }
 }

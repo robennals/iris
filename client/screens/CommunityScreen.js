@@ -6,12 +6,13 @@ import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon } from '../components/photo';
-import { BottomFlatScroller, setTitle, track, useCustomNavigation } from '../components/shim';
+import { setTitle, track, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
+import { BottomFlatScroller } from '../components/shimui';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;

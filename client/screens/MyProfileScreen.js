@@ -2,6 +2,7 @@ import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../components/basics';
+import { Catcher } from '../components/catcher';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
@@ -57,6 +58,10 @@ export function MyProfileScreen({navigation}) {
             <View style={{marginTop: 16, alignItems: 'center'}}>
                 <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
             </View>
+
+            <Catcher>
+                <Text>{undefined.foo.foo.foo}</Text>
+            </Catcher>
 
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
             <View style={{flexDirection: 'row', alignSelf: 'center'}}>

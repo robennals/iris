@@ -4,7 +4,7 @@ import { Image, StyleSheet, Text, View, ScrollView } from 'react-native';
 import { email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
 import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
-import { PopupSelector } from '../components/shim';
+import { PopupSelector } from '../components/shimui';
 import { baseColor, highlightColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, newKey, watchData } from '../data/fbutil';
 import { logIntakeAsync, submitCommunityFormAsync } from '../data/servercall';
