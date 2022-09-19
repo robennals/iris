@@ -287,6 +287,16 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
 
     const timePassed = (message.time - (prevMessage.time || 0)) > (5 * minuteMillis);
 
+    function onPress() {
+        if (!message.pending) {
+            vibrate(); 
+            setPopup(true);
+        }
+    }
+
+    const failed = message.failed || (message.pending && message.time < Date.now() - minuteMillis);
+
+
     return (
         // <Swipeable renderLeftActions={() =>
         //     <View style={{justifyContent: 'space-around', padding: 8, alignItems: myMessage ? 'flex-end' : 'flex-start'}}>
@@ -319,7 +329,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
             }
             <View style={{flexShrink: 1}}>
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
-                <FixedTouchable dummy={Platform.OS == 'web'} onPress={() => {vibrate(); setPopup(true)}} onLongPress={() => {vibrate(); setPopup(true)}} style={{flex: 1, maxWidth: 550}}>
+                <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>
                     <View style={[myMessage ? styles.myMessage : styles.theirMessage, 
                             samePrevAuthor ? {marginTop: 1, borderTopLeftRadius: 4} : {}, 
                             sameNextAuthor ? {marginBottom: 1, borderBottomLeftRadius: 4} : {},
@@ -336,25 +346,30 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                         {message.replyTo ?
                             <Catcher label='RepliedMessage' context={{group, messageKey}}>
                                 <RepliedMessage message={message} messages={messages} members={members} />
-                                {/* <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                                    <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[messages[message.replyTo].from].name}</Text>
-                                    <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{messages[message.replyTo].text}</Text>
-                                </View> */}
                             </Catcher> 
                         : null}
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
-                        {message.pending ?
+                        {message.pending && !failed ?
                             <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
                                     position: 'absolute', right: -4, bottom: -4}}>
                                 <FontAwesome name='clock-o' size={14} /> 
                             </View>
                         : null}
+                        {failed ?
+                            <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: 'red', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
+                                position: 'absolute', right: -4, bottom: -4}}>
+                                <Text style={{color: 'red', fontSize: 14}}>!</Text> 
+                            </View>
+                        : null }
                     </View>
+                    {failed ? 
+                        <Text style={{color: 'red', marginRight: 8, marginBottom: 8}}>Failed to send message</Text>
+                    :null}
                 </FixedTouchable>
             </View>
 
             <View style={{width: 48, flexShrink: 0}}>
-                {hover ? 
+                {hover && !message.pending ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
                     <FixedTouchable onPress={() => onReply(messageKey)}>
                         <Entypo name='reply' size={24} color='#999' />

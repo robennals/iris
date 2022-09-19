@@ -42,16 +42,22 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
         // setTextKey(textKey+1);
         console.log('Send Message');
         track('Send Message', {length: text.length, isReply: replyTo ? true : false, group, community, groupName});
-        await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
-            time: getFirebaseServerTimestamp(),
-            text, replyTo, from: getCurrentUser(),
-            pending: true
-        })
         onClearReply();
         setText('');
         setHeight(36);        
         setInProgress(false);
-        await sendMessageAsync({messageKey, group, text, replyTo});
+        await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
+            time: getFirebaseServerTimestamp(),
+            localTime: Date.now(),
+            text, replyTo, from: getCurrentUser(),
+            pending: true
+        })
+        try {
+            await sendMessageAsync({messageKey, group, text, replyTo});
+        } catch (e) {
+            console.log('message send failed');
+            await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);    
+        }
     }
 
      
