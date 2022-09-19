@@ -11,7 +11,7 @@ import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { setTitle } from '../components/shim';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -22,50 +22,29 @@ import { Catcher } from '../components/catcher';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
-    const [name, setName] = useState('');
-    const [members, setMembers] = useState({});
-    const [community, setCommunity] = useState(null);
-    const [communityInfo, setCommunityInfo] = useState(null);
 
-    function markThisChatRead() {
-        setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
-        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
-    }
+    const name = useDatabase([group], ['group', group, 'name'], '');
+    const members = useDatabase([group], ['group', group, 'member']);
+    const community = useDatabase([group], ['group', group, 'community'], null);
+    const communityInfo = useDatabase([community], ['community', community]);
 
     useEffect(() => {
-        var x = {}
-        watchData(x, ['group', group, 'name'], setName);
-        watchData(x, ['group', group, 'member'], setMembers);
-        watchData(x, ['group', group, 'community'], setCommunity, null);
-
+        function markThisChatRead() {
+            setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
+            setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
+        }
+    
         addFocusListener(markThisChatRead);
-
         return () => {
-            internalReleaseWatchers(x);
             removeFocusListener(markThisChatRead);
         }
     }, [group])
 
-    useEffect(() => {
-        var x = {};
-        if (community) {
-            watchData(x, ['community', community], setCommunityInfo);
-        }
-        return () => internalReleaseWatchers(x);
-    }, [community])
-
     return (
         <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
-                {/* <GroupMultiIcon members={members} size={32} /> */}
-                <GroupSideBySideIcon members={members} size={36} />
+                <GroupSideBySideIcon members={members || {}} size={36} />
                 <View style={{marginLeft: 8}}>
-                    {/* {communityInfo ? 
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
-                            <Text style={{fontSize: 11, marginLeft: 3, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>
-                        </View>
-                    : null} */}
                     {communityInfo ? 
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             {/* <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text> */}
@@ -77,14 +56,6 @@ export function ChatScreenHeader({navigation, route}) {
                     <OneLineText style={{fontSize: 20, fontWeight: 'bold'}}>
                         {name}
                     </OneLineText>
-                    {/* {communityInfo ? 
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text>
-                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
-                            <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
-                        </View>
-                    : null} */}
-
                 </View>
             </View>
         </FixedTouchable>
@@ -155,27 +126,16 @@ function memberKeysToHues(memberKeys) {
 
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
-    const [messages, setMessages] = useState(null);
-    const [localMessages, setLocalMessages] = useState({});
-    const [members, setMembers] = useState(null);
-    const [archived, setArchived] = useState(null);
+
+    const messages = useDatabase([group], ['group', group, 'message']);
+    const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
+    const members = useDatabase([group], ['group', group, 'member']);
+    const archived = useDatabase([group], ['group', group, 'archived'], false);
+    const groupName = useDatabase([group], ['group', group, 'name']);
+    const community = useDatabase([group], ['group', group, 'community'], null);
+
     const [replyTo, setReplyTo] = useState(null);
-    const [groupName, setGroupName] = useState(null);
-    const [community, setCommunity] = useState(null);
-    const scrollRef = React.createRef();
     const chatInputRef = React.createRef();
-
-    useEffect(() => {
-        var x = {}
-        watchData(x, ['group', group, 'message'], setMessages);
-        watchData(x, ['group', group, 'name'], setGroupName);
-        watchData(x, ['group', group, 'community'], setCommunity, null);
-        watchData(x, ['group', group, 'member'], setMembers);
-        watchData(x, ['group', group, 'archived'], setArchived, false);
-        watchData(x, ['userPrivate', getCurrentUser(), 'localMessage', group], setLocalMessages);
-
-        return () => internalReleaseWatchers(x);
-    }, [group]);
 
     function onReply(messageKey) {
         setReplyTo(messageKey);
@@ -186,11 +146,10 @@ export function ChatScreen({navigation, route}) {
 
     const iAmNotInGroup = members && !members[getCurrentUser()];
 
-    const allMessages = messages ? {...localMessages, ...messages} : {};
+    const allMessages = messages ? {...(localMessages || {}), ...messages} : {};
     const messageKeys = Object.keys(allMessages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
     const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
-    // console.log('byMeCount', byMeCount);
     
     return (
       <GroupContext.Provider value={{group}} >

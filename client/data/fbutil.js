@@ -4,6 +4,8 @@ import { getDatabase, ref, onValue, off, update, get, set, once, serverTimestamp
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import _ from 'lodash';
 import { Platform } from "react-native";
+import { useEffect, useState } from "react";
+import { captureException } from "../components/shim";
 
 var messaging = null;
 if (Platform.OS == 'web') {
@@ -149,6 +151,30 @@ export function internalReleaseWatchers(obj) {
 			off(ref, 'value', watchFunc);
 		})
 	}
+}
+
+export function useDatabase(dependencies, path, fallback = {}, init = null) {
+    const [value, setValue] = useState(init);
+    useEffect(() => {
+        const hasNullDependencies = _.filter(dependencies, x => x == null).length > 0;
+        if (!hasNullDependencies) {
+            try {
+                const ref = refForPath(path);
+                const watchFunc = snap => {
+                    setValue(snap.val() || fallback);
+                }
+                onValue(ref, watchFunc, error => {
+                    console.error(error); 
+                    captureException(error);
+                });
+        
+                return () => off(ref, watchFunc);
+            } catch (e) {
+                captureException(e);
+            }
+        }
+    }, dependencies)
+    return value;
 }
 
 export function releaseWatcher(path, func) {
