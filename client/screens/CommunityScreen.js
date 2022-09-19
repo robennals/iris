@@ -13,6 +13,7 @@ import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, wa
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
 import { BottomFlatScroller } from '../components/shimui';
+import { ConnectedBanner } from '../components/connectedbanner';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -90,6 +91,7 @@ export function CommunityScreen({navigation, route}) {
     return (
         <KeyboardSafeView style={{flex: 1}}>
             <HeaderSpaceView style={{flex:1 }}>
+                <ConnectedBanner />
                 <View style={{backgroundColor: 'white', flex: 1}}>
                     {isMasterUser(getCurrentUser) ? 
                         <CommunityAdminActions community={community} />

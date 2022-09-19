@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Platform } from "react-native";
 import { useEffect, useState } from "react";
 import { captureException } from "../components/shim";
+import { NetworkContext } from "../components/context";
 
 var messaging = null;
 if (Platform.OS == 'web') {
@@ -185,3 +186,32 @@ export function releaseWatcher(path, func) {
 export function getFirebaseServerTimestamp(){
     return serverTimestamp();    
 } 
+
+export function NetworkStateProvider({children}) {
+    const [connected, setConnected] = useState(true);
+    const [waited, setWaited] = useState(false);
+    useEffect(() => {
+        var timeout = null;
+        var x = {};
+        watchData(x, ['.info', 'connected'], connected => {
+            setConnected(connected);
+            setWaited(false);
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            if (!connected) {
+                console.log('setting timeout');
+                timeout = setTimeout(() => setWaited(true), 5000);
+            }
+        }, false);        
+        return () => {
+            internalReleaseWatchers(x);
+            clearTimeout(timeout);
+        }
+    }, []); 
+    return (
+        <NetworkContext.Provider value={{connected, waited}}>
+            {children}
+        </NetworkContext.Provider>
+    )
+}

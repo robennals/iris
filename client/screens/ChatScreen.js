@@ -19,6 +19,7 @@ import { formatMessageTime, formatTime, minuteMillis } from '../components/time'
 import { adminJoinGroupAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
+import { ConnectedBanner } from '../components/connectedbanner';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -155,6 +156,7 @@ export function ChatScreen({navigation, route}) {
       <GroupContext.Provider value={{group}} >
       <KeyboardSafeView style={{flex: 1}}>
         <HeaderSpaceView style={{flex:1 }}>
+            <ConnectedBanner />
           <EnableNotifsBanner />
           <PhotoPromo />
           {archived ? 

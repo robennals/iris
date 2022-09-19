@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AppLoading from 'expo-app-loading';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { firebaseSignOut, internalReleaseWatchers, maybeFirebaseSignOut, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
+import { firebaseSignOut, internalReleaseWatchers, maybeFirebaseSignOut, NetworkStateProvider, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
 import { SignInScreen } from './screens/Signin';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, CommonActions, useNavigationContainerRef } from '@react-navigation/native';
@@ -245,7 +245,9 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-        <CustomNavigator user={user} screens={screens} initialRouteName='home' linking={linking} navigationRef={navigationRef} />
+        <NetworkStateProvider>
+          <CustomNavigator user={user} screens={screens} initialRouteName='home' linking={linking} navigationRef={navigationRef} />
+        </NetworkStateProvider>
       </SafeAreaProvider>
     )
   }

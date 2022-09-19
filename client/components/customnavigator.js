@@ -13,6 +13,7 @@ import { historyPushState } from './shim';
 import { update } from '@firebase/database';
 import { NotifLine } from './notifline';
 import { Catcher } from './catcher';
+import { ConnectedBanner } from './connectedbanner';
 
 const Stack = createStackNavigator();
 
@@ -54,7 +55,6 @@ export function MobileNavigator({screens, user, initialRouteName, linking, navig
     return (
         <AppContext.Provider value={{user, navigation: navigationRef}}>
             <View style={{flex: 1}}>
-                {/* <NotifLine navigation={navigationRef} /> */}
                 <NavigationContainer key='navigator' style={{flex: 2}} ref={navigationRef} linking={linking}>
                     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{headerBackTitleVisible: false}}>
                         {screenNames.map(n => 
@@ -237,7 +237,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
                             <Catcher style={{flex: 1}}>
                             {React.createElement(screens[screen].component, {
                                 navigation: navigation(i), 
-                                route: {params: {...params, alwaysShow: true}}, 
+                                route: {params: {...params, wide, alwaysShow: true}}, 
                                 shrink: getShrink(padState, i), 
                                 key: screen})}
                             </Catcher>

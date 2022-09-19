@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, ScrollView, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { firstLine, FixedTouchable, GroupIcon, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
+import { Platform, SafeAreaView, ScrollView, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { firstLine, FixedTouchable, GroupIcon, HeaderSpaceView, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
 import { appName, baseColor, minTwoPanelWidth } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
@@ -15,6 +15,7 @@ import * as Notifications from 'expo-notifications';
 import { reloadIfVersionChanged } from '../data/versioncheck';
 import { GroupPreview, isGroupUnread } from '../components/grouppreview';
 import { track } from '../components/shim';
+import { ConnectedBanner } from '../components/connectedbanner';
 
 
 
@@ -116,7 +117,7 @@ export class GroupList extends React.Component {
     }
 
     render() {
-        const {navigation, showSelected, shrink} = this.props;
+        const {navigation, showSelected, shrink, wide} = this.props;
         const {groupSet, localCommSet, masterCommSet, selected, search, name, photo, allCommunities, showArchived} = this.state;
 
         if (!groupSet || !localCommSet) {
@@ -152,7 +153,11 @@ export class GroupList extends React.Component {
         }
 
         return (
-            <ScreenContentScroll>
+            <HeaderSpaceView>
+            {wide ? null :
+                    <ConnectedBanner />
+                }
+            <ScrollView style={{backgroundColor: 'white', flexShrink: 1}}>
                 {Platform.OS == 'android' ?
                     <View style={{height: 16}} />
                 : null}
@@ -256,7 +261,8 @@ export class GroupList extends React.Component {
                 {Platform.OS == 'web' ?
                     <AppPromo />
                 :null}
-            </ScreenContentScroll>
+            </ScrollView>
+            </HeaderSpaceView>
         )
     }
 }
@@ -285,7 +291,8 @@ export function EmptyScreen() {
 }
 
 export function HomeScreen({navigation, route, shrink}) {
-    return <GroupList navigation={navigation} singleScreen={true} shrink={shrink} showSelected />
+    const wide = route?.params?.wide;
+    return <GroupList navigation={navigation} singleScreen={true} shrink={shrink} wide={wide}  showSelected />
 }
 
 const styles = StyleSheet.create({
