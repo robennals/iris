@@ -50,6 +50,7 @@ import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 import { EditTopicScreen } from './screens/EditTopic';
 import * as Sentry from 'sentry-expo';
+import { setUserPropertiesAsync } from './data/metrics';
 
 Sentry.init({
   dsn: 'https://0c46551eb8ee400c8aa4a6bd6c316f4c@o1414339.ingest.sentry.io/6754623',
@@ -116,7 +117,7 @@ export default function App() {
     onFirebaseAuthStatechanged(async fbUser => {
       setUser(fbUser && fbUser.uid)
       if (fbUser && fbUser.uid) {
-        identify(fbUser.uid);
+        identify(fbUser.uid);        
       } else {
         console.log('reset!');
         resetMixpanel();
@@ -125,6 +126,10 @@ export default function App() {
       setLoadStatus(loadStatus + ' : Got Auth...');
       setGotAuth(true);
       await SplashScreen.hideAsync();
+
+      if (fbUser && fbUser.uid) {
+        await setUserPropertiesAsync();
+      }
     })
     webInit();
   },[]);

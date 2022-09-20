@@ -20,6 +20,10 @@ export function identify(userId) {
   mixpanel.identify(userId);
 }
 
+export function people_set(props) {
+  mixpanel.people_set(props);
+}
+
 export function resetMixpanel() {
   mixpanel.reset();
 }
