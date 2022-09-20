@@ -61,6 +61,10 @@ function mergeObjectSets(a, b) {
     return out;
 }
 
+function groupHasRating(groupInfo) {
+    return groupInfo.rating;
+}
+
 export class GroupList extends React.Component {
     state = {groupSet: null, showArchived: false, selected: null, 
         localCommSet: null, masterCommSet: null,
@@ -140,7 +144,8 @@ export class GroupList extends React.Component {
         const allSet = {...groupSet, ...communitySet};
         const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(allSet,[k,'lastMessage','time'],0)).reverse();
 
-        const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => _.get(allSet,[k,'archived']) && !isGroupUnread(groupSet[k]));
+        const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => 
+            _.get(allSet,[k,'archived']) && groupSet[k].rating);
 
         // console.log('partition', {archivedKeys, shownKeys});
 
@@ -195,7 +200,7 @@ export class GroupList extends React.Component {
                 )}
                 {showArchived ?
                     <View style={{margin: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopColor: '#ddd', paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, marginBottom: 8}}>
-                        <Text>ARCHIVED</Text>
+                        <Text>COMPLETED</Text>
                         <FixedTouchable onPress={() => this.setState({showArchived: false})}>
                             <View style={{borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, borderColor: '#ddd', paddingHorizontal: 8, paddingVertical: 4}}>
                                 <Text style={{color: '#666', fontSize: 12}}>Hide</Text>
@@ -208,7 +213,7 @@ export class GroupList extends React.Component {
                 <FixedTouchable onPress={() => this.setState({showArchived: !showArchived})} style={{margin: 16}}>
                     <View style={{alignSelf: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16}}>
                         <Text style={{color: '#666'}}>
-                            Show {archivedKeys.length} archived conversations
+                            Show {archivedKeys.length} completed conversations
                         </Text>
                     </View>
                 </FixedTouchable>

@@ -31,6 +31,9 @@ export function GroupPreview ({group, groupInfo, highlight, allCommunities}) {
         const prefix = groupInfo.lastMessage.fromName ? groupInfo.lastMessage.fromName + ': ' : '';
         summaryLine = prefix + firstLine(_.get(groupInfo,['lastMessage','text'],''))
     }
+    if (groupInfo.archived && !groupInfo.rating && !unread) {
+        summaryLine = 'Completed. Rate this conversation.'
+    }
     const communityInfo = _.get(allCommunities,groupInfo.community,null);
     return (
         <View style={[styles.groupPreview, 

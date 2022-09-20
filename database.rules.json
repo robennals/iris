@@ -6,11 +6,24 @@
   			".write": "$user == auth.uid"
       }
     },
+    "perUser": {
+      "$thing": {
+        "$user": {
+          ".read": "$user == auth.uid",
+          ".write": "$user == auth.uid"            
+        }
+      }
+    },
     "special": {
       ".read": false,
       ".write": false,
       "versioncheck": {
         ".read": true
+      },
+      "userEmail": {
+        "$user": {
+          ".read": "$user == auth.uid"
+        }
       }
     },
     "adminCommunity": {

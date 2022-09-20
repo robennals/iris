@@ -20,6 +20,7 @@ import { adminJoinGroupAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
+import { Feedback } from '../components/feedback';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -108,7 +109,7 @@ function howManyMessagesByMe({messages, sortedMessageKeys}) {
 function ArchivedBanner(){
     return (
         <View style={{padding: 16, backgroundColor: 'white', borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
-            <Text style={{fontWeight: 'bold'}}>This Conversation has been Archived</Text>
+            <Text style={{fontWeight: 'bold'}}>This Conversation has Completed</Text>
             <Text style={{color: '#666'}}>You cannot post new messages, but can continue to read messages for a limited time.</Text>
         </View>
     )
@@ -165,7 +166,7 @@ export function ChatScreen({navigation, route}) {
           <NewMessageTracker group={group} />
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} memberHues={memberHues} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
+            <MessageList group={group} archived={archived} memberHues={memberHues} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
@@ -201,7 +202,7 @@ function MoreButton({showCount, messageCount, onMore}) {
     }
 }
 
-function MessageList({group, messages, sortedMessageKeys, members, memberHues, onReply}) {
+function MessageList({group, archived, messages, sortedMessageKeys, members, memberHues, onReply}) {
     const scrollRef = React.createRef();
     const [showCount, setShowCount] = useState(20);
 
@@ -223,6 +224,7 @@ function MessageList({group, messages, sortedMessageKeys, members, memberHues, o
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues}
                         onReply={onReply}/>})),
+                {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
         </View>

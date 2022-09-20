@@ -16,7 +16,7 @@ export async function setUserPropertiesAsync() {
     props['Has Platform ' + Platform.OS] = true;
     props['Mobile Notifs Connected'] = notifToken != null;
     props['Web Notifs Connected'] = webToken != null;
-    props['App Version'] = Constants.manifest.version;
+    props['App Version ' + Platform.OS] = Constants.manifest.version;
  
     if (Platform.OS != 'web') {
         props['Mobile Notifs Granted'] = notifStatus == 'granted';
