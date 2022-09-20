@@ -7,8 +7,10 @@ import { EnableNotifsBanner } from '../components/notifpermission';
 import { MemberPhotoIcon } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
 import { track } from '../components/shim';
-import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, isMasterUser, requestDelayedSignout, watchData } from '../data/fbutil'
+import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, isMasterUser, requestDelayedSignout, useDatabase, watchData } from '../data/fbutil'
 import { releaseServerTokenWatch } from '../data/servercall';
+import Constants from "expo-constants"
+
 
 function FakeErrorButton() {
     const [bad, setBad] = useState(false);
@@ -27,6 +29,7 @@ export function MyProfileScreen({navigation}) {
     const [photo, setPhoto] = useState();
     const [name, setName] = useState();
     const [uploading, setUploading] = useState();
+    const email = useDatabase([], ['special', 'userEmail', getCurrentUser()], 'no-email');
     useEffect(() => {  
         var x = {};
         watchData(x, ['userPrivate', getCurrentUser(), 'photo'], setPhoto);
@@ -35,7 +38,9 @@ export function MyProfileScreen({navigation}) {
         return () => internalReleaseWatchers(x);
     }, [getCurrentUser()])
    
-    console.log('photo', photo, uploading);
+    const version = Constants.manifest.version
+
+    // console.log('photo', photo, uploading);
 
     async function signOut() {
         track('Sign Out',{fromProfile: true});
@@ -71,6 +76,13 @@ export function MyProfileScreen({navigation}) {
             <View style={{marginTop: 16, alignItems: 'center'}}>
                 <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
             </View>
+
+            <View style={{marginVertical: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
+            <View style={{alignItems: 'center'}}>
+                <Text style={{marginBottom: 4, color: '#666'}}>App Version: {version}</Text>
+                <Text style={{marginBottom: 4, color: '#666'}}>User Email: {email}</Text>
+            </View>
+
 
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
             <View style={{flexDirection: 'row', alignSelf: 'center'}}>
