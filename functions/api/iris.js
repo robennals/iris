@@ -397,15 +397,17 @@ async function setProfilePhotoAsync({photoData, thumbData, userId}) {
     const pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId, key: photoKey});
     const pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId, key: photoKey});
     const pGroups = FBUtil.getDataAsync(['userPrivate', userId, 'group']);
+    const pComms = FBUtil.getDataAsync(['userPrivate', userId, 'comm']);
 
     console.log('requested upload', photoKey);
 
-    const groups = await pGroups;
+    const groups = await pGroups; const comms = await pComms;
 
     var updates = {};
     updates['userPrivate/' + userId + '/photo'] = photoKey;
 
     const groupKeys = Object.keys(groups);
+    const commKeys = Object.keys(comms);
 
     const groupMemberEntry = await FBUtil.getMultiDataAsync(
         groupKeys, 
@@ -416,6 +418,12 @@ async function setProfilePhotoAsync({photoData, thumbData, userId}) {
     _.forEach(groupKeys, g => {
         if (groupMemberEntry[g]) {
             updates['group/' + g + '/member/' + userId + '/photo'] = photoKey;
+        }
+    })
+
+    _.forEach(commKeys, c => {
+        if (comms[c].name) {
+            updates['commMember/' + c + '/' + userId + '/photoKey'] = photoKey;
         }
     })
 
@@ -437,7 +445,7 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
     const communityKey = community || FBUtil.newKey();
     var updates = {};
     updates['community/' + communityKey] = {
-        name, info, questions, topics, photoKey: newPhotoKey, photoUser: photoUser || userId
+        name, info, questions, topics: topics || '', photoKey: newPhotoKey, photoUser: photoUser || userId
     }
 
     await pPhotoUpload;
@@ -447,7 +455,7 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
 exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;
 
 async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics=null, topics=null, userId}) {
-    console.log('submit communityForm', {community, name, email, answers, selectedTopics, topics});
+    console.log('submit communityForm', {userId, community, name, email, answers, selectedTopics, topics});
 
     var uid = userId;
     var created = false;
@@ -456,23 +464,41 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         uid = result.uid;
         created = result.created;
     }
-    
+    var pEmail; var pName; var pPhotoKey;
+    if (userId) {
+        pName = FBUtil.getDataAsync(['userPrivate', userId, 'name']);
+        pEmail = FBUtil.getDataAsync(['special', 'userEmail', userId]);
+        pPhotoKey = FBUtil.getDataAsync(['userPrivate', userId, 'photo']);
+    }
     const pPrevIntake = FBUtil.getDataAsync(['userPrivate', uid, 'communityIntake', community], null);
     const pCommTopics = FBUtil.getDataAsync(['topic', community]);
     const pCommInfo = FBUtil.getDataAsync(['community', community]);
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
     const prevIntake = await pPrevIntake; const commTopics = await pCommTopics; 
     const commInfo = await pCommInfo;
+    var photoKey = null;
+    if (userId) {
+        email = await pEmail;
+        name = await pName;
+        photoKey = await pPhotoKey;
+        console.log('fetched user data', {email, name, photoKey});
+    } else {
+        photoKey = null;;
+    }
+
+    console.log('user data', {userId, name, email});
+    answers[name_label] = name;
+    answers[email_label] = email;
 
     if (selectedTopics && !topics) {
         topics = oldTopicsToNew(commTopics, selectedTopics);
     }
 
-    const newPhotoKey = FBUtil.newKey();
     var pPhotoUpload; var pThumbUpload;
-    if (photoData) {
-        pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId: uid, key: newPhotoKey});
-        pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId: uid, key: newPhotoKey});    
+    if (photoData) {        
+        photoKey = FBUtil.newKey();
+        pPhotoUpload = FBUtil.uploadBase64Image({base64data: photoData, isThumb: false, userId: uid, key: photoKey});
+        pThumbUpload = FBUtil.uploadBase64Image({base64data: thumbData, isThumb: true, userId: uid, key: photoKey});    
     }
 
     const time = Date.now();
@@ -481,10 +507,10 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     var updates = {};
     const confirmed = userId ? true : false
     updates['intake/' + community + '/' + key] = {
-        user: uid, logKey, photoKey: newPhotoKey, name, email, answers, selectedTopics, topics, time, confirmed
+        user: uid, logKey, photoKey: photoKey, name, email, answers, selectedTopics, topics, time, confirmed
     }
-    if (userId || created) {
-        updates['userPrivate/' + uid + '/photo'] = newPhotoKey;
+    if (created) {
+        updates['userPrivate/' + uid + '/photo'] = photoKey;
         updates['userPrivate/' + uid + '/name'] = name;
     }
 
@@ -497,10 +523,10 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     }
 
     if (confirmed || !prevIntake) {
-        updates['userPrivate/' + uid + '/communityIntake' + community] = {answers};
+        updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers};
         updates['commMember/' + community + '/' + uid] = {
             answer: answers, topic: topics, confirmed, intakeTime: time,
-            photoKey: newPhotoKey
+            photoKey: photoKey
         };
     }
 
@@ -550,7 +576,7 @@ async function confirmSignupAsync({community, intake}) {
     updates['userPrivate/' + uid + '/communityIntake/' + community] = {answers: intakeItem.answers};
     updates['commMember/' + community + '/' + uid] = {
         answer: intakeItem.answers, topic, confirmed: true, intakeTime: time,
-        photoKey: intakeItem.photoKey}
+        photoKey: intakeItem.photoKey || null}
 
     if (intakeItem.logKey) {
         updates['/logs/intake/'+ community + '/' + intakeItem.logKey + '/confirmed'] = true;

@@ -118,7 +118,7 @@ export class EnableNotifsBanner extends React.Component {
             <Text style={{marginHorizontal: 8, flex: 1}}>
               <Text style={{fontWeight: 'bold'}}>Enable notifications</Text> to know when you get a new message.
             </Text>
-            {Platform.OS == 'web' ?
+            {Platform.OS == 'web' && !alwaysAsk ?
               <MinorButton alwaysActive onPress={() => this.onMaybeLater()}>Not now</MinorButton>
             :null}
             {denied 

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { NewMessageSound } from '../components/alertping';
-import { FixedTouchable, HeaderSpaceView, OneLineText, WideButton } from '../components/basics';
+import { FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -115,16 +115,8 @@ function ArchivedBanner(){
     )
 }
 
-const standardHues = [0, 90, 180, 270, , ]
+// const standardHues = [0, 90, 180, 270, , ]
 
-function memberKeysToHues(memberKeys) {
-    const filteredKeys = memberKeys.filter(k => k != 'zzz_irisBot' && k != getCurrentUser());
-    var hueMap = {};
-    for (var i = 0; i < filteredKeys.length; i++) {
-        hueMap[filteredKeys[i]] = (360/filteredKeys.length) * i;
-    }
-    return hueMap;
-}
 
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
@@ -286,7 +278,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                     <View style={{width: 40, marginLeft: 8}} />
                 :
                     <View style={{marginLeft: 4, alignSelf: 'flex-start', marginTop: 8}}>
-                        <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
+                        <MemberPhotoIcon hue={hue} photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
                     </View>
                 )
             }

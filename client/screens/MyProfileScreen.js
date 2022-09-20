@@ -4,7 +4,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native'
 import { FixedTouchable, Link, ScreenContentScroll, WideButton } from '../components/basics';
 import { Catcher } from '../components/catcher';
 import { EnableNotifsBanner } from '../components/notifpermission';
-import { MemberPhotoIcon } from '../components/photo';
+import { MemberPhotoIcon, MemberProfilePhotoPlaceholder } from '../components/photo';
 import { chooseProfilePhotoAsync } from '../components/profilephoto';
 import { track } from '../components/shim';
 import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers, isMasterUser, requestDelayedSignout, useDatabase, watchData } from '../data/fbutil'
@@ -32,7 +32,7 @@ export function MyProfileScreen({navigation}) {
     const email = useDatabase([], ['special', 'userEmail', getCurrentUser()], 'no-email');
     useEffect(() => {  
         var x = {};
-        watchData(x, ['userPrivate', getCurrentUser(), 'photo'], setPhoto);
+        watchData(x, ['userPrivate', getCurrentUser(), 'photo'], setPhoto, null);
         watchData(x, ['userPrivate', getCurrentUser(), 'name'], setName);
 
         return () => internalReleaseWatchers(x);
@@ -53,26 +53,29 @@ export function MyProfileScreen({navigation}) {
     }
 
     return (
-        <ScreenContentScroll>
-            {Platform.OS == 'web' ?
-                <EnableNotifsBanner alwaysAsk style={{borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8, marginVertical: 16}} />
-            : null}
-            <FixedTouchable onPress={() => chooseProfilePhotoAsync(setUploading)}>
+        <ScreenContentScroll wideHeader={Platform.OS == 'web' ?
+                <EnableNotifsBanner alwaysAsk />
+               : null} >
                 <View style={{marginTop: 16, alignItems: 'center'}}>
+                <FixedTouchable onPress={() => chooseProfilePhotoAsync(setUploading)}>
+
                     <View style={{width: 200, height: 200}}>
                         {uploading ?
                             <View style={{width: 200, height: 200, borderRadius: 100, borderColor: '#666', borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center'}}>
                                 <Text style={{color: '#666'}}>Uploading...</Text>
                             </View>
-                        : 
+                        : (photo ? 
                             <MemberPhotoIcon photoKey={photo} user={getCurrentUser()} name={name} thumb={false} size={200} />
+                            :
+                            <MemberProfilePhotoPlaceholder size={200} />
+                            )
                         }
                         <View style={{width: 40, height: 40, borderRadius: 20, backgroundColor: '#ddd', position: 'absolute', right: 8, bottom: 8, alignItems: 'center', justifyContent: 'center'}}>                        
                             <Entypo name='camera' size={24} />
                         </View>
                     </View>
+                </FixedTouchable>
                 </View>
-            </FixedTouchable>
             <View style={{marginTop: 16, alignItems: 'center'}}>
                 <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
             </View>
@@ -81,6 +84,14 @@ export function MyProfileScreen({navigation}) {
             <View style={{alignItems: 'center'}}>
                 <Text style={{marginBottom: 4, color: '#666'}}>App Version: {version}</Text>
                 <Text style={{marginBottom: 4, color: '#666'}}>User Email: {email}</Text>
+                <Text style={{marginBottom: 4, color: '#666'}}>User Id: {getCurrentUser()}</Text>
+
+            </View>
+
+            <View style={{flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 16}}>
+                <Text style={{color: '#666'}}>
+                    <Link style={{color: '#666'}} url='https://iris-talk.com/privacy.html'>Privacy</Link>   <Link style={{color: '#666'}} url='https://iris-talk.com/license.html'>License</Link>
+                </Text>
             </View>
 
 
@@ -97,7 +108,7 @@ export function MyProfileScreen({navigation}) {
                 : null}
             </View>
             <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:account@iris-talk.com'>account@iris-talk.com</Link></Text>
-            
+
         </ScreenContentScroll>
     )
 

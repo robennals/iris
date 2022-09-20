@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FixedTouchable, FormInput, FormTitle, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
+import { FixedTouchable, FormInput, FormTitle, memberKeysToHues, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
 import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
@@ -16,11 +16,11 @@ function BioAnswers({answers, bioQuestions}) {
     return <Text>{joinedAnswers}</Text>
 }
 
-function MemberPreview({members, userId, bioQuestions}) {
+function MemberPreview({members, hue, userId, bioQuestions}) {
     const member=members[userId];
     return (
         <View style={{flexDirection: 'row', height: 150}}>
-            <MemberPhotoIcon photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+            <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
             <View style={{marginTop: 0, marginLeft: 16, flex: 1}}>
                 <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 4}}>{member.name}</Text>
                 <Text>{member.bio}</Text>
@@ -57,6 +57,8 @@ export function GroupProfileScreen({navigation, route}) {
     }, [community]);    
 
     if (!members) return null;
+
+    const memberHues = memberKeysToHues(_.keys(members || {}));
 
     const filteredMemberKeys = Object.keys(members || {}).filter(k => k != 'zzz_irisbot');
 
@@ -106,7 +108,7 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
-                <MemberPreview key={m} members={members} bioQuestions={bioQuestions} userId={m} />
+                <MemberPreview key={m} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
 

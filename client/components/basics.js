@@ -4,7 +4,7 @@ import { appIcon, appName, appSlogan, baseBackgroundColor, baseColor } from '../
 import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import { AppContext } from './context';
-import { FontAwesome } from '@expo/vector-icons';
+import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { getCurrentUser } from '../data/fbutil';
 
 export function parsePhotoDataUri(uri) {
@@ -95,9 +95,9 @@ export function getRootForMessage({messages, messageKey}) {
 
 
 
-export function MemberIcon({name, thumb=true, user, photo, style, size = 40, marginRight = null}) {
+export function MemberIcon({name, hue, thumb=true, user, photo, style, size = 40, marginRight = null}) {
   return (
-      <DefaultImage name={name} style={style} colorKey={name} 
+      <DefaultImage name={name} hue={hue} style={style} colorKey={name} 
         marginRight={marginRight} size={size} 
         radiusFactor={2} />
   )
@@ -142,15 +142,27 @@ export function nameColor({name}) {
     return color;
 }
 
-export function DefaultImage({name, colorKey, size, style, marginRight=null, radiusFactor = 2}) {
+export function DefaultImage({name, hue, colorKey, size, style, marginRight=null, radiusFactor = 2}) {
     const firstLetter = name ? name[0] : '?';
-    const color = nameColor({name: colorKey});
+    // const color = nameColor({name: colorKey});
+    const color = (hue != null) ? 'hsl(' + Math.floor(hue) + ', 100%, 30%)' : '#999';
     return (
       <View style={[{width: size, height: size, borderRadius: size/radiusFactor, marginRight, backgroundColor: color, alignItems: 'center', justifyContent: 'center'},style]}>
+        {/* <Entypo name='user' size={size*0.8} /> */}
         <Text style={{fontSize: size*0.6, color: 'white'}}>{firstLetter}</Text>
       </View>
     )
   }
+
+export function memberKeysToHues(memberKeys) {
+    const filteredKeys = memberKeys.filter(k => k != 'zzz_irisbot' && k != getCurrentUser());
+    var hueMap = {};
+    for (var i = 0; i < filteredKeys.length; i++) {
+        hueMap[filteredKeys[i]] = (360/filteredKeys.length) * i;
+    }
+    return hueMap;
+}
+
 
 export function Link({title, url, children, inverted, style}) {
   if (Platform.OS == 'web') {
@@ -421,7 +433,7 @@ export function validateName(name) {
 export const name_label = 'Full Name';
 export const email_label = 'Email Address';
 
-const basicQuestions = [
+export const basicQuestions = [
   {question: name_label, answerType: 'name'},
   {question: email_label, answerType: 'email'}
 ]
@@ -451,7 +463,7 @@ export function parseQuestions(questions) {
       }
       return {question, answerType, options};
   })
-  return [...basicQuestions, ...parsedQuestions];
+  return parsedQuestions;
 }
 
 export function splitFirst(text, sep) {

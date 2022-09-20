@@ -3,7 +3,7 @@ import { stringLength } from '@firebase/util';
 import React, { useEffect, useState } from 'react';
 
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View, Image } from 'react-native';
-import { FixedTouchable, FormTitle, makePhotoDataUrl, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
+import { FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { getUrlForImage, GroupPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
 import { watchData } from '../data/fbutil';
@@ -65,6 +65,9 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
         navigation.goBack();
     }
 
+
+    console.log('disabled props', {uploading, name: merged.name, info: merged.info, questions: merged.questions, photoData, })
+
     return (
         <ScreenContentScroll>
             <View style={{marginVertical: 16, alignItems: 'center'}}>
@@ -91,12 +94,12 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
                 <TextInput value={merged.name} onChangeText={setName} style={textBoxStyle} />
             </FormTitle>
             <FormTitle title='Intro'>
-                <TextInput multiline style={[textBoxStyle, {height: 50}]}   
+                <FormInput multiline style={[textBoxStyle, {height: 50}]}   
                     placeholder='Text shown before the user is asked to fill in their bio info.'
                     value={merged.info} onChangeText={setInfo} />
             </FormTitle>
             <FormTitle title='Bio Questions (markup)'>
-                <TextInput multiline placeholder='One line per question. ":" between question and format. Format is comma separated options or "text". No need to ask for name, photo, or email since those are always requested.'
+                <FormInput multiline placeholder='One line per question. ":" between question and format. Format is comma separated options or "text". No need to ask for name, photo, or email since those are always requested.'
                     onChangeText={setQuestions}
                     value={merged.questions}
                     style={[textBoxStyle, {height: 100}]}
@@ -110,8 +113,9 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
                 />
             </FormTitle> */}
 
+
             <WideButton alwaysActive onPress={onCreateCommunityClicked} style={{alignSelf: 'flex-start'}} 
-                disabled={uploading || !merged.name || !merged.info || !merged.questions || !(photoData || old.photoKey) || !merged.topics} >
+                disabled={uploading || !merged.name || !merged.info || !merged.questions || !(photoData || old.photoKey)} >
                 {community ? (uploading ? 'Updating...' : 'Update Community') : (uploading ? 'Creating...' : 'Create Community')}
             </WideButton>
 

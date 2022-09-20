@@ -37,7 +37,7 @@ function Member({memberKey, member, questionTitles, allTopics, sortedTopicKeys, 
                         <Entypo name='check' size={40} style={{marginTop: 4, color: 'white'}} />
                     </View>
                 : 
-                    <MemberPhotoIcon photoKey={member.photoKey} user={memberKey} size={50} />
+                    <MemberPhotoIcon name={name} photoKey={member.photoKey} user={memberKey} size={50} />
                 }
                 <View style={{marginLeft: 8}}>
                     <Text style={{fontWeight: 'bold', marginBottom: 2}}>{name} <Text style={{fontWeight: '400'}}>{'<' + email + '>'} <Text style={{color: '#666', fontSize: 12}}> {formatTime(member.intakeTime)}</Text></Text></Text>

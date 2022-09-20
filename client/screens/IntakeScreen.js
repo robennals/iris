@@ -1,12 +1,12 @@
-import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View, ScrollView } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
+import { basicQuestions, email_label, FixedTouchable, FormInput, FormTitle, Link, makePhotoDataUrl, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, validateEmail, validateName, WideButton } from '../components/basics';
 import { LinkText } from '../components/linktext';
 import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/photo';
 import { PopupSelector } from '../components/shimui';
 import { baseColor, highlightColor } from '../data/config';
-import { getCurrentUser, internalReleaseWatchers, newKey, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, newKey, useDatabase, watchData } from '../data/fbutil';
 import { logIntakeAsync, submitCommunityFormAsync } from '../data/servercall';
 import _ from 'lodash';
 
@@ -111,7 +111,6 @@ function Topic({topic, selected, onChangeSelected}) {
                 <View style={{flexDirection: 'row', backgroundColor: 'white', alignItems: 'center', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, padding: 8, borderRadius: 8,
                     ... selected ? shadowStyle : {}
                     }}>
-                    {/* <MaterialIcons color='#666' name={selected ? 'check-box' : 'check-box-outline-blank'} size={40} /> */}
                     <View style={{width: 40, height: 40,
                             alignItems: 'center', justifyContent: 'center',
                             backgroundColor: selected ? baseColor : 'white',
@@ -176,6 +175,7 @@ function ConfirmScreen({community, email}) {
 }
 
 function LoggedOutHeader() {
+    if (getCurrentUser()) return null;
     return (
         <View style={{borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12}}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
@@ -187,6 +187,7 @@ function LoggedOutHeader() {
 }
 
 function LoggedOutFooter() {
+    if (getCurrentUser()) return null;
     return (
         <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center'}}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -202,11 +203,21 @@ function LoggedOutFooter() {
 function IrisIntro({communityName}) {
     return (
         <View style={{margin: 16, paddingHorizontal: 16, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
-            <Text style={{fontWeight: 'bold'}}>{communityName} is on Iris</Text>
-            <Text style={{color: '#666', marginVertical: 4}}>
-                Fill out the form below to get matched into private small-group conversations with 
-                other {communityName} members about topics of mutual interest.
-            </Text>
+            {getCurrentUser() ? 
+                <Text style={{color: '#666', marginVertical: 4}}>
+                    Fill out the form below to join this community and 
+                    get matched into small group conversations with other members.
+                </Text>        
+            :
+            <View>
+                <Text style={{fontWeight: 'bold'}}>{communityName} is on Iris</Text>
+
+                    <Text style={{color: '#666', marginVertical: 4}}>
+                        Fill out the form below to get matched into private small-group conversations with 
+                        other {communityName} members about topics of mutual interest.
+                    </Text>
+            </View>
+            }
         </View>
     )
 }
@@ -236,8 +247,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
     const [inProgress, setInProgress] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [logKey, setLogKey] = useState(null);
-
-    console.log('comunity', community, paramCommunity, route?.params?.community)
+    const photoKey = useDatabase([getCurrentUser()], ['userPrivate', getCurrentUser(), 'photo']);
 
     useEffect(() => {
         var x = {};
@@ -280,7 +290,10 @@ export function IntakeScreen({community:paramCommunity, route}) {
     // const shownTopicKeys = sortedTopicKeys.slice(0, 10);
     const shownTopicKeys = sortedTopicKeys;
 
-    const questions = parseQuestions(info.questions);
+    var questions = parseQuestions(info.questions);
+    if (!getCurrentUser()) {
+        questions = [...basicQuestions, ...questions];
+    }
     // const topics = parseTopics(info.topics);
     // console.log('questions', questions);
     // console.log('answers', answers);
@@ -292,7 +305,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
         setInProgress(true);
         logIntakeAsync({community, logKey, stage:'submit'});
         const yesTopics = _.mapValues(selectedTopics, v => 'yes');
-        await submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, topics:yesTopics});
+        await submitCommunityFormAsync({community, logKey, photoData, photoKey, thumbData, name, email, answers, topics:yesTopics});
         logIntakeAsync({community, logKey, stage:'received'});
         setConfirmed(true);
     }
@@ -305,10 +318,9 @@ export function IntakeScreen({community:paramCommunity, route}) {
         return <ConfirmScreen community={community} email={answers[email_label]} />
     }
 
-    const validEmail = valid[email_label];
-    const validName = valid[name_label];
+    const validEmail = valid[email_label] || getCurrentUser();
+    const validName = valid[name_label] || getCurrentUser();
     const infoLines = info.info.split('\n');
-    console.log('infoLines', infoLines);
 
     return (
         <ScreenContentScroll wideHeader={<LoggedOutHeader/>} wideFooter={<LoggedOutFooter />}>
@@ -329,9 +341,9 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 <Text style={{color: '#666'}}>This information is used to help match you with people to talk with. It will only be shared with community admins and members of your chat groups.</Text>
 
             </View>
-            <View style={{margin: 16, alignSelf: 'center'}}>
+            {/* <View style={{margin: 16, alignSelf: 'center'}}>
                 <PhotoPicker required photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
-            </View>
+            </View> */}
             {questions.map(q =>
                 <Question key={q.question} question={q} 
                     answer={answers[textToKey(q.question)]} 
@@ -353,7 +365,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 )}
             </ScrollView>
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || !answers[email_label] || !answers[name_label] || !thumbData || inProgress || topicCount < 1}>
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || inProgress || topicCount < 1}>
                 {inProgress ? 'Submitting...' : 'Submit'}
             </WideButton>
             {validEmail ? null : 
@@ -362,9 +374,9 @@ export function IntakeScreen({community:paramCommunity, route}) {
             {validName ? null : 
                 <ValidationWarning>Valid name required</ValidationWarning>
             }
-            {thumbData ? null :
+            {/* {thumbData ? null :
                 <ValidationWarning>Profile photo required</ValidationWarning>                
-            }
+            } */}
             {topicCount >= 1 ? null :
                 <ValidationWarning>You must select at least one topic</ValidationWarning>                
             }

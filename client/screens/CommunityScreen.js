@@ -9,11 +9,12 @@ import { CommunityPhotoIcon } from '../components/photo';
 import { setTitle, track, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
 import { BottomFlatScroller } from '../components/shimui';
 import { ConnectedBanner } from '../components/connectedbanner';
+import { PhotoPromo } from '../components/profilephoto';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -64,6 +65,7 @@ export function CommunityScreen({navigation, route}) {
     const [topics, setTopics] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
     const [topicStates, setTopicStates] = useState(null);
+    const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
 
     useEffect(() => {
         var x = {};
@@ -73,13 +75,14 @@ export function CommunityScreen({navigation, route}) {
         watchData(x, ['commMember', community, getCurrentUser(), 'topic'], setTopicStates);
     }, [community])
 
-    if (getCurrentUser() == null) {
+    const isMaster = isMasterUser();
+
+    if (getCurrentUser() == null || (!isMaster && !localComm?.name)) {
         return (
             <IntakeScreen community={community} />
         )
     }
 
-    const isMaster = isMasterUser();
     if (!topicStates || !topics) return null;
 
     // if (role == false && !isMasterUser()) {
@@ -92,6 +95,7 @@ export function CommunityScreen({navigation, route}) {
         <KeyboardSafeView style={{flex: 1}}>
             <HeaderSpaceView style={{flex:1 }}>
                 <ConnectedBanner />
+                <PhotoPromo />
                 <View style={{backgroundColor: 'white', flex: 1}}>
                     {isMasterUser(getCurrentUser) ? 
                         <CommunityAdminActions community={community} />

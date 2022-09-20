@@ -51,12 +51,14 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 function mergeObjectSets(a, b) {
     if (!b) return a;
 
-    const keys = {..._.keys(a), ..._.keys(b)};
+    const keys = [..._.keys(a), ..._.keys(b)];
     const out = {};
     _.forEach(keys, k => {
         const aObj = a[k] || {};
         const bObj = b[k] || {};
-        out[k] = {...aObj, ...bObj};
+        if (!out[k]) {
+            out[k] = {...aObj, ...bObj};
+        }
     })
     return out;
 }
@@ -66,6 +68,21 @@ function groupNeedsRating(groupInfo) {
 }
 
 
+const defaultCommunitySet = {
+    '-NAilGYooypt_utC2dJ3': {
+        name: 'General Community',
+        lastMessage: {text: 'Community you can join', time: 1663714708562},
+        photoKey: '-NAilGV6ZJ-eJjeTt4kq',
+        photoUser: '8Nkk25o9o6bipF81nvGgGE59cXG2'
+    },
+    '-NCS3mSw7G2gm5Koihuc': {
+        name: 'Iris Users',
+        photoKey: '-NCS3mRqT0n2Whhumf9R',
+        photoUser: 'N8D5FfWwTxaJK65p8wkq9rJbPCB3',
+        lastMessage: {text: 'Community you can join', time: 1663715183992}
+    }
+}
+
 export class GroupList extends React.Component {
     state = {groupSet: null, showArchived: false, selected: null, 
         localCommSet: null, masterCommSet: null,
@@ -74,7 +91,7 @@ export class GroupList extends React.Component {
     async componentDidMount() {    
         watchData(this, ['userPrivate', getCurrentUser(), 'group'], groupSet => this.setState({groupSet}));
         watchData(this, ['userPrivate', getCurrentUser(), 'name'], name => this.setState({name}));        
-        watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}));
+        watchData(this, ['userPrivate', getCurrentUser(), 'photo'], photo => this.setState({photo}), null);
         watchData(this, ['community'], allCommunities => this.setState({allCommunities}));
         watchData(this, ['userPrivate', getCurrentUser(), 'comm'], localCommSet => this.setState({localCommSet}));
 
@@ -91,7 +108,7 @@ export class GroupList extends React.Component {
         const {navigation, singleScreen} = this.props;
         reloadIfVersionChanged();
 
-        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : localCommSet;
+        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : {...defaultCommunitySet, ...localCommSet};
 
         const isCommunity = communitySet[k];
 
@@ -129,8 +146,10 @@ export class GroupList extends React.Component {
             return null;
         }
 
-        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : localCommSet;
-
+        const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : 
+            mergeObjectSets(defaultCommunitySet, localCommSet);
+            
+        // console.log('communitySet', {communitySet, defaultCommunitySet, localCommSet});
 
         const groupKeys = Object.keys(groupSet || {});
         const communityKeys = Object.keys(communitySet || {});
