@@ -41,7 +41,7 @@
     },
     "android": {
       "package": "us.mix5",
-      "versionCode": 21,
+      "versionCode": 22,
       "permissions": [],
       "icon": "./assets/icon.png",
       "googleServicesFile": "./google-services.json",
