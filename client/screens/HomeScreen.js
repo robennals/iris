@@ -61,9 +61,10 @@ function mergeObjectSets(a, b) {
     return out;
 }
 
-function groupHasRating(groupInfo) {
-    return groupInfo.rating;
+function groupNeedsRating(groupInfo) {
+    return !groupInfo.rating && groupInfo.lastMessage && groupInfo.lastMessage.from != 'zzz_irisbot';
 }
+
 
 export class GroupList extends React.Component {
     state = {groupSet: null, showArchived: false, selected: null, 
@@ -145,7 +146,7 @@ export class GroupList extends React.Component {
         const sortedGroupAndCommunityKeys = _.sortBy(filteredGroupAndCommunityKeys, k => _.get(allSet,[k,'lastMessage','time'],0)).reverse();
 
         const [archivedKeys, shownKeys] = _.partition(sortedGroupAndCommunityKeys, k => 
-            _.get(allSet,[k,'archived']) && groupSet[k].rating);
+            _.get(allSet,[k,'archived']) && !groupNeedsRating(groupSet[k]));
 
         // console.log('partition', {archivedKeys, shownKeys});
 

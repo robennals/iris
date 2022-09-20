@@ -311,7 +311,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                                 <RepliedMessage message={message} messages={messages} members={members} />
                             </Catcher> 
                         : null}
-                        <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text}/>
+                        <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
                         {message.pending && !failed ?
                             <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
                                     position: 'absolute', right: -4, bottom: -4}}>

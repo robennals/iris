@@ -174,7 +174,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
                 )}
             </FormTitle>
 
-            <WideButton alwaysActive onPress={onCreateGroupClicked} style={{alignSelf: 'flex-start'}} disabled={!topic || !privateName || inProgress || (memberCount <= 1)}>
+            <WideButton alwaysActive onPress={onCreateGroupClicked} style={{alignSelf: 'flex-start'}} disabled={!topic || topic=='choose' || !privateName || inProgress || (memberCount <= 1)}>
                 {inProgress ? 'Creating Group...' : 'Create Group' }
             </WideButton>
 
