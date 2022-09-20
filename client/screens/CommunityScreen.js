@@ -217,7 +217,7 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
         )
     } else {
         return (
-            <FixedTouchable onPress={() => setExpanded(true)}>
+            <FixedTouchable onPress={() => setExpanded(true)} style={{flexShrink: 1}}>
                 <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                                 flexDirection: 'row', alignItems: 'center',
                                 borderRadius: 8, maxWidth: 550, 
@@ -235,8 +235,8 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                             <Entypo name={state == 'yes' ? 'check' : 'cross'}/>
                         }
                     </View>
-                    <View style={{paddingRight: 8}}>
-                        <Text style={{color: '#222'}}>{topic.name}</Text>
+                    <View style={{paddingRight: 8, flexShrink: 1}}>
+                        <OneLineText style={{color: '#222', flexShrink: 1}}>{topic.name}</OneLineText>
                     </View>
                     <View>
                         <Entypo color='#999' name='chevron-down' />
