@@ -53,6 +53,7 @@ export function Feedback({archived, group}) {
         <View style={{alignSelf: 'center', maxWidth: 550, marginTop: 32}}>
             <View style={{borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8,
             margin: 16, padding: 8, alignItems: 'center', alignSelf: expanded ? 'stretch' : 'center',
+            backgroundColor: 'white',
             ...shadowStyle}}>
                 <Text style={{fontSize: 12, color: '#666', marginBottom: 8}}>This conversation has completed</Text>
                 <Text style={{fontWeight: 'bold', marginBottom: 4}}>Rate this Conversation</Text>

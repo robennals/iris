@@ -229,10 +229,10 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
     const prevMessage = messages[prevMessageKey] ?? {};
     const nextMessage = messages[nextMessageKey] ?? {};
     const myMessage = message.from == getCurrentUser();
-    const fromMember = members[message.from];
+    const fromMember = members[message.from] || {name: 'User left the group'};
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
-    const hue = memberHues[message.from];
+    const hue = memberHues[message.from] || 45;
     const hueStyle = (myMessage || message.from == 'zzz_irisbot') ? null : {backgroundColor: 'hsl(' + hue + ',40%, 90%)'};
 
     const samePrevAuthor = !myMessage && message.from == prevMessage.from;

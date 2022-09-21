@@ -11,6 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "androidStatusBar": {
+      "barStyle": "dark-content"
+    },
     "platforms": [
       "ios",
       "android",
@@ -89,7 +92,7 @@
           "file": "sentry-expo/upload-sourcemaps",
           "config": {
             "organization": "iris-talk",
-            "project": "react-native  ",
+            "project": "react-native",
             "authToken": "43de9ae208e2472abf37c3930d2d2231e58c994a9c074b788ed6a8394ffbc6ff"
           }
         }
