@@ -107,3 +107,6 @@ export function setContext(dict) {
 
 export const ErrorBoundary = Sentry.Native.ErrorBoundary;
 
+export function notifsSupported() {
+  return true;
+}

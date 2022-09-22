@@ -9,7 +9,7 @@ import { AppContext } from "./context";
 import {Audio} from 'expo-av';
 import { Entypo } from '@expo/vector-icons';
 import { querystringDecode } from '@firebase/util';
-import { getFirebaseNotifTokenAsync } from '../data/fbutil';
+import { getFirebaseNotifsSupported, getFirebaseNotifTokenAsync } from '../data/fbutil';
 import * as Sentry from 'sentry-expo';
 import * as SentryBrowser from "@sentry/react";
 
@@ -233,6 +233,10 @@ export async function checkIfNotifsGranted() {
 
 export async function checkIfNotifsDenied() {
   return Notification.permission != 'default' && Notification.permission != 'granted';
+}
+
+export async function notifsSupported() {
+  return getFirebaseNotifsSupported();
 }
 
 export async function getNotifToken() {

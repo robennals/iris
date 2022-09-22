@@ -6,7 +6,7 @@ import { getCurrentUser, setDataAsync, getDataAsync, getFirebaseNotifTokenAsync,
 import _ from 'lodash'
 import { FixedTouchable, MinorButton, WideButton } from './basics';
 import { Ionicons } from '@expo/vector-icons';
-import { checkIfNotifsGranted, getNotifToken, requestNotifPermission, track } from './shim';
+import { checkIfNotifsGranted, getNotifToken, notifsSupported, requestNotifPermission, track } from './shim';
 import { serverTimestamp } from 'firebase/database';
 
 // export async function checkIfNotifsGranted() {
@@ -100,11 +100,12 @@ export class EnableNotifsBanner extends React.Component {
         setTimeout(() => this.pollForNotifsGranted(), 500);
       }
     }
-  
+
     render() {
       const {alwaysAsk, style} = this.props;
       const {notifsEnabled, denied, later} = this.state;
       // console.log('notifsEnabled', notifsEnabled, denied);
+      if (!notifsSupported()) return null;
       if (notifsEnabled) return null;
       // console.log('stuff', {alwaysAsk, later});
       if (!alwaysAsk && later) return null;

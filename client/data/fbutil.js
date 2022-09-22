@@ -1,7 +1,7 @@
 import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
 import { getDatabase, ref, onValue, off, update, get, set, once, serverTimestamp, push } from "firebase/database";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 import _ from 'lodash';
 import { Platform } from "react-native";
 import { useEffect, useState } from "react";
@@ -9,17 +9,30 @@ import { captureException } from "../components/shim";
 import { NetworkContext } from "../components/context";
 
 var messaging = null;
-if (Platform.OS == 'web') {
-    messaging = getMessaging(firebaseApp);
-    console.log('messaging', messaging);
-    onMessage(messaging, (payload) => {
-        console.log('Foreground message received. ', payload);
-        // ...
-    });
+
+async function fbStartup() {
+    const supported = await isSupported();
+    console.log('messaging supported ', supported);
+    if (Platform.OS == 'web' && supported) {
+        messaging = getMessaging(firebaseApp);
+        onMessage(messaging, (payload) => {
+            console.log('Foreground message received. ', payload);
+            // ...
+        });
+    }
 }
+fbStartup();
 
 export async function getFirebaseNotifTokenAsync() {
-    return await getToken(messaging, {vapidKey: 'BCbOd7O4PQnzInDEJJQDJJYv9hU44ua5nYr7cfsh3M3FdlNvcbqPceLP-aJ-lCcXDwsnnizRHxNmn4NObYolS80'});
+    if (messaging) {
+        return await getToken(messaging, {vapidKey: 'BCbOd7O4PQnzInDEJJQDJJYv9hU44ua5nYr7cfsh3M3FdlNvcbqPceLP-aJ-lCcXDwsnnizRHxNmn4NObYolS80'});
+    } else {
+        return null;
+    }
+}
+
+export async function getFirebaseNotifsSupported() {
+    return messaging;
 }
 
 const database = getDatabase();
