@@ -1,6 +1,6 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text} from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet} from 'react-native';
 import { getCurrentUser, watchData } from '../data/fbutil';
 import { setProfilePhotoAsync } from '../data/servercall';
 import { FixedTouchable, WideButton } from './basics';
