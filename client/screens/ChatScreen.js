@@ -21,6 +21,7 @@ import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { Feedback } from '../components/feedback';
+import { Loading } from '../components/loading';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -144,6 +145,10 @@ export function ChatScreen({navigation, route}) {
     const messageKeys = Object.keys(allMessages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
     const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
+
+    if (!messages || !members) {
+        return <Loading />
+    }
     
     return (
       <GroupContext.Provider value={{group}} >

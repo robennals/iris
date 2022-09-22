@@ -63,7 +63,7 @@ export function Feedback({archived, group}) {
                     extraStyle={{marginTop: 16, minWidth: 200, marginHorizontal: 8, flex: null, height: expanded ? 200 : null, alignSelf: 'stretch' }} 
                     placeholder='Other Feedback (optional)'/>
             </View>
-            <Text style={{color: '#666', fontSize: 12}}>
+            <Text style={{color: '#666', fontSize: 12, maxWidth: 250, marginHorizontal: 32, textAlign: 'center'}}>
                 Rating this conversation will help us match you with better conversations.
             </Text>
 

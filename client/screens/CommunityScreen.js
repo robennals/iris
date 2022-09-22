@@ -15,6 +15,7 @@ import _ from 'lodash';
 import { BottomFlatScroller } from '../components/shimui';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { PhotoPromo } from '../components/profilephoto';
+import { Loading } from '../components/loading';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -83,7 +84,7 @@ export function CommunityScreen({navigation, route}) {
         )
     }
 
-    if (!topicStates || !topics) return null;
+    if (!topicStates || !topics) return <Loading />;
 
     // if (role == false && !isMasterUser()) {
     //     return (

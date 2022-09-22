@@ -14,8 +14,8 @@ export function Loading() {
     }, []);   
     if (waited) {
         return (
-            <View style={{flexDirection: 'row'}}>    
-                <Ionicons name='wifi' color='#666'/>            
+            <View style={{flexDirection: 'row', alignSelf: 'center', flex: 1, justifyContent: 'center', alignItems: 'center'}}>    
+                <Ionicons name='wifi' color='#666' size={20} />            
                 <Text style={{marginLeft: 4, color: "#666"}}>Waiting for network</Text>
             </View>
         )
