@@ -133,6 +133,11 @@ export function ChatScreen({navigation, route}) {
     const [replyTo, setReplyTo] = useState(null);
     const chatInputRef = React.createRef();
 
+    if (!messages || !members) {
+        return <Loading />
+    }
+
+
     function onReply(messageKey) {
         setReplyTo(messageKey);
         chatInputRef?.current?.focus();
@@ -147,9 +152,6 @@ export function ChatScreen({navigation, route}) {
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
     const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
 
-    if (!messages || !members) {
-        return <Loading />
-    }
     
     return (
       <GroupContext.Provider value={{group}} >

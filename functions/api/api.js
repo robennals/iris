@@ -124,7 +124,9 @@ async function apiActionAsync({action, components, params}) {
         case 'adminGetLoginToken': {
             return Signin.adminGetLoginTokenAsync(params);
         }
-
+        case 'logError': {
+            return Iris.logErrorAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

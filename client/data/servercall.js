@@ -202,3 +202,7 @@ export async function adminGetLoginTokenAsync({email}) {
     return await callServerApiAsync('adminGetLoginToken', {email});
 }
 
+export async function logErrorAsync({error, stack, context}) {
+    return await callServerApiAsync('logError', {error, stack, context});
+}
+

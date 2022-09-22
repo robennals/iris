@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { historyPushState } from './shim';
 import { update } from '@firebase/database';
 import { NotifLine } from './notifline';
-import { Catcher } from './catcher';
+import { Catcher, headerProtector, screenProtector } from './catcher';
 import { ConnectedBanner } from './connectedbanner';
 
 const Stack = createStackNavigator();
@@ -23,7 +23,7 @@ function makeOptions({navigation, route}, screenOptions) {
         title: screenOptions.title,
         header: screenOptions.noHeader ? () => null : undefined,
         headerTitle: screenOptions.headerTitle ? 
-            (({children}) => React.createElement(screenOptions.headerTitle, {navigation,route}, children))
+            (({children}) => headerProtector(screenOptions.headerTitle, {navigation,route}, children))
             : undefined,        
     }
     // console.log('options', options);
@@ -58,7 +58,7 @@ export function MobileNavigator({screens, user, initialRouteName, linking, navig
                 <NavigationContainer key='navigator' style={{flex: 2}} ref={navigationRef} linking={linking}>
                     <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{headerBackTitleVisible: false}}>
                         {screenNames.map(n => 
-                            <Stack.Screen name={n} key={n} component={screens[n].component} 
+                            <Stack.Screen name={n} key={n} component={screenProtector(screens[n].component)} 
                                 options={({navigation,route}) => makeOptions({navigation,route}, screens[n])}
                             />
                         )}

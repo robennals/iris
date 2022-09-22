@@ -3,6 +3,7 @@ import { Platform, Text, View } from 'react-native';
 import _ from 'lodash';
 import * as Sentry from 'sentry-expo';
 import { captureException, captureMessage, ErrorBoundary, setContext } from './shim';
+import { logErrorAsync } from '../data/servercall';
 
 
 var global_testMode = false;
@@ -51,6 +52,12 @@ export class Catcher extends React.Component {
           console.log(k + ': ' + this.props.context[k]);
         })
       }
+      try {
+        console.log('logError', {error: error.message, stack: info.componentStack, context: this.props.context});
+        logErrorAsync({error: error.message, stack: info.componentStack, context: this.props.context});
+      } catch(e) {
+        console.log('error logging error', e);
+      }
       captureException(error);
       if (global_testMode) {
         throw error;
@@ -77,4 +84,20 @@ export class Catcher extends React.Component {
       return <View style={style}>{children}</View>
     }
   }
+}
+
+export const screenProtector = component => params => {
+  return (
+    <Catcher style={{flex: 1}}>
+      {React.createElement(component, params)}
+    </Catcher>
+  )  
+}
+
+export function headerProtector(component, params, children) {
+  return (
+    <Catcher>
+      {React.createElement(component, params, children)}
+    </Catcher>
+  )
 }

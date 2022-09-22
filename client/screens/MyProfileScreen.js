@@ -41,8 +41,6 @@ export function MyProfileScreen({navigation}) {
    
     const version = Constants.manifest.version
 
-    // console.log('photo', photo, uploading);
-
     async function signOut() {
         track('Sign Out',{fromProfile: true});
         console.log('SIGNOUT!!');
@@ -102,11 +100,6 @@ export function MyProfileScreen({navigation}) {
                     Sign Out
                 </WideButton>
                 <WideButton onPress={() => navigation.navigate('unsubscribe')} >Leave Communities</WideButton>
-                {isMasterUser() ? 
-                    <Catcher context={{fake: 'yes'}}>
-                        <FakeErrorButton />
-                    </Catcher>
-                : null}
             </View>
             {isMasterUser() ?
                 <View style={{flexDirection: 'row', alignSelf: 'center'}}>

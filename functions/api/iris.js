@@ -707,3 +707,13 @@ async function editTopicAsync({community, topic=null, name, questions, summary, 
     // return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;
+
+async function logErrorAsync({error, stack=null, context=null, userId}) {
+    var updates = {};
+    const key = FBUtil.newKey();
+    updates['errorLog/' + key] = {
+        userId, error, stack, context
+    }
+    return {success: true, updates};
+}
+exports.logErrorAsync = logErrorAsync;
