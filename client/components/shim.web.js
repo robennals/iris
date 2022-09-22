@@ -235,7 +235,7 @@ export async function checkIfNotifsDenied() {
   return Notification.permission != 'default' && Notification.permission != 'granted';
 }
 
-export async function notifsSupported() {
+export function notifsSupported() {
   return getFirebaseNotifsSupported();
 }
 

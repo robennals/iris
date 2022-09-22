@@ -9,9 +9,11 @@ import { captureException } from "../components/shim";
 import { NetworkContext } from "../components/context";
 
 var messaging = null;
+var global_messaging_supported = null;
 
 async function fbStartup() {
     const supported = await isSupported();
+    global_messaging_supported = supported;
     console.log('messaging supported ', supported);
     if (Platform.OS == 'web' && supported) {
         messaging = getMessaging(firebaseApp);
@@ -31,8 +33,8 @@ export async function getFirebaseNotifTokenAsync() {
     }
 }
 
-export async function getFirebaseNotifsSupported() {
-    return messaging;
+export function getFirebaseNotifsSupported() {
+    return global_messaging_supported;
 }
 
 const database = getDatabase();
