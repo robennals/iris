@@ -203,6 +203,10 @@ export async function adminGetLoginTokenAsync({email}) {
 }
 
 export async function logErrorAsync({error, stack, context}) {
-    return await callServerApiAsync('logError', {error, stack, context});
+    try {
+        return await callServerApiAsync('logError', {error, stack, context});
+    } catch (e) {
+        console.error('Error logging an error', e);
+    }
 }
 

@@ -84,11 +84,15 @@ export class ExpoMixpanelAnalytics {
   }
 
   track(name, props) {
-    this.queue.push({
-      name,
-      props,
-    });
-    this._flush();
+    try {
+      this.queue.push({
+        name,
+        props,
+      });
+      this._flush();
+    } catch (e) {
+      console.log('Error in tracking', e);
+    }
   }
 
   identify(userId) {
@@ -142,14 +146,18 @@ export class ExpoMixpanelAnalytics {
   }
 
   _people(operation, props) {
-    if (this.userId) {
-      const data = {
-        $token: this.token,
-        $distinct_id: this.userId,
-      };
-      data[`$${operation}`] = props;
+    try {
+      if (this.userId) {
+        const data = {
+          $token: this.token,
+          $distinct_id: this.userId,
+        };
+        data[`$${operation}`] = props;
 
-      this._pushProfile(data);
+        this._pushProfile(data);
+      }
+    } catch (e) {
+      console.error('Error setting people properties');
     }
   }
 
