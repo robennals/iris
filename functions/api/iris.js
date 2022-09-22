@@ -30,6 +30,8 @@ function isMasterUser(user) {
     return false;
 }
 
+exports.isMasterUser = isMasterUser;
+
 
 async function createMemberAsync(person, userEmails) {
     const {name, email, bio} = person;

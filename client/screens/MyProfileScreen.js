@@ -108,6 +108,14 @@ export function MyProfileScreen({navigation}) {
                     </Catcher>
                 : null}
             </View>
+            {isMasterUser() ?
+                <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <Catcher context={{fake: 'yes'}}>
+                        <FakeErrorButton />
+                    </Catcher>
+                    <WideButton alwaysActive onPress={() => navigation.navigate('adminLogin')}>Admin Login</WideButton>
+                </View>
+            :null}
             <Text style={{alignSelf: 'center', color: '#666'}}>To request that your account be deleted, email <Link url='mailto:account@iris-talk.com'>account@iris-talk.com</Link></Text>
 
         </ScreenContentScroll>

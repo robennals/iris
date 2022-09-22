@@ -51,6 +51,7 @@ import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
 import { EditTopicScreen } from './screens/EditTopic';
 import * as Sentry from 'sentry-expo';
 import { setUserPropertiesAsync } from './data/metrics';
+import { AdminLoginScreen } from './screens/AdminLogin';
 
 Sentry.init({
   dsn: 'https://0c46551eb8ee400c8aa4a6bd6c316f4c@o1414339.ingest.sentry.io/6754623',
@@ -230,7 +231,8 @@ export default function App() {
     unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'},
     join: {component: IntakeScreen, title: 'Join Community'},
     newTopic: {component: EditTopicScreen, title: 'New Topic'},
-    editTopic: {component: EditTopicScreen, title: 'Edit Topic'}
+    editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
+    adminLogin: {component: AdminLoginScreen, title: 'Admin Login'}
   }
 
   // console.log('intialUrl', initialUrl);

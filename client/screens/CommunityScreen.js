@@ -16,6 +16,7 @@ import { BottomFlatScroller } from '../components/shimui';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { PhotoPromo } from '../components/profilephoto';
 import { Loading } from '../components/loading';
+import { StatusBar } from 'expo-status-bar';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -94,6 +95,7 @@ export function CommunityScreen({navigation, route}) {
 
     return (
         <KeyboardSafeView style={{flex: 1}}>
+            <StatusBar style='dark' />
             <HeaderSpaceView style={{flex:1 }}>
                 <ConnectedBanner />
                 <PhotoPromo />

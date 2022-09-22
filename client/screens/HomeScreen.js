@@ -16,6 +16,7 @@ import { reloadIfVersionChanged } from '../data/versioncheck';
 import { GroupPreview, isGroupUnread } from '../components/grouppreview';
 import { track } from '../components/shim';
 import { ConnectedBanner } from '../components/connectedbanner';
+import { StatusBar } from 'expo-status-bar';
 
 
 
@@ -182,6 +183,7 @@ export class GroupList extends React.Component {
             {wide ? null :
                     <ConnectedBanner />
                 }
+                <StatusBar style='dark' />
             <ScrollView style={{backgroundColor: 'white', flexShrink: 1}}>
                 {Platform.OS == 'android' ?
                     <View style={{height: 16}} />

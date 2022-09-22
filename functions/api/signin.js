@@ -3,6 +3,7 @@ const FS = require('fs');
 const Mustache = require('mustache');
 const Email = require('../output/email');
 const _ = require('lodash');
+const { isMasterUser } = require('./iris');
 
 const minute_millis = 60000;
 const hour_millis = 60*minute_millis;
@@ -120,6 +121,23 @@ async function getLoginTokenForCode({email, code}) {
   }
 }
 
+
+async function adminGetLoginTokenAsync({email, userId}) {
+  console.log('adminGetLoginToken', email);
+
+  if (!isMasterUser(userId)) {
+    return {success: false, message: 'access denied'}
+  }
+
+  const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
+  const uid = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
+
+  console.log('creating login token');
+  const token = await FBUtil.createLoginToken(uid);
+  return {success: true, token};
+}
+
+exports.adminGetLoginTokenAsync = adminGetLoginTokenAsync;
 
 exports.requestLoginCode = requestLoginCode;
 exports.getLoginTokenForCode = getLoginTokenForCode;

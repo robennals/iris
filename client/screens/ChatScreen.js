@@ -22,6 +22,7 @@ import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { Feedback } from '../components/feedback';
 import { Loading } from '../components/loading';
+import { StatusBar } from 'expo-status-bar';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -153,6 +154,7 @@ export function ChatScreen({navigation, route}) {
     return (
       <GroupContext.Provider value={{group}} >
       <KeyboardSafeView style={{flex: 1}}>
+          <StatusBar style='dark' />
         <HeaderSpaceView style={{flex:1 }}>
             <ConnectedBanner />
           <EnableNotifsBanner />

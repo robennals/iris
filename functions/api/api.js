@@ -121,6 +121,9 @@ async function apiActionAsync({action, components, params}) {
         case 'editTopic': {
             return Iris.editTopicAsync(params);
         }
+        case 'adminGetLoginToken': {
+            return Signin.adminGetLoginTokenAsync(params);
+        }
 
 
         default: {
