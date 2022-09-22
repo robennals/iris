@@ -545,6 +545,8 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
         })
     }
 
+    await pPhotoUpload; await pThumbUpload;
+
     // console.log('updates', updates);
     // return {success: true}
 

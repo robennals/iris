@@ -339,11 +339,12 @@ export function IntakeScreen({community:paramCommunity, route}) {
             <View style={{margin: 16}}>
                 <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>About You</Text>
                 <Text style={{color: '#666'}}>This information is used to help match you with people to talk with. It will only be shared with community admins and members of your chat groups.</Text>
-
             </View>
-            {/* <View style={{margin: 16, alignSelf: 'center'}}>
-                <PhotoPicker required photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
-            </View> */}
+            {photoKey ? null :
+                <View style={{margin: 16, alignSelf: 'center'}}>
+                    <PhotoPicker required photoData={photoData} onChoosePhoto={({photoData, thumbData}) => {setPhotoData(photoData); setThumbData(thumbData)}} />
+                </View>
+            }   
             {questions.map(q =>
                 <Question key={q.question} question={q} 
                     answer={answers[textToKey(q.question)]} 
@@ -365,7 +366,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 )}
             </ScrollView>
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || inProgress || topicCount < 1}>
+            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!(thumbData || photoKey) || !validEmail || !validName || inProgress || topicCount < 1}>
                 {inProgress ? 'Submitting...' : 'Submit'}
             </WideButton>
             {validEmail ? null : 
@@ -374,9 +375,9 @@ export function IntakeScreen({community:paramCommunity, route}) {
             {validName ? null : 
                 <ValidationWarning>Valid name required</ValidationWarning>
             }
-            {/* {thumbData ? null :
+            {thumbData || photoKey ? null :
                 <ValidationWarning>Profile photo required</ValidationWarning>                
-            } */}
+            }
             {topicCount >= 1 ? null :
                 <ValidationWarning>You must select at least one topic</ValidationWarning>                
             }
