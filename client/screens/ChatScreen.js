@@ -158,13 +158,15 @@ export function ChatScreen({navigation, route}) {
       <KeyboardSafeView style={{flex: 1}}>
           <StatusBar style='dark' />
         <HeaderSpaceView style={{flex:1 }}>
+          <Catcher>
             <ConnectedBanner />
-          <EnableNotifsBanner />
-          <PhotoPromo />
-          {archived ? 
-            <ArchivedBanner />
-          :null}
-          <NewMessageTracker group={group} />
+            <EnableNotifsBanner />
+            <PhotoPromo />
+            {archived ? 
+                <ArchivedBanner />
+            :null}
+            <NewMessageTracker group={group} />
+          </Catcher>
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
             <MessageList group={group} archived={archived} memberHues={memberHues} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
