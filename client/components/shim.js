@@ -110,3 +110,7 @@ export const ErrorBoundary = Sentry.Native.ErrorBoundary;
 export function notifsSupported() {
   return true;
 }
+
+export async function playAlertSound() {
+  return null;
+}

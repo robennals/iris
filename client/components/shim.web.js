@@ -6,7 +6,6 @@ import { appDomain, appName, localWebDomain } from "../data/config";
 import { FixedTouchable, HoverView, parsePhotoDataUri } from "./basics";
 import { Catcher } from './catcher';
 import { AppContext } from "./context";
-import {Audio} from 'expo-av';
 import { Entypo } from '@expo/vector-icons';
 import { querystringDecode } from '@firebase/util';
 import { getFirebaseNotifsSupported, getFirebaseNotifTokenAsync } from '../data/fbutil';
@@ -254,3 +253,12 @@ export function setContext(dict) {
 
 
 export const ErrorBoundary = SentryBrowser.ErrorBoundary;
+
+var global_audio = new Audio('https://iris-talk.com/pop_semiquiet.mp3');;
+export async function playAlertSound() {
+  try {
+    await global_audio.play();
+  } catch (e) {
+    console.error('could not play sound:', e);
+  }
+}
