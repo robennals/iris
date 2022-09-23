@@ -706,7 +706,7 @@ async function editTopicAsync({community, topic=null, name, questions, pinned, s
             console.log('new topic notif', name);
         })
     }
-    return {success: true, updates}
+    return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;
 
