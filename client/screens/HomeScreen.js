@@ -17,6 +17,7 @@ import { GroupPreview, isGroupUnread } from '../components/grouppreview';
 import { track } from '../components/shim';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { StatusBar } from 'expo-status-bar';
+import { Loading } from '../components/loading';
 
 
 
@@ -144,7 +145,7 @@ export class GroupList extends React.Component {
         const {groupSet, localCommSet, masterCommSet, selected, search, name, photo, allCommunities, showArchived} = this.state;
 
         if (!groupSet || !localCommSet) {
-            return null;
+            return <Loading />;
         }
 
         const communitySet = isMasterUser() ? mergeObjectSets(localCommSet, masterCommSet) : 
