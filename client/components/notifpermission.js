@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, Button, Platform, StyleSheet } from 'react-native';
+import { Text, View, Button, Platform, StyleSheet, Linking } from 'react-native';
 import { getCurrentUser, setDataAsync, getDataAsync, getFirebaseNotifTokenAsync, watchData, internalReleaseWatchers, getFirebaseServerTimestamp } from '../data/fbutil';
 import _ from 'lodash'
 import { FixedTouchable, MinorButton, WideButton } from './basics';
@@ -96,7 +96,7 @@ export class EnableNotifsBanner extends React.Component {
       const granted = await checkIfNotifsGranted();
       if (granted) {
         this.setState({notifsEnabled: true});
-      } else if (!isTest) {
+      } else {
         setTimeout(() => this.pollForNotifsGranted(), 500);
       }
     }

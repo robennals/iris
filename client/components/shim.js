@@ -67,10 +67,10 @@ export function useCustomNavigation() {
 
 
 
-export function TitleBlinker() {return null};
-export function setTitle() {};
-export function addFocusListener() {};
-export function removeFocusListener() {};
+export function TitleBlinker() {return null}
+export function setTitle() {}
+export function addFocusListener() {}
+export function removeFocusListener() {}
 
 
 export function vibrate(){

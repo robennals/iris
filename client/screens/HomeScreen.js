@@ -25,7 +25,7 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 
     var summaryLine = '';
     if (communityInfo.lastMessage) {
-        const prefix = communityInfo?.lastMessage?.fromName ? groupInfo.lastMessage.fromName + ': ' : '';
+        const prefix = communityInfo?.lastMessage?.fromName ? communityInfo.lastMessage.fromName + ': ' : '';
 
         summaryLine = prefix + firstLine(_.get(communityInfo,['lastMessage','text'],''))
     }

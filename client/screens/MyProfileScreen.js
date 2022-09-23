@@ -113,7 +113,5 @@ export function MyProfileScreen({navigation}) {
 
         </ScreenContentScroll>
     )
-
-    return <Text>My Profile</Text>
 }
 

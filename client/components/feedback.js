@@ -35,7 +35,6 @@ export function Feedback({archived, group}) {
     if (!archived) return null;
     const rating = useDatabase([group], ['perUser','groupRating',getCurrentUser(), group], 0);
     const extraText = useDatabase([group], ['perUser', 'groupFeedback', getCurrentUser(), group], '');
-    // const [extraText, setExtraText] = useState('');
 
     function onChooseRating(rating) {
         setDataAsync(['perUser', 'groupRating', getCurrentUser(), group], rating);
@@ -66,19 +65,6 @@ export function Feedback({archived, group}) {
             <Text style={{color: '#666', fontSize: 12, maxWidth: 250, marginHorizontal: 32, textAlign: 'center'}}>
                 Rating this conversation will help us match you with better conversations.
             </Text>
-
-            {/* <View style={{borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8,
-            margin: 16, padding: 8, maxWidth: 550, alignSelf: 'center',
-            ...shadowStyle}}>
-                <Text style={{fontWeight: 'bold', marginBottom: 4}}>Rate this Conversation
-                </Text>
-                <Text style={{color: '#666'}}>
-                    Rating this conversation helps us match you better going forward.
-                </Text>
-
-            </View> */}
-
         </View>
     )
-    return <Text>Feedback</Text>
 }

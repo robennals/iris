@@ -67,7 +67,9 @@ export class ExpoMixpanelAnalytics {
         if (result) {
           try {
             this.superProps = JSON.parse(result) || {};
-          } catch {}
+          } catch (e) {
+            console.error('Async Storage Error', e);
+          }
         }
 
         this.ready = true;
@@ -80,7 +82,9 @@ export class ExpoMixpanelAnalytics {
     this.superProps = props;
     try {
       AsyncStorage.setItem(this.storageKey, JSON.stringify(props));
-    } catch {}
+    } catch (e) {
+      console.error('Async Storage set error', e);
+    }
   }
 
   track(name, props) {
@@ -103,7 +107,9 @@ export class ExpoMixpanelAnalytics {
     this.identify(this.clientId);
     try {
       AsyncStorage.setItem(this.storageKey, JSON.stringify({}));
-    } catch {}
+    } catch (e) {
+      console.log('Async storage error in reset', e);
+    }
   }
 
   people_set(props) {

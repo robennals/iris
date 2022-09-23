@@ -1,10 +1,10 @@
+import React, {useEffect, useState} from 'react';
 import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
-import { getDatabase, ref, onValue, off, update, get, set, once, serverTimestamp, push } from "firebase/database";
+import { getDatabase, ref, onValue, off, update, get, set, serverTimestamp, push } from "firebase/database";
 import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 import _ from 'lodash';
 import { Platform } from "react-native";
-import { useEffect, useState } from "react";
 import { captureException } from "../components/shim";
 import { NetworkContext } from "../components/context";
 

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { NewMessageSound } from '../components/alertping';
 import { FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
@@ -9,8 +8,7 @@ import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
-import { addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
-import { setTitle } from '../components/shim';
+import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';

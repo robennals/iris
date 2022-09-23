@@ -199,5 +199,4 @@ function MemberPreview({person}) {
             <Text style={{fontSize: 14, color: '#666'}}>{bio}</Text>
         </View>
     )
-    return <Text>Hello {name}</Text>
 }

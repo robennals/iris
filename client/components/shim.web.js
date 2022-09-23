@@ -1,13 +1,7 @@
-import React from 'react';
-import { useContext } from "react";
-import { findDOMNode } from 'react-dom';
-import { ScrollView, View, Text} from 'react-native';
+import React, {useContext} from 'react';
 import { appDomain, appName, localWebDomain } from "../data/config";
-import { FixedTouchable, HoverView, parsePhotoDataUri } from "./basics";
-import { Catcher } from './catcher';
+import { parsePhotoDataUri } from "./basics";
 import { AppContext } from "./context";
-import { Entypo } from '@expo/vector-icons';
-import { querystringDecode } from '@firebase/util';
 import { getFirebaseNotifsSupported, getFirebaseNotifTokenAsync } from '../data/fbutil';
 import * as Sentry from 'sentry-expo';
 import * as SentryBrowser from "@sentry/react";
@@ -254,7 +248,7 @@ export function setContext(dict) {
 
 export const ErrorBoundary = SentryBrowser.ErrorBoundary;
 
-var global_audio = new Audio('https://iris-talk.com/pop_semiquiet.mp3');;
+var global_audio = new Audio('https://iris-talk.com/pop_semiquiet.mp3');
 export async function playAlertSound() {
   try {
     await global_audio.play();

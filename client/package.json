@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "lint": "eslint screens/*.js components/*.js data/*.js App.js"
   },
   "dependencies": {
     "@expo/metro-config": "^0.3.22",
@@ -50,7 +51,10 @@
     "sentry-expo": "~5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.6"
+    "@babel/core": "^7.18.6",
+    "eslint": "^8.23.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "^7.31.8"
   },
   "private": true
 }

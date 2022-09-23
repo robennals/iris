@@ -1,7 +1,6 @@
 import React from 'react';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { View, Text } from 'react-native';
-import IonIcons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
 import { FixedTouchable, FormInput } from './basics';
 
 export function SearchBox({onChangeText, value, style, placeholder='Search'}) {
@@ -10,7 +9,7 @@ export function SearchBox({onChangeText, value, style, placeholder='Search'}) {
       <View style={{borderRadius: 16, marginHorizontal: 8, flex: 1,
           flexDirection: 'row', alignItems: 'center', 
           backgroundColor: '#f5f5f5', ...style}}>
-        <IonIcons name='ios-search' size={20} color='#999' style={{marginLeft: 8}} />
+        <Ionicons name='ios-search' size={20} color='#999' style={{marginLeft: 8}} />
         <FormInput value={value || ''} underlineColorAndroid='transparent' placeholder={placeholder} 
             onChangeText={onChangeText} 
             style={{flex: 1, flexShrink: 1, width: '100%', fontSize: 16, padding: 8}}/>

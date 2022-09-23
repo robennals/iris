@@ -3,7 +3,6 @@ import AppLoading from 'expo-app-loading';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { firebaseSignOut, internalReleaseWatchers, maybeFirebaseSignOut, NetworkStateProvider, onFirebaseAuthStatechanged, watchData } from './data/fbutil';
 import { SignInScreen } from './screens/Signin';
-import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, CommonActions, useNavigationContainerRef } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
@@ -12,38 +11,28 @@ import * as SplashScreen from 'expo-splash-screen';
 import _ from 'lodash';
 
 import { EmptyScreen, GroupList, HomeScreen, SidePanel } from './screens/HomeScreen';
-import EditGroupScreen from './screens/NewGroupScreen';
 import { releaseServerTokenWatch, setupServerTokenWatch } from './data/servercall';
-import { GroupScreen, GroupScreenHeader, GroupScreenTitle, GroupScreenWrapper } from './screens/GroupScreen';
-import { InviteScreen } from './screens/InviteScreen';
-import { JoinOrCreateScreen, JoinScreen } from './screens/JoinScreen';
-import { AppContext } from './components/context';
-import { MessageBoxScreen, MessageBoxScreenHeader } from './screens/MessageBoxScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { ReportAbuseScreen } from './screens/ReportAbuse';
 import { GroupProfileScreen } from './screens/GroupProfileScreen';
-import { ThreadScreen, ThreadScreenHeader } from './screens/ThreadScreen';
-import { NotifIcon } from './components/notificon';
 import { NotifScreen } from './screens/NotifScreen';
 import { identify, playAlertSound, resetMixpanel, track, webInit } from './components/shim';
 import { PhotoScreen } from './screens/PhotoScreen';
 import { CustomNavigator } from './components/customnavigator';
-import { NotifLine } from './components/notifline';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LeaveGroupScreen } from './screens/LeaveGroupScreen';
 import { AboutScreen } from './screens/AboutScreen';
 import { AddSubgroupScreen } from './screens/AddSubgroupScreen';
-import { OutsiderThreadScreen, OutsiderThreadScreenHeader } from './screens/OutsiderThreadScreen';
 import { DigestFreqScreen } from './screens/DigestFreqScreen';
 import { appName } from './data/config';
-import { AdminCreateGroupScreen, AdminCreateScreen } from './screens/AdminCreateGroup';
+import { AdminCreateGroupScreen } from './screens/AdminCreateGroup';
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 import { MyProfileScreen } from './screens/MyProfileScreen';
-import { AdminCreateOrEditCommunity, AdminCreateOrEditCommunityScreen } from './screens/AdminCreateOrEditCommunity';
+import { AdminCreateOrEditCommunityScreen } from './screens/AdminCreateOrEditCommunity';
 import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScreen';
 import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
-import { CommunitySignupsScreen, SubmissionsScreen } from './screens/CommunitySignups';
+import { CommunitySignupsScreen } from './screens/CommunitySignups';
 import { CommunityGroupsScreen } from './screens/CommunityGroups';
 import { AdminCommandScreen } from './screens/AdminCmd';
 import { UnsubscribeScreen } from './screens/UnsubscribeScreen';
@@ -188,25 +177,8 @@ export default function App() {
 
   const screens = {
     home: {component: HomeScreen, noHeader: true},
-    new: {component: EditGroupScreen, title: 'New Group'},
     group: {component: ChatScreen, headerTitle: ChatScreenHeader}, 
-      
-      // options: ({navigation, route}) => ({
-      // headerLeft: null, headerRight: () => <NotifIcon navigation={navigation} />, 
-      // headerTitle: ({children}) => <GroupScreenHeader navigation={navigation} route={route} children={children} />})},
     pgroup: {component: ChatScreen, headerTitle: ChatScreenHeader},
-      // options: ({navigation, route}) => ({
-      // animationEnabled: false, 
-      // headerLeft: null, headerRight: () => <NotifIcon navigation={navigation} />, 
-      // headerTitle: ({children}) => <GroupScreenHeader navgation={navigation} route={route} children={children} />})},
-    thread: {component: ThreadScreen, headerTitle: ThreadScreenHeader},
-      
-      // options: ({navigation, route}) => ({
-      // title: 'Thread', headerRight: () => <NotifIcon navigation={navigation} />})},
-    invite: {component: InviteScreen},
-    join: {component: JoinScreen},
-    joinOrCreate: {component: JoinOrCreateScreen, title: 'Join or Create a Group'},
-    messagebox: {component: MessageBoxScreen, headerTitle: MessageBoxScreenHeader},
     profile: {component: ProfileScreen, title: 'User Profile'},
     groupProfile: {component: GroupProfileScreen, title: 'Conversation Info'},
     reportAbuse: {component: ReportAbuseScreen, title: 'Report Abuse'},
@@ -216,7 +188,6 @@ export default function App() {
     leaveGroup: {component: LeaveGroupScreen, title: 'Leave Group'},
     about: {component: AboutScreen, title: 'About ' + appName},
     addsubgroup: {component: AddSubgroupScreen, title: 'Add Subgroup'},
-    outsiderThread: {component: OutsiderThreadScreen, headerTitle: OutsiderThreadScreenHeader},
     digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
     adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
     myProfile: {component: MyProfileScreen, title: 'My Profile'},

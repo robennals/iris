@@ -7,7 +7,7 @@ import { FixedTouchable, FormInput, FormTitle, makePhotoDataUrl, mergeEditedPara
 import { getUrlForImage, GroupPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync } from '../components/shim';
 import { watchData } from '../data/fbutil';
-import { createCommunityAsync, createOrUpdateCommunityAsync, updateCommunityAsync } from '../data/servercall';
+import { createOrUpdateCommunityAsync } from '../data/servercall';
 import _ from 'lodash';
 
 
@@ -39,10 +39,6 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
         // flex: 1,
         marginHorizontal: 16,
         marginTop: 8
-    }
-
-    function onCreateCommunityClicked() {
-        console.log('create community', name, info, questions, topics);
     }
 
     async function choosePhotoAsync() {

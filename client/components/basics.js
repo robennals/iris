@@ -177,7 +177,7 @@ export function Link({title, url, children, inverted, style}) {
 export function FormTitle({title, children}) {
   return (
       <View>
-          <Text style={{fontSize: 12, marginTop: 16, marginHorizontal: 16, color: '#222', fontWeight: 'bold', marginTop: 8}}>{title}</Text>
+          <Text style={{fontSize: 12, marginHorizontal: 16, color: '#222', fontWeight: 'bold', marginTop: 12}}>{title}</Text>
           {children}
       </View>
   )
@@ -489,11 +489,6 @@ export function parseTopics(topicsTxt) {
 
 export function textToKey(text) {
   return text.replace(/[\/\.\$\#\[\]]/g, '_');
-}
-
-const linkRegEx = /\[\d\w\-\?\:]*\|[\w\s]*\]/;
-function parseLinkText(text) {
-  const lines = te
 }
 
 export function mergeEditedParams({oldObj, newObj}) {

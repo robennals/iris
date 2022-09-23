@@ -1,5 +1,4 @@
-import React from 'react';
-import { useContext } from "react";
+import React, {useContext} from 'react';
 import { findDOMNode } from 'react-dom';
 import { ScrollView, View, Text} from 'react-native';
 import { appDomain, appName, localWebDomain } from "../data/config";
@@ -14,6 +13,8 @@ import { getFirebaseNotifTokenAsync } from '../data/fbutil';
 import {ExpoMixpanelAnalytics} from './expomixpanel';
 import _ from 'lodash';
 
+
+/* eslint-disable react/no-find-dom-node */
 
 export class BottomScroller extends React.Component {
     state = {rendered: false, atBottom: true}

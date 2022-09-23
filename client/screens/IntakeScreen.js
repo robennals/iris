@@ -158,7 +158,7 @@ function ConfirmScreen({community, email}) {
                     <View>
                         <Text style={{fontWeight: 'bold', fontSize: 24, marginBottom: 8}}>Look out for an Email Soon</Text>
                         <Text style={{color: '#666'}}>
-                            We will send you an email once we've added you to a discussion group.
+                            We will send you an email once we have added you to a discussion group.
                         </Text>
                     </View> 
                 :

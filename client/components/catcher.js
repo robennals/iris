@@ -1,8 +1,7 @@
 import React from 'react';
 import { Platform, Text, View } from 'react-native';
 import _ from 'lodash';
-import * as Sentry from 'sentry-expo';
-import { captureException, captureMessage, ErrorBoundary, setContext } from './shim';
+import { captureException, ErrorBoundary, setContext } from './shim';
 import { logErrorAsync } from '../data/servercall';
 
 
@@ -86,6 +85,7 @@ export class Catcher extends React.Component {
   }
 }
 
+/* eslint-disable react/display-name */
 export const screenProtector = component => params => {
   return (
     <Catcher style={{flex: 1}}>

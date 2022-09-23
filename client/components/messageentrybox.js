@@ -2,12 +2,12 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { FixedTouchable, MemberIcon, ScreenContentScroll, WideButton } from '../components/basics';
+import { FixedTouchable, MemberIcon, WideButton } from '../components/basics';
 import { getCurrentUser, watchData } from '../data/fbutil';
 import { postMessageAsync } from '../data/servercall';
 import { GroupContext, MemberSectionContext } from './context';
-import { compressImageAsync, PhotoPreview, pickImage } from './photo';
-import { getCurrentDomain, resizeImageAsync, useCustomNavigation } from './shim';
+import { PhotoPreview, pickImage } from './photo';
+import { resizeImageAsync, useCustomNavigation } from './shim';
 import { TagSuggestion, applyTag, updateTagSuggestionForSelectionChange } from './tagging';
 
 export function MessageEntryBox({style, onCancel, editText='', editPhotoKey=null, editKey=null, edit=false, rootKey=null, replyTo=null}) {

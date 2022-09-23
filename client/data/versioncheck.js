@@ -22,6 +22,8 @@ watchData(x, ['special', 'versioncheck', runtimeKey], newVersion => {
     firstLoad = false;
 },0)
 
+/* global __DEV__ */
+
 export function forceReload() {
     if (Platform.OS != 'web') {
         if (!__DEV__) {

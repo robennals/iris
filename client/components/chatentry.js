@@ -1,7 +1,7 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { getCurrentUser, getFirebaseServerTimestamp, newKey, SERVER_TIMESTAMP, setDataAsync } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
 import { sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
 import { track } from './shim';

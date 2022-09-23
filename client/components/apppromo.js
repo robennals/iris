@@ -21,7 +21,7 @@ export function AppPromo(){
             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginBottom: 16}}>
                 <Text style={{alignSelf: 'center', marginVertical: 16, fontWeight: 'bold'}}>Install the app</Text>
 
-                <a target='_blank' href='https://apps.apple.com/us/app/iris-talk/id1640562508' style={{alignSelf: 'center', textDecoration: 'none'}}>
+                <a target='_blank' rel='noreferrer' href='https://apps.apple.com/us/app/iris-talk/id1640562508' style={{alignSelf: 'center', textDecoration: 'none'}}>
                     <Image source={{uri: 'https://iris-talk.com/ios_app_promo.png'}} style={{width: 153, height: 45}} />
                     {/* <View style={{backgroundColor: 'black', alignSelf: 'center', flexDirection: 'row', 
                     alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, 
@@ -31,7 +31,7 @@ export function AppPromo(){
                     </View> */}
                 </a>
                 <View style={{height: 16}} />
-                <a target='_blank' href='https://play.google.com/store/apps/details?id=us.mix5' style={{alignSelf: 'center', textDecoration: 'none'}}>
+                <a target='_blank' rel='noreferrer' href='https://play.google.com/store/apps/details?id=us.mix5' style={{alignSelf: 'center', textDecoration: 'none'}}>
                     <Image source={{uri: 'https://iris-talk.com/android_app_promo.png'}} style={{width: 153, height: 45}} />
 {/* 
                     <View style={{backgroundColor: 'black', alignSelf: 'center', flexDirection: 'row', 

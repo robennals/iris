@@ -17,7 +17,7 @@ function LinkTextLink({url, children, linkColor}) {
   if (Platform.OS != 'web') {
     return <Text style={{color: linkColor, textDecorationLine: 'underline'}} onPress={()=>Linking.openURL(url)}>{children}</Text>
   } else {
-    return <a target='_blank' style={{color: linkColor, textDecoration: 'underline'}} href={url}>{children}</a>
+    return <a target='_blank' rel='noreferrer' style={{color: linkColor, textDecoration: 'underline'}} href={url}>{children}</a>
   }
 }
 
