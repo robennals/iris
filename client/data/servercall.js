@@ -194,8 +194,8 @@ export async function adminArchiveGroupAsync({group}) {
     return await callServerApiAsync('adminArchiveGroup', {group});
 }
 
-export async function editTopicAsync({community, topic, name, summary, questions}) {
-    return await callServerApiAsync('editTopic', {community, topic, name, summary, questions});
+export async function editTopicAsync({community, topic, name, pinned, summary, questions}) {
+    return await callServerApiAsync('editTopic', {community, topic, name, pinned, summary, questions});
 }
 
 export async function adminGetLoginTokenAsync({email}) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
+import { FormCheckbox, FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { internalReleaseWatchers, watchData } from '../data/fbutil';
 import { editTopicAsync } from '../data/servercall';
@@ -28,6 +28,7 @@ function questionTextToJson(questionText) {
 export function EditTopicScreen({navigation, route}) {
     const {community, topic} = route.params;
     const [name, setName] = useState(null);
+    const [pinned, setPinned] = useState(null);
     const [questions, setQuestions] = useState(null);
     const [summary, setSummary] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
@@ -48,17 +49,15 @@ export function EditTopicScreen({navigation, route}) {
     }, [community])
 
     const oldQuestions = questionJsonToText(old.questions);
-    console.log('oldQuestions', oldQuestions, '-');
 
     const merged = mergeEditedParams({
         oldObj: {...old, questions: oldQuestions}, 
-        newObj: {name, summary, questions}})
-
-    console.log('merged', merged, old);
+        newObj: {name, summary, pinned, questions}})
 
 
     async function onSubmit() {
         await editTopicAsync({community, topic: topic || null, name: merged.name, 
+                pinned: merged.pinned,
                 summary: merged.summary, questions: questionTextToJson(merged.questions)});
         navigation.goBack();
     }
@@ -84,6 +83,7 @@ export function EditTopicScreen({navigation, route}) {
                 <FormTitle title='Three Short Questions (one per line)'>
                     <FormInput value={merged.questions || ''} onChangeText={setQuestions} multiline extraStyle={{flex: null, height: 72}} />
                 </FormTitle>
+                <FormCheckbox label='Pin in Intake Form' selected={merged.pinned} onChangeSelected={setPinned} />
                 <WideButton onPress={onSubmit} style={{marginTop: 32, alignSelf: 'flex-start'}} 
                     inProgress={topic ? 'Updating...' : 'Creating Topic...'}>
                     {topic ? 'Update Topic' : 'Create Topic'}

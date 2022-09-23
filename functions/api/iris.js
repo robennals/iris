@@ -664,7 +664,7 @@ function logIntakeAsync({logKey, community, stage, data, ip, userId}) {
 exports.logIntakeAsync = logIntakeAsync;
 
 
-async function editTopicAsync({community, topic=null, name, questions, summary, userId}) {
+async function editTopicAsync({community, topic=null, name, questions, pinned, summary, userId}) {
     const isMaster = isMasterUser(userId);
     var updates = {};
     var topicKey = topic ? topic : FBUtil.newKey();
@@ -676,11 +676,12 @@ async function editTopicAsync({community, topic=null, name, questions, summary, 
     }
     const members = await pMembers; const communityName = await pCommunityName;
 
-    // console.log('editTopic', topic, topicKey);
+    console.log('editTopic', topic, topicKey, pinned);
 
     const time = Date.now();
     updates['topic/' + community + '/' + topicKey] = {
         name, questions, summary, time: oldTopic?.time || time,
+        pinned: pinned || null,
         approved: isMaster, from: userId
     }
     var notifs = [];
@@ -701,12 +702,11 @@ async function editTopicAsync({community, topic=null, name, questions, summary, 
 
         _.forEach(_.keys(members), member => {
             updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
-            // notifs.push({...notifBase, toUser: member});
+            notifs.push({...notifBase, toUser: member});
+            console.log('new topic notif', name);
         })
     }
-    // console.log('updates', updates, notifs);
     return {success: true, updates}
-    // return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;
 

@@ -287,8 +287,11 @@ export function IntakeScreen({community:paramCommunity, route}) {
     if (!info || !topics) return null;
 
     const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time).reverse();
+    const [pinnedTopics, normalTopics] = _.partition(sortedTopicKeys, k => topics[k].pinned);
+    const shownTopicKeys = [...pinnedTopics, ...normalTopics].slice(0,10);
+
     // const shownTopicKeys = sortedTopicKeys.slice(0, 10);
-    const shownTopicKeys = sortedTopicKeys;
+    // const shownTopicKeys = sortedTopicKeys;
 
     var questions = parseQuestions(info.questions);
     if (!getCurrentUser()) {
@@ -357,14 +360,14 @@ export function IntakeScreen({community:paramCommunity, route}) {
                 <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>What Topics would you like to Discuss?</Text>
                 <Text style={{color: '#666'}}>Choosing more topics increases the chance of a good match.</Text>
             </View>
-            <ScrollView style={{marginHorizontal: 16, borderRadius: 16, paddingVertical: 8, maxHeight: 500, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}> 
+            {/* <ScrollView style={{marginHorizontal: 16, borderRadius: 16, paddingVertical: 8, maxHeight: 500, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}>  */}
                 {shownTopicKeys.map(topicKey =>
                     <Topic key={topicKey} topic={topics[topicKey]}
                         selected={selectedTopics[topicKey]}
                         onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
                     />
                 )}
-            </ScrollView>
+            {/* </ScrollView> */}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
             <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!(thumbData || photoKey) || !validEmail || !validName || inProgress || topicCount < 1}>
                 {inProgress ? 'Submitting...' : 'Submit'}

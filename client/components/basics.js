@@ -221,6 +221,22 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
   }
 }
 
+export function FormCheckbox({selected, onChangeSelected, label}) {
+  return (
+    <FixedTouchable onPress={() => onChangeSelected(!selected)} style={{marginHorizontal: 16, marginTop: 12}}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center',
+          borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}>
+          {selected ? 
+            <Entypo name='check' />
+          :null}
+        </View>
+        <Text style={{marginLeft: 8, fontSize: 12, color: '#222', fontWeight: 'bold'}}>{label}</Text>
+      </View>
+    </FixedTouchable>
+  )
+}
+
 export function FixedTouchable({onPress, onLongPress, dummy, style, children}) {
   if (dummy) {
     return <View style={{flex: 1}}>{children}</View>
