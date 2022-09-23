@@ -6,11 +6,13 @@ import { sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
 import { track } from './shim';
 
+var global_saveDrafts = {};
+
 export function ChatEntryBox({group, messages, groupName, community, members, replyTo, onClearReply, chatInputRef, byMeCount = 0}) {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
-    const [text, setText] = useState('');
+    const [text, setText] = useState(null);
     const [textKey, setTextKey] = useState(0);
 
     function onContentSizeChange(event) {
@@ -25,7 +27,8 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
         }
     }
 
-    const textLength = text.length;
+    const mergedText = text != null ? text : (global_saveDrafts[group] || '');
+    const textLength = mergedText.length;
     const maxMessageLength = 350;
     const textGettingLong = textLength > 300;
     const textTooLong = textLength > maxMessageLength;
@@ -33,7 +36,7 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
     const maxByMe = 3;
 
     async function onSubmit() {
-        if (!text || textTooLong) {
+        if (!mergedText || textTooLong) {
             return;
         }
         const messageKey = newKey();
@@ -41,26 +44,31 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
         // setText('');
         // setTextKey(textKey+1);
         console.log('Send Message');
-        track('Send Message', {length: text.length, isReply: replyTo ? true : false, group, community, groupName});
+        track('Send Message', {length: mergedText.length, isReply: replyTo ? true : false, group, community, groupName});
         onClearReply();
         setText('');
+        global_saveDrafts[group] = null;
         setHeight(36);        
         setInProgress(false);
         await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
             time: getFirebaseServerTimestamp(),
             localTime: Date.now(),
-            text, replyTo, from: getCurrentUser(),
+            text: mergedText, replyTo, from: getCurrentUser(),
             pending: true
         })
         try {
-            await sendMessageAsync({messageKey, group, text, replyTo});
+            await sendMessageAsync({messageKey, group, text: mergedText, replyTo});
         } catch (e) {
             console.log('message send failed');
             await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);    
         }
     }
 
-     
+    function onChangeText(text) {
+        setText(text);
+        global_saveDrafts[group] = text;
+    } 
+
     function onKeyPress(e) {
         if (Platform.OS == 'web' && e.nativeEvent.key == 'Enter') {
             if (!e.nativeEvent.shiftKey && !e.nativeEvent.ctrlKey && !e.nativeEvent.metaKey){
@@ -96,7 +104,7 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
             {textGettingLong && !textTooLong ?
                 <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>{maxMessageLength - textLength} / {maxMessageLength} chars remaining</Text>
             :null}
-            {byMeCount > maxByMe && text.length > 0 ?
+            {byMeCount > maxByMe && mergedText.length > 0 ?
                 <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>
                     You have written {byMeCount} messages in a row. Consider letting someone else speak before writing another message.
                 </Text>
@@ -105,8 +113,8 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
                 <TextInput // disabled={inProgress} 
                     key={textKey}
                     ref={chatInputRef}
-                    value={text}
-                    onChangeText={setText}
+                    value={mergedText}
+                    onChangeText={onChangeText}
                     autoFocus={isWeb}
                     placeholder='Type a message'
                     placeholderTextColor={'#999'}
