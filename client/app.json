@@ -4,7 +4,7 @@
     "slug": "iris-talk",
     "scheme": "iris-talk",
     "version": "1.0.25",
-    "runtimeVersion": "1.0.25",
+    "runtimeVersion": "25",
     "icon": "./assets/icon_ios2_noalpha.png",
     "splash": {
       "image": "./assets/icon.png",
@@ -20,8 +20,7 @@
       "web"
     ],
     "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/3e5347de-ca15-4218-aca3-4b6c7c7ac135"
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"

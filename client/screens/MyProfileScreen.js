@@ -39,7 +39,7 @@ export function MyProfileScreen({navigation}) {
         return () => internalReleaseWatchers(x);
     }, [getCurrentUser()])
    
-    const version = Constants.manifest.version
+    const version = Constants.expoConfig.version
 
     async function signOut() {
         track('Sign Out',{fromProfile: true});
