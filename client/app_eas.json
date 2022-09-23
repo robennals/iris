@@ -1,0 +1,103 @@
+{
+  "expo": {
+    "name": "Iris Talk",
+    "slug": "iris-talk",
+    "scheme": "iris-talk",
+    "version": "1.0.25",
+    "runtimeVersion": "25",
+    "icon": "./assets/icon_ios2_noalpha.png",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content"
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/3e5347de-ca15-4218-aca3-4b6c7c7ac135"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "icon": "./assets/icon_ios2_noalpha.png",
+      "buildNumber": "25",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.iris-talk",
+      "associatedDomains": [
+        "applinks:iris-talk.com"
+      ],
+      "infoPlist": {
+        "NSCameraUsageDescription": "This allows you to attach an image to your post",
+        "NSPhotoLibraryAddUsageDescription": "This allows you to attach an image to your post",
+        "NSPhotoLibraryUsageDescription": "This allows you to attach an image to your post"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "us.mix5",
+      "versionCode": 25,
+      "permissions": [],
+      "icon": "./assets/icon.png",
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon_android_adaptive.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "useNextNotificationsApi": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "iris-talk.com",
+              "pathPrefix": ".*"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android_notif.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/pop_semiquiet.wav"
+          ]
+        }
+      ],
+      "sentry-expo"
+    ],
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "iris-talk",
+            "project": "react-native",
+            "authToken": "43de9ae208e2472abf37c3930d2d2231e58c994a9c074b788ed6a8394ffbc6ff"
+          }
+        }
+      ]
+    }
+  }
+}
