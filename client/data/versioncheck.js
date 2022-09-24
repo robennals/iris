@@ -10,7 +10,7 @@ const thisVersion = version;
 var latestVersion = null;
 var firstLoad = false;
 
-const runtimeKey = _.replace(Constants.manifest.runtimeVersion, /\./g, '_');
+const runtimeKey = Constants.expoConfig.runtimeVersion;
 console.log('runtimeKey', runtimeKey);
 
 var x = {};

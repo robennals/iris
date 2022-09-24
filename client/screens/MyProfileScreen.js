@@ -11,6 +11,7 @@ import { callAuthStateChangedCallbacks, getCurrentUser, internalReleaseWatchers,
 import { releaseServerTokenWatch } from '../data/servercall';
 import Constants from "expo-constants"
 import { Loading } from '../components/loading';
+import { version } from '../data/config';
 
 
 function FakeErrorButton() {
@@ -39,7 +40,8 @@ export function MyProfileScreen({navigation}) {
         return () => internalReleaseWatchers(x);
     }, [getCurrentUser()])
    
-    const version = Constants.expoConfig.version
+    const appVersion = Constants.expoConfig.version;
+    const runtimeVersion = Constants.expoConfig.runtimeVersion;
 
     async function signOut() {
         track('Sign Out',{fromProfile: true});
@@ -52,9 +54,7 @@ export function MyProfileScreen({navigation}) {
     }
 
     return (
-        <ScreenContentScroll wideHeader={Platform.OS == 'web' ?
-                <EnableNotifsBanner alwaysAsk />
-               : null} >
+        <ScreenContentScroll wideHeader={<EnableNotifsBanner alwaysAsk />} >
                 <View style={{marginTop: 16, alignItems: 'center'}}>
                 <FixedTouchable onPress={() => chooseProfilePhotoAsync(setUploading)}>
 
@@ -81,7 +81,7 @@ export function MyProfileScreen({navigation}) {
 
             <View style={{marginVertical: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
             <View style={{alignItems: 'center'}}>
-                <Text style={{marginBottom: 4, color: '#666'}}>App Version: {version}</Text>
+                <Text style={{marginBottom: 4, color: '#666'}}>App Version: {appVersion}/{runtimeVersion}/{version}</Text>
                 <Text style={{marginBottom: 4, color: '#666'}}>User Email: {email}</Text>
                 <Text style={{marginBottom: 4, color: '#666'}}>User Id: {getCurrentUser()}</Text>
 

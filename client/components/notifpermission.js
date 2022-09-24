@@ -108,7 +108,9 @@ export class EnableNotifsBanner extends React.Component {
       if (!notifsSupported()) return null;
       if (notifsEnabled) return null;
       // console.log('stuff', {alwaysAsk, later});
-      if (!alwaysAsk && later) return null;
+      if (!alwaysAsk && (later && Platform.OS == 'web')) return null;
+      // if (!alwaysAsk && later) return null;
+
       return (
         <FixedTouchable onPress={()=>this.setupNotifToken()}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', 
