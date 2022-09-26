@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import { appDomain } from "../data/config";
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import { appDomain, experienceId } from "../data/config";
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from "@react-navigation/core";
 import * as Haptics from 'expo-haptics';
@@ -11,16 +11,19 @@ import _ from 'lodash';
 import {ExpoMixpanelAnalytics} from './expomixpanel';
 const mixpanel = new ExpoMixpanelAnalytics('c9edc36b0c9edd86c4fa8a64aa9818d1');
 
-
+// TODO: Get this working on Android, and work out what issues are.
 export function track(eventName, params) {
+  if (Platform.OS == 'android') return;
   mixpanel.track(eventName, params);
 }
 
 export function identify(userId) {
+  if (Platform.OS == 'android') return;
   mixpanel.identify(userId);
 }
 
 export function people_set(props) {
+  if (Platform.OS == 'android') return;
   mixpanel.people_set(props);
 }
 
@@ -93,7 +96,7 @@ export async function checkIfNotifsGranted() {
 }
 
 export async function getNotifToken() {
-  return (await Notifications.getExpoPushTokenAsync()).data;
+  return (await Notifications.getExpoPushTokenAsync({experienceId: experienceId})).data;
 }
 
 export function captureException(e) {

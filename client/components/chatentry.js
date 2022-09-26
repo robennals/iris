@@ -2,18 +2,23 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
-import { sendMessageAsync } from '../data/servercall';
+import { logErrorAsync, sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, OneLineText } from './basics';
 import { track } from './shim';
 
 var global_saveDrafts = {};
 
-export function ChatEntryBox({group, messages, groupName, community, members, replyTo, onClearReply, chatInputRef, byMeCount = 0}) {
+export function ChatEntryBox({group, messages, groupName, community, members, reply, onClearReply, chatInputRef}) {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
     const [text, setText] = useState(null);
     const [textKey, setTextKey] = useState(0);
+    const byMeCount = 0;
+
+    const replyTo = reply?.key || null;
+    const replyText = reply?.text || '';
+    const replyName = reply?.name || '';
 
     function onContentSizeChange(event) {
         const contentHeight = event.nativeEvent.contentSize.height;
@@ -41,16 +46,12 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
         }
         const messageKey = newKey();
         setInProgress(true);
-        // setText('');
-        // setTextKey(textKey+1);
-        console.log('Send Message');
-        track('Send Message', {length: mergedText.length, isReply: replyTo ? true : false, group, community, groupName});
         onClearReply();
         setText('');
         global_saveDrafts[group] = null;
         setHeight(36);        
         setInProgress(false);
-        await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
+        const pLocalSend = setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
             time: getFirebaseServerTimestamp(),
             localTime: Date.now(),
             text: mergedText, replyTo, from: getCurrentUser(),
@@ -62,6 +63,12 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
             console.log('message send failed');
             await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);    
         }
+        try {
+            track('Send Message', {length: mergedText.length, isReply: replyTo ? true : false, group, community, groupName});    
+        } catch (error) {
+            logErrorAsync({error: error.message, context: {from: 'MixPanel Send Message'}});
+        }
+        await pLocalSend;
     }
 
     function onChangeText(text) {
@@ -90,8 +97,8 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', 
                         paddingLeft: 8, marginTop: 8, marginBottom: 4, borderLeftColor: '#ddd', borderLeftWidth: StyleSheet.hairlineWidth}}>
                     <View style={{flex: 1}}>
-                        <Text style={{fontSize: 12, marginBottom: 4}}>Replying to <Text style={{fontWeight: 'bold'}}>{members[messages[replyTo].from].name}</Text></Text>
-                        <OneLineText style={{color: '#666'}}>{messages[replyTo].text}</OneLineText>
+                        <Text style={{fontSize: 12, marginBottom: 4}}>Replying to <Text style={{fontWeight: 'bold'}}>{replyName}</Text></Text>
+                        <OneLineText style={{color: '#666'}}>{replyText}</OneLineText>
                     </View>
                     <FixedTouchable onPress={onClearReply}>
                          <Entypo name='circle-with-cross' size={20} color='#666' />

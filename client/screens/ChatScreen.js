@@ -121,35 +121,24 @@ function ArchivedBanner(){
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
 
-    const messages = useDatabase([group], ['group', group, 'message']);
-    const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const groupName = useDatabase([group], ['group', group, 'name']);
     const community = useDatabase([group], ['group', group, 'community'], null);
-
-    const [replyTo, setReplyTo] = useState(null);
+    const [reply, setReply] = useState(null);
     const chatInputRef = React.createRef();
 
-    if (!messages || !members) {
+    if (!members) {
         return <Loading />
     }
 
 
-    function onReply(messageKey) {
-        setReplyTo(messageKey);
+    function onReply(reply) {
+        setReply(reply);
         chatInputRef?.current?.focus();
     }
 
-    const memberHues = memberKeysToHues(_.keys(members || {}));
-
     const iAmNotInGroup = members && !members[getCurrentUser()];
-
-    const allMessages = messages ? {...(localMessages || {}), ...messages} : {};
-    const messageKeys = Object.keys(allMessages || {});
-    const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
-    const byMeCount = howManyMessagesByMe({messages: allMessages, sortedMessageKeys});
-
     
     return (
       <GroupContext.Provider value={{group}} >
@@ -167,7 +156,7 @@ export function ChatScreen({navigation, route}) {
           </Catcher>
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} archived={archived} memberHues={memberHues} messages={allMessages} sortedMessageKeys={sortedMessageKeys} members={members} onReply={onReply} />            
+            <MessageList group={group} onReply={onReply} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
@@ -176,10 +165,9 @@ export function ChatScreen({navigation, route}) {
                 (archived && !isMasterUser(getCurrentUser()) ? 
                 null
                 :
-                    <ChatEntryBox group={group} messages={allMessages} byMeCount={byMeCount} 
-                        members={members} replyTo={replyTo} groupName={groupName}
+                    <ChatEntryBox group={group} reply={reply} groupName={groupName}
                         community={community}
-                        onClearReply={() => setReplyTo(null)} chatInputRef={chatInputRef} />
+                        onClearReply={() => setReply(null)} chatInputRef={chatInputRef} />
                 )
             }
           </View>
@@ -203,9 +191,20 @@ function MoreButton({showCount, messageCount, onMore}) {
     }
 }
 
-function MessageList({group, archived, messages, sortedMessageKeys, members, memberHues, onReply}) {
+function MessageList({group, onReply}) {
+    const messages = useDatabase([group], ['group', group, 'message']);
+    const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
+    const members = useDatabase([group], ['group', group, 'member']);
+    const archived = useDatabase([group], ['group', group, 'archived'], false);
     const scrollRef = React.createRef();
-    const [showCount, setShowCount] = useState(20);
+
+    if (!messages || !localMessages || !members) return <Loading />
+
+    const allMessages = messages ? {...(localMessages || {}), ...messages} : {};
+    const messageKeys = Object.keys(allMessages || {});
+    const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
+
+    const memberHues = memberKeysToHues(_.keys(members || {}));
 
     // const messageKeys = Object.keys(messages || {});
     // const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
@@ -221,7 +220,7 @@ function MessageList({group, archived, messages, sortedMessageKeys, members, mem
                     <View style={{height: 16}} />
                 },
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
-                    <Message key={k} messages={messages} members={members} group={group}
+                    <Message key={k} messages={allMessages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues}
                         onReply={onReply}/>})),
@@ -258,6 +257,10 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         }
     }
 
+    function onReplyClicked() {
+        onReply({key: messageKey, text: message.text, name: fromMember.name});
+    }
+
     const failed = message.failed || (message.pending && message.time < Date.now() - minuteMillis);
 
 
@@ -280,7 +283,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             {popup ? 
-                <MessagePopup onClose={() => setPopup(false)} onReply={onReply} messageKey={messageKey} />
+                <MessagePopup onClose={() => setPopup(false)} onReply={onReplyClicked} messageKey={messageKey} />
             : null}
             {myMessage ? null :
                 (samePrevAuthor ? 
@@ -335,7 +338,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
             <View style={{width: 48, flexShrink: 0}}>
                 {hover && !message.pending ? 
                 <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
-                    <FixedTouchable onPress={() => onReply(messageKey)}>
+                    <FixedTouchable onPress={onReplyClicked}>
                         <Entypo name='reply' size={24} color='#999' />
                     </FixedTouchable>
                 </View>

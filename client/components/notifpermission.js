@@ -30,10 +30,8 @@ export async function refreshNotifToken() {
     const tokenName = Platform.OS == 'web' ? 'webNotifToken' : 'notifToken';
     const oldToken = await getDataAsync(['userPrivate', getCurrentUser(), tokenName]);
     const newToken = await getNotifToken();
-    // console.log('token', {tokenName, oldToken, newToken});
     if (oldToken != newToken) {
       await setDataAsync(['userPrivate', getCurrentUser(), tokenName], newToken);
-      console.log('wrote new notif token');
     }
   } catch (e) {
     console.log('notif error', e);
