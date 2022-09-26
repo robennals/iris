@@ -4,6 +4,7 @@ const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
 const { mixpanel } = require('../output/mixpanel');
+const IrisEmail = require('./irisemail');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -272,10 +273,12 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
     const pMembers = _.map(tsvMembers, person => createMemberAsync(person, userEmails));
     const members = [...pickedMembers, ...await Promise.all(pMembers)];
 
-    console.log('members', members);
+    // console.log('members', members);
 
     const time = Date.now();
     const lastMessage = {text: 'Group Created', time}
+
+    const pEmails = IrisEmail.createMailsForNewGroupAsync({groupName: topic.name, members, groupKey: group});
 
     var updates = {};
     updates['group/' + group + '/name'] = topic.name;
@@ -315,7 +318,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 
     // return {success: false, message: 'Not completed yet'};
 
-    return {success: true, updates, data: {group}, notifs}
+    return {success: true, updates, data: {group}, notifs, emails: await pEmails}
 }
 
 exports.adminCreateGroupAsync = adminCreateGroupAsync;

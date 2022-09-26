@@ -1,0 +1,41 @@
+<div style='font-family:Arial, Helvetica, sans-serif; max-width: 500; margin: 8px'>
+    <p>
+        Hi {{name}},
+    </p>
+    <p>
+        We've matched you into a new group chat to discuss <b>{{groupName}}</b>.
+    <p>
+    <p>
+        The other partipants in your group chat are <b>{{groupMemberNames}}</b>.
+        Join the chat group and start chatting with them by clicking on the link below:
+    </p>
+    <div style='margin-top: 32px; margin-bottom: 32px; margin-left: 32px;'>
+        <a href='https://iris-talk.com/group/{{groupKey}}'
+            style='font-size: 20px; margin-left: 16px; margin-right: 16px; display: inline-block; color: white; text-decoration: none; border-radius: 8px; background-color: #0084ff; padding: 8px 12px'
+            >
+            View Group Chat
+        </a>
+    </div>
+
+    <p>Let's get a good conversation started! Each group chat only lasts a few days, so don't wait too long :-)</p>
+
+    {{#needsAppPromo}}
+    <div style='margin-top: 32px'>
+        It seems you don't yet have the app installed. Like most chat apps, Iris works much 
+        better with the app. 
+        <div style='margin-top: 16px'>
+        <a href='https://apps.apple.com/us/app/iris-talk/id1640562508'>
+            <img src='https://iris-talk.com/ios_app_promo.png' width=153 height=45 /> 
+       </a>
+       <a href='https://play.google.com/store/apps/details?id=us.mix5'>
+        <img src='https://iris-talk.com/android_app_promo.png' width=153 height=45 /> 
+       </a>
+    </div>
+    {{/needsAppPromo}}
+
+    <div style='color: #666; border-top: 1px solid #ddd; margin-top: 32px;'>
+        <p>You can leave a community at any time using <a href='https://iris-talk.com/unsubscribe'>this link</a></p>
+        <p>We only invite you to chat about topics you have asked to talk about. </p>
+        <p>Reply to this email if you need support.</p>
+    </div>
+</div>

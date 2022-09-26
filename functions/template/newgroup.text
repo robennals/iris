@@ -1,0 +1,28 @@
+Hi {{name}},
+
+We've matched you into a new group chat to discuss <b>{{groupName}}</b>.
+
+The other partipants in your group chat are <b>{{groupMemberNames}}</b>.
+Join the chat group and start chatting with them by clicking on the link 
+below:
+
+https://iris-talk.com/group/{{groupKey}}
+
+Let's get a good conversation started.
+Each group chat only lasts a few days, so don't wait too long.
+
+{{#needsAppPromo}}
+It seems you don't yet have the app installed. Like most chat apps, Iris 
+works much better with the app.
+
+iOS: https://apps.apple.com/us/app/iris-talk/id1640562508
+Android: https://play.google.com/store/apps/details?id=us.mix5'>
+{{/needsAppPromo}}
+
+--
+You can leave a community at any time using this link: 
+https://iris-talk.com/unsubscribe
+
+We only invite you to chat about topics you have asked to talk about.
+Reply to this email if you need support.
+

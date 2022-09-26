@@ -9,6 +9,7 @@ const Export = require('./export');
 const Iris = require('./iris');
 const IrisMigrate = require('./irismigrate');
 const Analysis = require('./analysis');
+const { irisDigestAsync } = require('./irisemail');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -127,6 +128,9 @@ async function apiActionAsync({action, components, params}) {
         case 'logError': {
             return Iris.logErrorAsync(params);
         }
+        // case 'irisDigest': {
+        //     return irisDigestAsync(params);
+        // }
 
         default: {
             console.log('unknown action', action);
