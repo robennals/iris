@@ -22,7 +22,7 @@ function Member({memberKey, member, topicsForUser, questionTitles, allTopics, so
     const answerSummary = _.join(answers, ', ');
     const memberTopics = sortedTopicKeys.filter(t => topicSelected(member.topic?.[t]))
     const memberTopicNames = memberTopics.map(t => allTopics[t].name);
-    const neededTopicNames = memberTopicNames.filter(topicName => !topicsForUser[topicName]);
+    const neededTopicNames = memberTopicNames.filter(topicName => !topicsForUser?.[topicName]);
     const topicSummary = _.join(neededTopicNames, ', ');
     const doneTopics = _.sortBy(_.keys(topicsForUser), x => x);
     const doneTopicsSummary = _.join(doneTopics, ', ');
@@ -30,9 +30,6 @@ function Member({memberKey, member, topicsForUser, questionTitles, allTopics, so
 
     const name = member.answer[name_label];
     const email = member.answer[email_label];
-
-    console.log('doneTopics', name, doneTopics);
-
 
     return (
         <FixedTouchable onPress={() => onSelect(!selected)} >
@@ -68,7 +65,6 @@ function getUsersWithTopic(groups) {
     _.forEach(_.keys(groups), g => {
         const group = groups[g];
         const topic = group.name;
-        console.log('group', topic, group.member, group);
         if (!usersForTopic[topic]) {
             usersForTopic[topic] = {};
         }
@@ -121,15 +117,10 @@ export function AdminCreateGroupScreen({navigation, route}) {
         return () => internalReleaseWatchers();
     }, [community])
 
-    console.log('groups', {community, members, groups});
-
     if (!community || !members || !communityInfo || !groups || !allTopics) return <Loading />;
 
     const usersWithTopic = getUsersWithTopic(groups);
     const topicsForUser = getTopicsForUser(groups);
-
-    console.log('topicMaps', {groups, usersWithTopic, topicsForUser});
-
 
     const textBoxStyle = {
         backgroundColor: 'white',
