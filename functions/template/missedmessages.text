@@ -1,0 +1,26 @@
+You have {{messageCount}} missed messages in your private Iris group chats:
+
+{{#group}}
+* {{groupName}} ({{groupMessageCount}}): New {{messageWord}} from {{senderNames}}
+
+{{/group}}
+
+
+Open Iris Talk: https://iris-talk.com
+
+
+{{#needsAppPromo}}
+It seems you don't yet have the app installed. Like most chat apps, Iris 
+works much better with the app.
+
+iOS: https://apps.apple.com/us/app/iris-talk/id1640562508
+Android: https://play.google.com/store/apps/details?id=us.mix5'>
+{{/needsAppPromo}}
+
+
+
+--
+You can leave a community at any time using this link: 
+https://iris-talk.com/unsubscribe
+
+Reply to this email if you need support.

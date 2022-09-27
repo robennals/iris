@@ -1,0 +1,39 @@
+<div style='font-family:Arial, Helvetica, sans-serif; max-width: 500; margin: 8px'>
+    <p>
+        <b>You have {{messageCount}} missed messages in your private Iris group chats:</b>
+    </p>
+    {{#group}}
+        <div style="margin-top: 24">
+            <div><b>{{groupName}} ({{groupMessageCount}})</b></div>
+            <span style="color: #666">New {{messageWord}} from {{senderNames}}</span> 
+        </div>
+    {{/group}}
+
+    <div style='margin-top: 32px; margin-bottom: 32px; margin-left: 32px;'>
+        <a href='https://iris-talk.com/'
+            style='font-size: 20px; margin-left: 16px; margin-right: 16px; display: inline-block; color: white; text-decoration: none; border-radius: 8px; background-color: #0084ff; padding: 8px 12px'
+            >
+            Open Iris Talk
+        </a>
+    </div>    
+
+
+    {{#needsAppPromo}}
+    <div style='color: #666; border-top: 1px solid #ddd; margin-top: 32px; padding-top: 32px'>
+        Install the Iris app to get notified about new messages:
+        <div style='margin-top: 16px'>
+        <a href='https://apps.apple.com/us/app/iris-talk/id1640562508'>
+            <img src='https://iris-talk.com/ios_app_promo.png' width=153 height=45 /> 
+       </a>
+       <a href='https://play.google.com/store/apps/details?id=us.mix5'>
+        <img src='https://iris-talk.com/android_app_promo.png' width=153 height=45 /> 
+       </a>
+    </div>
+    {{/needsAppPromo}}
+
+
+    <div style='color: #666; border-top: 1px solid #ddd; margin-top: 32px;'>
+        <p>You can leave a community at any time using <a href='https://iris-talk.com/unsubscribe'>this link</a></p>
+        <p>Reply to this email if you need support.</p>
+    </div>
+</div>
