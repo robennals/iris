@@ -1,29 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, ScreenContentScroll, textToKey, WideButton } from '../components/basics';
+import { email_label, FixedTouchable, FormInput, FormTitle, name_label, parseQuestions, parseTopics, ScreenContentScroll, searchMatches, textToKey, WideButton } from '../components/basics';
 import _ from 'lodash';
 import { adminCreateGroupAsync } from '../data/servercall';
-import { internalReleaseWatchers, watchData } from '../data/fbutil';
+import { internalReleaseWatchers, useDatabase, watchData } from '../data/fbutil';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { PopupSelector } from '../components/shimui';
 import { Entypo } from '@expo/vector-icons';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
-import { formatFullTime, formatTime } from '../components/time';
+import { dayMillis, formatFullTime, formatTime } from '../components/time';
+import { Loading } from '../components/loading';
+import { SearchBox } from '../components/searchbox';
 
 function topicSelected(state) {
     return state == 'yes' || state == 'maybe';
 }
 
-function Member({memberKey, member, questionTitles, allTopics, sortedTopicKeys, selected, onSelect}) {
+function Member({memberKey, member, topicsForUser, questionTitles, allTopics, sortedTopicKeys, selected, onSelect}) {
     const answers = _.map(questionTitles, q => member.answer[textToKey(q)])
     const answerSummary = _.join(answers, ', ');
     const memberTopics = sortedTopicKeys.filter(t => topicSelected(member.topic?.[t]))
     const memberTopicNames = memberTopics.map(t => allTopics[t].name);
-    const topicSummary = _.join(memberTopicNames, ', ');
+    const neededTopicNames = memberTopicNames.filter(topicName => !topicsForUser[topicName]);
+    const topicSummary = _.join(neededTopicNames, ', ');
+    const doneTopics = _.sortBy(_.keys(topicsForUser), x => x);
+    const doneTopicsSummary = _.join(doneTopics, ', ');
+
 
     const name = member.answer[name_label];
     const email = member.answer[email_label];
+
+    console.log('doneTopics', name, doneTopics);
+
 
     return (
         <FixedTouchable onPress={() => onSelect(!selected)} >
@@ -42,11 +51,48 @@ function Member({memberKey, member, questionTitles, allTopics, sortedTopicKeys, 
                 <View style={{marginLeft: 8}}>
                     <Text style={{fontWeight: 'bold', marginBottom: 2}}>{name} <Text style={{fontWeight: '400'}}>{'<' + email + '>'} <Text style={{color: '#666', fontSize: 12}}> {formatTime(member.intakeTime)}</Text></Text></Text>
                     <Text>{answerSummary}</Text>
-                    <Text style={{color: '#666', fontSize: 13}}>{topicSummary}</Text>
+                    {neededTopicNames.length > 0 ?
+                        <Text style={{color: '#666', fontSize: 13}}>Wants: {topicSummary}</Text>
+                    : null}
+                    {doneTopics.length > 0 ?
+                        <Text style={{color: '#666', fontSize: 13}}>Got: {doneTopicsSummary}</Text>
+                    : null}
                 </View>
             </View>
         </FixedTouchable>
     )
+}
+
+function getUsersWithTopic(groups) {
+    var usersForTopic = {};
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        const topic = group.name;
+        console.log('group', topic, group.member, group);
+        if (!usersForTopic[topic]) {
+            usersForTopic[topic] = {};
+        }
+        _.forEach(_.keys(group.member), m => {
+            usersForTopic[topic][m] = true;
+        })
+    })
+    return usersForTopic;
+}
+
+function getTopicsForUser(groups) {
+    const timeCutoff = Date.now() - (14 * dayMillis);
+    var topicsForUser = {};
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        const topic = group.name;
+        _.forEach(_.keys(group.member), m => {
+            if (!topicsForUser[m]) {
+                topicsForUser[m] = {};
+            }
+            topicsForUser[m][topic] = true;
+        })
+    })    
+    return topicsForUser;
 }
 
 export function AdminCreateGroupScreen({navigation, route}) {
@@ -54,6 +100,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const [tsv, setTsv] = useState('');
     const [name, setName] = useState('');
     // const [questions, setQuestions] = useState('');
+    const groups = useDatabase([community], ['adminCommunity', community, 'group']);
     const [confirm, setConfirm] = useState('');
     const [inProgress, setInProgress] = useState(false);
     const [communityInfo, setCommunityInfo] = useState(null);
@@ -64,6 +111,7 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const [selectedMembers, setSelectedMembers] = useState({});
     const [method, setMethod] = useState(null);
     const [privateName, setPrivateName] = useState(null);
+    const [search, setSearch] = useState(null);
 
     useEffect(() => {
         var x = {};
@@ -73,7 +121,15 @@ export function AdminCreateGroupScreen({navigation, route}) {
         return () => internalReleaseWatchers();
     }, [community])
 
-    if (!community || !members || !communityInfo) return null;
+    console.log('groups', {community, members, groups});
+
+    if (!community || !members || !communityInfo || !groups || !allTopics) return <Loading />;
+
+    const usersWithTopic = getUsersWithTopic(groups);
+    const topicsForUser = getTopicsForUser(groups);
+
+    console.log('topicMaps', {groups, usersWithTopic, topicsForUser});
+
 
     const textBoxStyle = {
         backgroundColor: 'white',
@@ -109,13 +165,21 @@ export function AdminCreateGroupScreen({navigation, route}) {
     const topicItems = [{id: 'choose', label: 'Choose a Topic'}, ... allTopicKeys.map(k => ({id: k, label: allTopics[k].name}))]
     const questionTitles = questions.map(q => q.question).filter(x => x != name_label && x != email_label);
     // const intakeKeysForTopic = Object.keys(intake).filter(k => intake[k].selectedTopics[topic] || topic == 'choose');
-    console.log('stuff', {members, allTopics});
+    // console.log('stuff', {members, allTopics});
     const realMemberKeys = _.keys(members).filter(k => members[k].answer);
     const sortedMemberKeys = _.sortBy(realMemberKeys, k => members[k].intakeTime);
-    const memberKeysForTopic = sortedMemberKeys.filter(k => topicSelected(members[k].topic?.[topic]) || topic == 'choose');
+    // console.log('topic', topic);
+    const topicName = allTopics[topic]?.name;
+    const memberKeysForTopic = sortedMemberKeys.filter(k => 
+        (topicSelected(members[k].topic?.[topic]) && !usersWithTopic[topicName]?.[k]) || topic == 'choose');
+    var searchFilteredMembers = memberKeysForTopic;
+    if (search) {
+        searchFilteredMembers = _.filter(memberKeysForTopic, m => searchMatches(members[m]?.answer?.[name_label], search));
+    }
+    console.log('members', members);
 
     const memberCount = people.length + Object.keys(selectedMembers).filter(k => selectedMembers[k]).length;
-    // console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})
+    // console.log('group', {community, topic, people, privateName, selectedMembers, memberCount})    
 
     return (
         <ScreenContentScroll>
@@ -148,10 +212,17 @@ export function AdminCreateGroupScreen({navigation, route}) {
 
             {method != 'tsv' ?
                 <FormTitle title='Members (from signups)'>
+                    {/* <View style={{flexDirection: 'row'}}>
+                        <Text style={{fontSize: 12, fontWeight: 'bold', marginTop: 12}}>Members</Text>
+                        <SearchBox value={search} onChangeText={setSearch} style={{marginVertical: 8}} />
+                    </View> */}
+                    <SearchBox value={search} onChangeText={setSearch} style={{marginHorizontal: 16, marginBottom: 16}} />
                     <ScrollView style={{height: 400, marginHorizontal: 16, marginVertical: 8, borderColor: '#ddd', borderRadius: 8, borderWidth: StyleSheet.hairlineWidth, padding: 8}}>
-                        {memberKeysForTopic.map(k => 
+                        {/* <SearchBox value={search} onChangeText={setSearch} /> */}
+                            {searchFilteredMembers.map(k => 
                             <Catcher key={k}>
                                 <Member key={k} memberKey={k} member={members[k]} questionTitles={questionTitles} 
+                                    topicsForUser={topicsForUser[k]}
                                     selected={selectedMembers[k]} allTopics={allTopics} sortedTopicKeys={sortedTopicKeys}
                                     onSelect={selected => setSelectedMembers({...selectedMembers, [k]: selected})} />
                             </Catcher>

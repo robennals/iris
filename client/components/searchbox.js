@@ -6,7 +6,7 @@ import { FixedTouchable, FormInput } from './basics';
 export function SearchBox({onChangeText, value, style, placeholder='Search'}) {
   return (
     <View style={{marginVertical: 10, flex: 1}}>
-      <View style={{borderRadius: 16, marginHorizontal: 8, flex: 1,
+      <View style={{borderRadius: 16, marginHorizontal: 8,
           flexDirection: 'row', alignItems: 'center', 
           backgroundColor: '#f5f5f5', ...style}}>
         <Ionicons name='ios-search' size={20} color='#999' style={{marginLeft: 8}} />
