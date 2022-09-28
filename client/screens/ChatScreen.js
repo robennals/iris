@@ -253,12 +253,15 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
     const hue = memberHues[message.from] || 45;
     const hueStyle = (myMessage || message.from == 'zzz_irisbot') ? null : {backgroundColor: 'hsl(' + hue + ',40%, 90%)'};
 
-    const samePrevAuthor = !myMessage && message.from == prevMessage.from;
-    const sameNextAuthor = !myMessage && message.from == nextMessage.from;
-    const prevAlsoMe = myMessage && prevMessage.from == getCurrentUser();
-    const nextAlsoMe = myMessage && nextMessage.from == getCurrentUser();
-
     const timePassed = (message.time - (prevMessage.time || 0)) > (5 * minuteMillis);
+    const timePassedToNext = ((nextMessage.time || 0) - message.time) > (5 * minuteMillis);
+
+
+    const samePrevAuthor = !myMessage && !timePassed && message.from == prevMessage.from;
+    const sameNextAuthor = !myMessage && !timePassedToNext && message.from == nextMessage.from;
+    const prevAlsoMe = myMessage && !timePassed && prevMessage.from == getCurrentUser();
+    const nextAlsoMe = myMessage && !timePassedToNext && nextMessage.from == getCurrentUser();
+
 
     function onPress() {
         if (!message.pending) {
