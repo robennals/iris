@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
@@ -126,7 +126,9 @@ export function ChatScreen({navigation, route}) {
     const groupName = useDatabase([group], ['group', group, 'name']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const [reply, setReply] = useState(null);
+    // const [edit, setEdit] = useState(null);
     const chatInputRef = React.createRef();
+    const chatEntryRef = useRef();
 
     if (!members) {
         return <Loading />
@@ -136,6 +138,13 @@ export function ChatScreen({navigation, route}) {
     function onReply(reply) {
         setReply(reply);
         chatInputRef?.current?.focus();
+    }
+
+    function onEdit(edit, reply) {
+        console.log('chatEntryRef', chatEntryRef);
+        if (chatEntryRef.current.setEdit(edit)) {
+            setReply(reply);
+        }
     }
 
     const iAmNotInGroup = members && !members[getCurrentUser()];
@@ -156,7 +165,7 @@ export function ChatScreen({navigation, route}) {
           </Catcher>
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} onReply={onReply} />            
+            <MessageList group={group} onReply={onReply} onEdit={onEdit} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
@@ -167,7 +176,8 @@ export function ChatScreen({navigation, route}) {
                 :
                     <ChatEntryBox group={group} reply={reply} groupName={groupName}
                         community={community}
-                        onClearReply={() => setReply(null)} chatInputRef={chatInputRef} />
+                        onClearReply={() => setReply(null)}
+                        chatInputRef={chatInputRef} ref={chatEntryRef} />
                 )
             }
           </View>
@@ -191,7 +201,7 @@ function MoreButton({showCount, messageCount, onMore}) {
     }
 }
 
-function MessageList({group, onReply}) {
+function MessageList({group, onReply, onEdit}) {
     const messages = useDatabase([group], ['group', group, 'message']);
     const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
     const members = useDatabase([group], ['group', group, 'member']);
@@ -223,7 +233,7 @@ function MessageList({group, onReply}) {
                     <Message key={k} messages={allMessages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues}
-                        onReply={onReply}/>})),
+                        onReply={onReply} onEdit={onEdit} />})),
                 {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
             ]} />
@@ -232,7 +242,7 @@ function MessageList({group, onReply}) {
 }
 
 
-function Message({group, messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply}) {
+function Message({group, messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
     const message = messages[messageKey];
     const prevMessage = messages[prevMessageKey] ?? {};
     const nextMessage = messages[nextMessageKey] ?? {};
@@ -261,6 +271,15 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         onReply({key: messageKey, text: message.text, name: fromMember.name});
     }
 
+    function onEditClicked() {
+        var reply = null;        
+        if (message.replyTo) {
+            reply = {key: message.replyTo, text: messages[message.replyTo]?.text, name: members[message.replyTo]?.name};
+        }        
+        onEdit({key: messageKey, text: message.text, time: message.time}, reply);
+    }
+
+
     const failed = message.failed || (message.pending && message.time < Date.now() - minuteMillis);
 
 
@@ -283,7 +302,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             {popup ? 
-                <MessagePopup onClose={() => setPopup(false)} onReply={onReplyClicked} messageKey={messageKey} />
+                <MessagePopup myMessage={myMessage} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} />
             : null}
             {myMessage ? null :
                 (samePrevAuthor ? 
@@ -316,6 +335,9 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                             </Catcher> 
                         : null}
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
+                        {message.editTime ? 
+                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
+                        : null}
                         {message.pending && !failed ?
                             <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
                                     position: 'absolute', right: -4, bottom: -4}}>
@@ -335,14 +357,23 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                 </FixedTouchable>
             </View>
 
-            <View style={{width: 48, flexShrink: 0}}>
-                {hover && !message.pending ? 
-                <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start'}}>
-                    <FixedTouchable onPress={onReplyClicked}>
-                        <Entypo name='reply' size={24} color='#999' />
-                    </FixedTouchable>
-                </View>
+            <View style={{width: 48, flexShrink: 0, flexDirection: 'row', alignItems: 'center'}}>
+                {hover && myMessage ? 
+                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                        <FixedTouchable onPress={onEditClicked}>
+                            <Entypo name='edit' size={20} color='#999' />
+                        </FixedTouchable>
+                    </View>
                 : null}
+
+                {hover && !message.pending ? 
+                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                        <FixedTouchable onPress={onReplyClicked}>
+                            <Entypo name='reply' size={20} color='#999' />
+                        </FixedTouchable>
+                    </View>
+                : null}
+
             </View>
         </View>
         </View>
@@ -372,15 +403,21 @@ function RepliedMessage({message, messages, members}) {
 }
 
 
-function MessagePopup({messageKey, onReply, onClose}) {
+function MessagePopup({messageKey, myMessage, onReply, onEdit, onClose}) {
     var actions = [];
     actions.push({id: 'reply', label: 'Reply'});
+    if (myMessage) {
+        actions.push({id: 'edit', label: 'Edit'});
+    }
 
     return <ModalMenu items={actions} onClose={onClose} onSelect={async id => {
         switch (id) {
             case 'reply': 
                 onClose();
                 return onReply(messageKey)
+            case 'edit': 
+                onClose();
+                return onEdit();
             default:
                 onClose();
         }

@@ -1,19 +1,41 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
 import { logErrorAsync, sendMessageAsync } from '../data/servercall';
-import { FixedTouchable, OneLineText } from './basics';
+import { FixedTouchable, MinorButton, OneLineText, WideButton } from './basics';
 import { track } from './shim';
 
 var global_saveDrafts = {};
 
-export function ChatEntryBox({group, messages, groupName, community, members, reply, onClearReply, chatInputRef}) {
+export const ChatEntryBox = forwardRef(({group, messages, groupName, community, members, reply, onClearReply, onClearEdit, chatInputRef}, ref) => {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [nextHeight, setNextHeight] = useState(36);
     const [text, setText] = useState(null);
+    const [edit, setEdit] = useState(null);
     const [textKey, setTextKey] = useState(0);
+
+    useImperativeHandle(ref, () => ({
+        setEdit: edit => {
+            console.log('setEdit', {edit, text});
+            if (!text || text != '') {
+                setText(edit.text);
+                setEdit(edit);
+                return true;
+            } else {
+                return false;
+            }           
+        }
+    }),[group])
+
+    function onClearEdit() {
+        setEdit(null);
+        setText('');
+        setHeight(36);
+        onClearReply();
+    }
+
     const byMeCount = 0;
 
     const replyTo = reply?.key || null;
@@ -25,9 +47,9 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
 
         if (contentHeight > height) {
             setHeight(contentHeight);
-            setNextHeight(contentHeight);
-        } else {
-            setNextHeight(contentHeight);
+            // setNextHeight(contentHeight);
+        // } else {
+            // setNextHeight(contentHeight);
             // setNextHeight(Math.max(36, Math.min(contentHeight, height - 20)))
         }
     }
@@ -44,31 +66,30 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
         if (!mergedText || textTooLong) {
             return;
         }
-        const messageKey = newKey();
+        const messageKey = edit?.key || newKey();
         setInProgress(true);
         onClearReply();
+        onClearEdit();
         setText('');
         global_saveDrafts[group] = null;
         setHeight(36);        
-        setInProgress(false);
-        const pLocalSend = setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
-            time: getFirebaseServerTimestamp(),
-            localTime: Date.now(),
+        await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
+            time: edit?.time || getFirebaseServerTimestamp(),
             text: mergedText, replyTo, from: getCurrentUser(),
             pending: true
         })
+        setInProgress(false);
         try {
-            await sendMessageAsync({messageKey, group, text: mergedText, replyTo});
+            await sendMessageAsync({isEdit: edit ? true : false, editTime: edit?.time || null, messageKey, group, text: mergedText, replyTo});
         } catch (e) {
             console.log('message send failed');
-            await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);    
+            await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);
         }
         try {
             track('Send Message', {length: mergedText.length, isReply: replyTo ? true : false, group, community, groupName});    
         } catch (error) {
             logErrorAsync({error: error.message, context: {from: 'MixPanel Send Message'}});
         }
-        await pLocalSend;
     }
 
     function onChangeText(text) {
@@ -93,6 +114,11 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
 
     return (
         <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingHorizontal: 8, backgroundColor: 'white'}}>
+            {edit ?
+                <View>
+                    <Text style={{color: '#222', fontWeight: 'bold', fontSize: 12, marginTop: 8, marginLeft: 8}}>Editing previous message</Text>
+                </View>
+            :null}
             {replyTo ? 
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', 
                         paddingLeft: 8, marginTop: 8, marginBottom: 4, borderLeftColor: '#ddd', borderLeftWidth: StyleSheet.hairlineWidth}}>
@@ -136,12 +162,26 @@ export function ChatEntryBox({group, messages, groupName, community, members, re
                     onKeyPress={onKeyPress}                
                 />
                 {textLength > 0 && !textTooLong ?
-                    <FixedTouchable part='sendMessage' onPress={onSubmit} >
-                        <Ionicons style={{marginHorizontal: 8}} name='md-send' size={24}  
+                    (edit ? null
+                    :                         
+                        <FixedTouchable part='sendMessage' onPress={onSubmit} >
+                            <Ionicons style={{marginHorizontal: 8}} name='md-send' size={24}  
                             color={inProgress ? '#999' : '#0084ff'} />
-                    </FixedTouchable>
+                        </FixedTouchable>
+                    ) 
                 : null}
             </View>
+            {edit ?
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                <WideButton onPress={onSubmit} style={{margin: 4}} progressText='Updating...' disabled={inProgress} alwaysActive>
+                    Update
+                </WideButton>
+                <MinorButton onPress={onClearEdit}>
+                    Cancel
+                </MinorButton>
+                </View>
+        
+            :null}
         </View>
     )
-}
+})

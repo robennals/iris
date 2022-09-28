@@ -324,7 +324,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
 
 // TODO: Send notification to other group members on mobile
-async function sendMessageAsync({messageKey, group, text, replyTo, userId, ip}) {
+async function sendMessageAsync({messageKey, isEdit=null, editTime=null, group, text, replyTo, userId, ip}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
@@ -336,12 +336,13 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId, ip}) 
     }
     var updates = {};
     const key = messageKey || FBUtil.newKey();
-    const time = Date.now();
+    const time = editTime || Date.now();
     const fromName = members[userId].name;
     updates['group/' + group + '/message/' + key] = {
         time,
         replyTo: replyTo || null,
         text: text || null,
+        editTime: isEdit ? Date.now() : null,
         from: userId
     }   
 
@@ -358,23 +359,25 @@ async function sendMessageAsync({messageKey, group, text, replyTo, userId, ip}) 
         text: text || null, time, from: userId, fromName
     }
 
-    if (community) {
+    if (community && !isEdit) {
         updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
     }
 
     updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
 
     // update local state for all members
-    Object.keys(members).forEach(member => {
-        updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = lastMessage;
-        if (member != userId) {
-            updates['userPrivate/' + member + '/lastMessageTime'] = time;
-            const notif = {...notifBase, toUser: member}
-            notifs.push(notif);
-        }
-    })
+    if (!isEdit) {
+        Object.keys(members).forEach(member => {
+            updates['userPrivate/' + member + '/group/' + group + '/lastMessage'] = lastMessage;
+            if (member != userId) {
+                updates['userPrivate/' + member + '/lastMessageTime'] = time;
+                const notif = {...notifBase, toUser: member}
+                notifs.push(notif);
+            }
+        })
+    }
 
-    mixpanel.track('Server Send Message', {
+    mixpanel.track(isEdit ? 'Server Edit Message' : 'Server Send Message', {
         distinct_id: userId,
         '$insert_id': key,
         ip: ip, length: text.length, replyTo: replyTo ? true : false,
