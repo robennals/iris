@@ -19,6 +19,9 @@ export function boolToString(bool) {
   return bool ? 'true' : 'false'
 }
 
+export const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
+
+
 export function commaSepStrings(strings) {
   console.log('strings', strings);
   const length = strings.length;

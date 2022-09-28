@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
+import { AndFormat, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -9,7 +9,7 @@ import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -206,6 +206,7 @@ function MessageList({group, onReply, onEdit}) {
     const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
+    const likes = useDatabase([group], ['group', group, 'like']);
     const scrollRef = React.createRef();
 
     if (!messages || !localMessages || !members) return <Loading />
@@ -232,7 +233,7 @@ function MessageList({group, onReply, onEdit}) {
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
                     <Message key={k} messages={allMessages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
-                        memberHues={memberHues}
+                        memberHues={memberHues} messageLikes={likes?.[k]}
                         onReply={onReply} onEdit={onEdit} />})),
                 {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
@@ -242,7 +243,7 @@ function MessageList({group, onReply, onEdit}) {
 }
 
 
-function Message({group, messages, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+function Message({group, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
     const message = messages[messageKey];
     const prevMessage = messages[prevMessageKey] ?? {};
     const nextMessage = messages[nextMessageKey] ?? {};
@@ -262,6 +263,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
     const prevAlsoMe = myMessage && !timePassed && prevMessage.from == getCurrentUser();
     const nextAlsoMe = myMessage && !timePassedToNext && nextMessage.from == getCurrentUser();
 
+    const likedByMe = messageLikes?.[getCurrentUser()];
 
     function onPress() {
         if (!message.pending) {
@@ -281,7 +283,9 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         }        
         onEdit({key: messageKey, text: message.text, time: message.time}, reply);
     }
-
+    function onLikeClicked() {
+        setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+    }
 
     const failed = message.failed || (message.pending && message.time < Date.now() - minuteMillis);
 
@@ -294,7 +298,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         // }
         //     onSwipeableWillOpen={() => onReply(messageKey)}
         // >
-        <View>
+        <View style={{marginBottom: messageLikes ? 24 : null}}>
             {timePassed ? 
                 <Text style={{textAlign: 'center', fontSize: 13, color: '#999', marginTop: 16, marginBottom: 4}}>
                     {formatMessageTime(message.time)}
@@ -305,7 +309,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             {popup ? 
-                <MessagePopup myMessage={myMessage} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} />
+                <MessagePopup myMessage={myMessage} likedByMe={likedByMe} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} onLike={onLikeClicked} />
             : null}
             {myMessage ? null :
                 (samePrevAuthor ? 
@@ -324,6 +328,7 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                             sameNextAuthor ? {marginBottom: 1, borderBottomLeftRadius: 4} : {},
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
+                            // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
                          ]} >
                         {myMessage || samePrevAuthor ? null :
@@ -340,6 +345,11 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
                         {message.editTime ? 
                             <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
+                        : null}
+                        {messageLikes ?
+                            <View style={{position: 'absolute', bottom: -18}}>
+                                <MessageLikes messageLikes={messageLikes} members={members} memberHues={memberHues} />
+                            </View>                            
                         : null}
                         {message.pending && !failed ?
                             <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
@@ -377,10 +387,43 @@ function Message({group, messages, members, messageKey, prevMessageKey, nextMess
                     </View>
                 : null}
 
+                {hover && !myMessage ?
+                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                        <FixedTouchable onPress={onLikeClicked}>
+                            <Entypo name={likedByMe ? 'heart' : 'heart-outlined'} size={20} color='#999' />
+                        </FixedTouchable>
+                    </View>            
+                : null}
             </View>
         </View>
         </View>
         // </Swipeable>
+    )
+}
+
+const shadowStyle = {
+    shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.5, elevation: 3}
+
+function MessageLikes({members, memberHues, messageLikes}) {
+    const likers = _.keys(messageLikes || {});
+    if (likers.length == 0) {
+        return null;
+    }
+    const likerNames = AndFormat.format(_.map(likers, m => 
+        m == getCurrentUser() ? 'You' : firstName(members?.[m].name || '')));
+    return (
+        <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
+                paddingHorizontal: 2, paddingVertical: 1, ...shadowStyle}}>
+            <Entypo name='heart' color='red' size={20} style={{marginRight: 4, marginLeft: 2}} />
+            {_.map(likers, m => 
+                <MemberPhotoIcon key={m} user={m} hue={memberHues?.[m]} size={20}
+                    photoKey={members?.[m]?.photo} name={members?.[m].name}  />
+            )}
+            <Text style={{marginLeft: 8, color: '#666', fontSize: 12, marginRight: 8}}>
+                {likerNames} liked
+            </Text>
+        </View>
     )
 }
 
@@ -406,11 +449,13 @@ function RepliedMessage({message, messages, members}) {
 }
 
 
-function MessagePopup({messageKey, myMessage, onReply, onEdit, onClose}) {
+function MessagePopup({messageKey, myMessage, liked, onLike, onReply, onEdit, onClose}) {
     var actions = [];
     actions.push({id: 'reply', label: 'Reply'});
     if (myMessage) {
         actions.push({id: 'edit', label: 'Edit'});
+    } else {
+        actions.push({id: 'like', label: liked ? 'Unlike' : 'Like'});
     }
 
     return <ModalMenu items={actions} onClose={onClose} onSelect={async id => {
@@ -421,6 +466,9 @@ function MessagePopup({messageKey, myMessage, onReply, onEdit, onClose}) {
             case 'edit': 
                 onClose();
                 return onEdit();
+            case 'like': 
+                onClose();
+                return onLike();
             default:
                 onClose();
         }

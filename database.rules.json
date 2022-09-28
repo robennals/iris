@@ -51,6 +51,13 @@
       "$group": {
         ".write": false,
         ".read": "data.child('member').child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",
+        "like": {
+          "$message": {
+            "$user": {
+              ".write": "$user == auth.uid"
+            }
+          }
+        }
       }
     },
     "topic": {
