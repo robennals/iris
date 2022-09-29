@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
-export function Loading() {
+export function Loading({style}) {
     const [waited, setWaited] = useState(false);
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -14,12 +14,13 @@ export function Loading() {
     }, []);   
     if (waited) {
         return (
-            <View style={{flexDirection: 'row', alignSelf: 'center', flex: 1, justifyContent: 'center', alignItems: 'center'}}>    
+            <View style={{flexDirection: 'row', alignSelf: 'center', flex: 1, justifyContent: 'center', alignItems: 'center', ...style}}>    
                 <Ionicons name='wifi' color='#666' size={20} />            
                 <Text style={{marginLeft: 4, color: "#666"}}>Waiting for network</Text>
             </View>
         )
     } else { 
-        return null;
+        return <View style={style}></View>
+        // return null;
     }
 }

@@ -44,6 +44,26 @@ function oldTopicsToNew(communityTopics, userTopics) {
     return out;
 }
 
+async function migrateGroupTopicsAsync() {
+    const groups = await FBUtil.getDataAsync(['group']);
+    const topics = await FBUtil.getDataAsync(['topic']);
+    const groupKeys = _.keys(groups);
+    var updates = {};
+    _.forEach(groupKeys, g => {
+        const group = groups[g];
+        const community = group.community;
+        if (community && !group.topic) {
+            const communityTopics = topics[community];
+            const topicKey = findTopicKey(communityTopics, group.name);
+            if (topicKey) {
+                updates['group/' + g + '/topic'] = topicKey;
+            }  
+        }
+    })
+    console.log('updates', updates);
+    return {success: true, updates};
+}
+
 async function migrateIntakeAsync() {
     console.log('migrateIntake');
     const allIntake = await FBUtil.getDataAsync(['intake']);
@@ -137,6 +157,8 @@ async function adminCommandAsync({command, params, userId}) {
         //     return await adminRemoveCommunities();
         case 'migrateMixPanel':
             return await migratePastMixPanelMessagesAsync();
+        case 'migrateGroupTopics':
+            return await migrateGroupTopicsAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }

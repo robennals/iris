@@ -283,6 +283,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
     var updates = {};
     updates['group/' + group + '/name'] = topic.name;
     updates['group/' + group + '/community'] = community;
+    updates['group/' + group + '/topic'] = topicKey;
     updates['group/' + group + '/privateName'] = privateName;
     updates['adminCommunity/' + community + '/group/' + group + '/name'] = topic.name;
     updates['adminCommunity/' + community + '/group/' + group + '/community'] = community;
@@ -725,3 +726,25 @@ async function logErrorAsync({error, stack=null, context=null, userId}) {
     return {success: true, updates};
 }
 exports.logErrorAsync = logErrorAsync;
+
+async function publishMessageAsync({group, messageKey, publish, userId}) {
+    const pCommunity = await FBUtil.getDataAsync(['group', group, 'community']); 
+    const pTopic = await FBUtil.getDataAsync(['group', group, 'topic']);
+    const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    const community = await pCommunity;
+    const topic = await pTopic;
+
+    if (message.from != userId) {
+        return accessDeniedResult;
+    }
+    if (!community || !topic) {
+        return {success: false, message: 'No community or topic in this group'};
+    }
+    var updates = {};
+    updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;
+    updates['published/' + community + '/' + topic + '/' + messageKey] = 
+        {...message, publishTime: Date.now()};
+    console.log('updates', updates);
+    return {success: true, updates};
+}
+exports.publishMessageAsync = publishMessageAsync;

@@ -202,6 +202,10 @@ export async function adminGetLoginTokenAsync({email}) {
     return await callServerApiAsync('adminGetLoginToken', {email});
 }
 
+export async function publishMessageAsync({group, messageKey, publish}) {
+    return await callServerApiAsync('publishMessage', {group, messageKey, publish});
+}
+
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
         return await callServerApiAsync('logError', {error, stack, context});

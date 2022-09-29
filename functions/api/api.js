@@ -131,6 +131,9 @@ async function apiActionAsync({action, components, params}) {
         case 'irisDigest': {
             return irisDigestAsync(params);
         }
+        case 'publishMessage': {
+            return Iris.publishMessageAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

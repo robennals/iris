@@ -43,6 +43,12 @@
         }
       }
     },
+    "published": {
+      "$community": {
+        ".read": true,
+        ".write": false
+      }
+    },
     "intake": {
       ".read": "root.child('special').child('master').child(auth.uid).exists()",
       ".write": false
