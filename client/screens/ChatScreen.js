@@ -481,7 +481,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
                     paddingHorizontal: 4, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
 
                     {/* <View style={{flexShrink: 0, marginRight: 8, flexDirection: 'row', alignItems: 'center'}}> */}
-                        <Entypo name={published ? 'star' : 'star-outlined'} color={published ? '#666' : 'black'} size={20} />
+                        <Entypo name={published ? 'cross' : 'star-outlined'} color={published ? '#666' : 'black'} size={20} />
                         <Text style={{color: published ? '#666' : 'black', fontSize: 12, fontWeight: published ? 'null' : 'bold', marginRight: 4, marginLeft: 2}}>
                             {inProgress ? (published ? 'Unpublishing...' : 'Publishing...') : (published ? 'Unpublish' : 'Publish')}</Text>
                     </View>

@@ -728,11 +728,20 @@ async function logErrorAsync({error, stack=null, context=null, userId}) {
 exports.logErrorAsync = logErrorAsync;
 
 async function publishMessageAsync({group, messageKey, publish, userId}) {
-    const pCommunity = await FBUtil.getDataAsync(['group', group, 'community']); 
-    const pTopic = await FBUtil.getDataAsync(['group', group, 'topic']);
+    const pCommunity = FBUtil.getDataAsync(['group', group, 'community']); 
+    const pTopic = FBUtil.getDataAsync(['group', group, 'topic']);
     const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    var replyToAuthor = null;
+    if (message.replyTo) {
+        replyToAuthor = await FBUtil.getDataAsync(['group', group, 'message', message.replyTo, 'from']);
+    }
     const community = await pCommunity;
     const topic = await pTopic;
+
+    const published = await FBUtil.getDataAsync(['published', community, topic]);
+    console.log('published', published);
+    const oldPublishCount = _.keys(published).length;
+    const newPublishCount = publish ? oldPublishCount + 1 : oldPublishCount - 1;
 
     if (message.from != userId) {
         return accessDeniedResult;
@@ -741,9 +750,13 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
         return {success: false, message: 'No community or topic in this group'};
     }
     var updates = {};
+    const pubMessage = {...message, publishTime: Date.now(), replyToAuthor}
     updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;
-    updates['published/' + community + '/' + topic + '/' + messageKey] = 
-        {...message, publishTime: Date.now()};
+    if (publish) {
+        updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;
+    }    
+    updates['topic/' + community + '/' + topic + '/publishCount'] = newPublishCount;
+    updates['published/' + community + '/' + topic + '/' + messageKey] = publish ? pubMessage : null;
     console.log('updates', updates);
     return {success: true, updates};
 }
