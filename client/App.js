@@ -74,6 +74,7 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     editTopic: 'editTopic/:community/:topic',
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
+    highlights: 'highlighted:/:community/:topic',
   }
 }}
 
@@ -207,7 +208,8 @@ export default function App() {
     newTopic: {component: EditTopicScreen, title: 'New Topic'},
     editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
     adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
-    published: {component: PublishedScreen, headerTitle: PublishedHeader}
+    published: {component: PublishedScreen, headerTitle: PublishedHeader},
+    highlights: {component: PublishedScreen, headerTitle: PublishedHeader}
   }
 
   // console.log('intialUrl', initialUrl);

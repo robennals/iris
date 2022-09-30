@@ -10,6 +10,7 @@ import { LinkText } from '../components/linktext';
 import { formatMessageTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
+import { Loading } from '../components/loading';
 
 export function PublishedHeader({navigation, route}) {
     const {community, topic} = route.params;
@@ -24,7 +25,7 @@ export function PublishedHeader({navigation, route}) {
             <Entypo name='star' color='#FABC05' size={32} style={{marginRight: 4}} />
             <View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>Published Comments</Text>
+                    <Text>Highlighted Messages</Text>
                 </View>
                 <Text style={{fontSize: 12}}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
@@ -76,6 +77,8 @@ export function PublishedScreen({navigation, route}) {
     const authorKeys = _.uniq(_.map(sortedMessageKeys, k => published[k].from));
     const memberHues = memberKeysToHues(authorKeys);
 
+    if (!published) return <Loading/>
+
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
             <SortSelector mode={sortMode} onModeChanged={setSortMode} />
@@ -85,10 +88,10 @@ export function PublishedScreen({navigation, route}) {
                         <PublishedMessage messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
                     </Catcher>
                 )}
+                <ExplainHighlights />
             </ScrollView>
         </View>
     )
-    return <Text>Published</Text>
 }
 
 function Action({icon, name, pad=1, onPress}) {
@@ -99,6 +102,21 @@ function Action({icon, name, pad=1, onPress}) {
                 <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
             </View>
         </FixedTouchable>
+    )
+}
+
+function ExplainHighlights() {
+    return (
+        <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
+            <Text style={{color: '#666', marginBottom: 4}}>
+                A highlight is a message from a group chat that the
+                the author decided to share more broadly.
+            </Text>
+            <Text style={{color: '#666'}}>
+                At least one other person must like a message
+                before you can highlight it.
+            </Text>
+        </View>
     )
 }
 

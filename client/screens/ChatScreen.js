@@ -355,7 +355,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
                 {message.published ? 
                     <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                         <Entypo name='star' color='#FABC05' size={16} />
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Published</Text>
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Highlighted Message</Text>
                     </View>
                 : null}
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
@@ -489,7 +489,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
                     {/* <View style={{flexShrink: 0, marginRight: 8, flexDirection: 'row', alignItems: 'center'}}> */}
                         <Entypo name={published ? 'cross' : 'star-outlined'} color={published ? '#666' : 'black'} size={20} />
                         <Text style={{color: published ? '#666' : 'black', fontSize: 12, fontWeight: published ? null : 'bold', marginRight: 4, marginLeft: 2}}>
-                            {inProgress ? (published ? 'Unpublishing...' : 'Publishing...') : (published ? 'Unpublish' : 'Publish')}</Text>
+                            {inProgress ? (published ? 'Unhighlighting...' : 'Highlighting...') : (published ? 'Unhighlight' : 'Highlight')}</Text>
                     </View>
                 </FixedTouchable>
             :null}
