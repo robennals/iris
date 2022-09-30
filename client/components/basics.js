@@ -19,7 +19,13 @@ export function boolToString(bool) {
   return bool ? 'true' : 'false'
 }
 
-export const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
+export function andFormatStrings(strings) {
+  const length = strings.length;
+  return strings.map((str,i) => 
+    (i == 0 ? '' : (i == length - 1 ? (length == 2 ? ' and ' : ', and ') : ', '))
+    + str
+  )  
+}
 
 
 export function commaSepStrings(strings) {

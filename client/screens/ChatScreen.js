@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { AndFormat, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
+import { andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -328,6 +328,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
         //     onSwipeableWillOpen={() => onReply(messageKey)}
         // >
         <View style={{marginBottom: messageLikes ? 24 : null}}>
+        {/* <View> */}
             {timePassed ? 
                 <Text style={{textAlign: 'center', fontSize: 13, color: '#999', marginTop: 16, marginBottom: 4}}>
                     {formatMessageTime(message.time)}
@@ -364,6 +365,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
                             sameNextAuthor ? {marginBottom: 1, borderBottomLeftRadius: 4} : {},
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
+                            // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
                             message.published ? {borderColor: '#222', borderWidth: 2, ...shadowStyle} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
@@ -384,7 +386,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
                             <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
                         : null}
                         {messageLikes ?
-                            <View style={{position: 'absolute', bottom: message.published ? -20 : -18, right: 8, left: 8, alignSelf: 'stretch'}}>
+                            <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}>
                                 <MessageLikes group={group} published={message.published} myMessage={myMessage} messageKey={messageKey} messageLikes={messageLikes} members={members} memberHues={memberHues} />
                             </View>                            
                         : null}
@@ -448,7 +450,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
     if (likers.length == 0) {
         return null;
     }
-    const likerNames = AndFormat.format(_.map(likers, m => 
+    const likerNames = andFormatStrings(_.map(likers, m => 
         m == getCurrentUser() ? 'You' : firstName(members?.[m].name || '')));
 
     async function onPublish() {
@@ -486,7 +488,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
 
                     {/* <View style={{flexShrink: 0, marginRight: 8, flexDirection: 'row', alignItems: 'center'}}> */}
                         <Entypo name={published ? 'cross' : 'star-outlined'} color={published ? '#666' : 'black'} size={20} />
-                        <Text style={{color: published ? '#666' : 'black', fontSize: 12, fontWeight: published ? 'null' : 'bold', marginRight: 4, marginLeft: 2}}>
+                        <Text style={{color: published ? '#666' : 'black', fontSize: 12, fontWeight: published ? null : 'bold', marginRight: 4, marginLeft: 2}}>
                             {inProgress ? (published ? 'Unpublishing...' : 'Publishing...') : (published ? 'Unpublish' : 'Publish')}</Text>
                     </View>
                 </FixedTouchable>
@@ -518,13 +520,13 @@ function RepliedMessage({message, messages, members}) {
 }
 
 
-function MessagePopup({messageKey, myMessage, liked, onLike, onReply, onEdit, onClose}) {
+function MessagePopup({messageKey, myMessage, likedByMe, onLike, onReply, onEdit, onClose}) {
     var actions = [];
     actions.push({id: 'reply', label: 'Reply'});
     if (myMessage) {
         actions.push({id: 'edit', label: 'Edit'});
     } else {
-        actions.push({id: 'like', label: liked ? 'Unlike' : 'Like'});
+        actions.push({id: 'like', label: likedByMe ? 'Unlike' : 'Like'});
     }
 
     return <ModalMenu items={actions} onClose={onClose} onSelect={async id => {
