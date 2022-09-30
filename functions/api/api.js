@@ -62,9 +62,9 @@ async function apiActionAsync({action, components, params}) {
         case 'highlightMessage': {
             return Message.highlightMessageAsync(params);
         }
-        case 'likeMessage': {
-            return Message.likeMessageAsync(params);
-        }
+        // case 'likeMessage': {
+        //     return Message.likeMessageAsync(params);
+        // }
         case 'ping': {
             return Cron.pingAsync(params);
         }
@@ -133,6 +133,9 @@ async function apiActionAsync({action, components, params}) {
         }
         case 'publishMessage': {
             return Iris.publishMessageAsync(params);
+        }
+        case 'likeMessage': {
+            return Iris.likeMessageAsync(params);
         }
 
         default: {

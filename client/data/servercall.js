@@ -137,9 +137,9 @@ export async function highlightMessageAsync({group, messageKey, highlight}) {
     return await callServerApiAsync('highlightMessage', {group, messageKey, highlight});
 }
 
-export async function likeMessageAsync({group, title, rootKey, messageKey, like}) {
-    return await callServerApiAsync('likeMessage', {group, title, rootKey, messageKey, like});
-}
+// export async function likeMessageAsync({group, title, rootKey, messageKey, like}) {
+//     return await callServerApiAsync('likeMessage', {group, title, rootKey, messageKey, like});
+// }
 
 export async function addSubgroupsAsync({group, groupLinks, newGroupNames}) {
     return await callServerApiAsync('addSubgroups', {group, groupLinks, newGroupNames});
@@ -204,6 +204,10 @@ export async function adminGetLoginTokenAsync({email}) {
 
 export async function publishMessageAsync({group, messageKey, publish}) {
     return await callServerApiAsync('publishMessage', {group, messageKey, publish});
+}
+
+export async function likeMessageAsync({group, messageKey}) {
+    return await callServerApiAsync('likeMessage', {group, messageKey});
 }
 
 export async function logErrorAsync({error, stack=null, context=null}) {

@@ -46,7 +46,21 @@
     "published": {
       "$community": {
         ".read": true,
-        ".write": false
+        ".write": false,
+        "$topic": {
+          "$message": {
+            "vote": {
+              "$user":{
+                ".write": "$user == auth.uid"
+              }
+            },
+            "chat": {
+              "$user": {
+                ".write": "$user == auth.uid"
+              }
+            }
+          }
+        }
       }
     },
     "intake": {

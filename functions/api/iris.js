@@ -769,3 +769,27 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
     return {success: true, updates};
 }
 exports.publishMessageAsync = publishMessageAsync;
+
+// Actually liking the message is done on the client.
+// All we have to do here is send a notif to the message author, and light up the group for them
+async function likeMessageAsync({group, messageKey, userId}) {
+    const pLikerName = FBUtil.getDataAsync(['group', group, 'member', userId, 'name']);
+    const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    const likerName = await pLikerName;
+    const time = Date.now();
+    const notif = {
+        title: likerName + ' liked your message',
+        body: message.text,
+        toUser: message.from,
+        data: {type:'like', group, messageKey, time}
+    }
+    const updates = {
+        ['/userPrivate/' + message.from + '/group/' + group + '/lastMessage']: {
+            text: likerName + ' liked your message',
+            time
+        }
+    }
+    return {success: true, updates, notifs: [notif]}
+}
+
+exports.likeMessageAsync = likeMessageAsync;

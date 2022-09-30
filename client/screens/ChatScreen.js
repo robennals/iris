@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
-import { adminJoinGroupAsync, publishMessageAsync } from '../data/servercall';
+import { adminJoinGroupAsync, likeMessageAsync, publishMessageAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
@@ -310,6 +310,10 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
     }
     function onLikeClicked() {
         setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+        if (!likedByMe) {
+            console.log('like', group, messageKey);
+            likeMessageAsync({group, messageKey});
+        }
     }
 
     const failed = message.failed || (message.pending && message.time < Date.now() - minuteMillis);
