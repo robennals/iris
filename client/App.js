@@ -79,6 +79,11 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
 }}
 
 Notifications.setNotificationHandler({
+  // handleNotification: async () => ({
+  //   shouldShowAlert: false,
+  //   shouldPlaySound: false,
+  //   shouldSetBadge: false,
+  // }),
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: false,
@@ -93,7 +98,7 @@ var global_lastMessageTime = 0;
 export default function App() {
   const [user, setUser] = useState(null);
   const [gotAuth, setGotAuth] = useState(false);
-  const [notif, setNotif] = useState(null);
+  // const [notif, setNotif] = useState(null);
   const [initialUrl, setInitialUrl] = useState(null);
   const [loadStatus, setLoadStatus] = useState('Authenticating...');
   const notificationListener = useRef();
@@ -160,7 +165,8 @@ export default function App() {
 
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotif(notification);
+      console.log('received notif');
+      // setNotif(notification);
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
