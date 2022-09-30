@@ -190,8 +190,8 @@ export async function adminJoinGroupAsync({community, group}) {
     return await callServerApiAsync('adminJoinGroup', {community, group});
 }
 
-export async function adminArchiveGroupAsync({group}) {
-    return await callServerApiAsync('adminArchiveGroup', {group});
+export async function adminArchiveGroupAsync({group, archive=true}) {
+    return await callServerApiAsync('adminArchiveGroup', {group, archive});
 }
 
 export async function editTopicAsync({community, topic, name, pinned, summary, questions}) {

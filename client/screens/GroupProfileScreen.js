@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FixedTouchable, FormInput, FormTitle, memberKeysToHues, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, useDatabase, watchData } from '../data/fbutil';
 import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
 import { adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
@@ -39,6 +39,9 @@ export function GroupProfileScreen({navigation, route}) {
     const [questions, setQuestions] = useState('');
     const [community, setCommunity] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
+    const archived = useDatabase([group], ['group', group, 'archived'], false);
+
+    console.log('archived', archived);
 
     useEffect(() => {
         var x = {};
@@ -132,7 +135,7 @@ export function GroupProfileScreen({navigation, route}) {
 
                     <Text style={{alignSelf: 'center', fontWeight: 'bold'}}>Admin Controls</Text>
                     <View style={{flexDirection: 'row'}}>
-                        <WideButton onPress={() => adminArchiveGroupAsync({group})}>Archive Group</WideButton>
+                        <WideButton onPress={() => adminArchiveGroupAsync({group, archive: !archived})}>{archived ? 'Un-Archive' : 'Archive'} Group</WideButton>
                     </View>
                 </View>
             :null}        

@@ -190,7 +190,8 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
 
 }
 
-async function adminArchiveGroupAsync({group, isArchived = true, userId}) {
+async function adminArchiveGroupAsync({group, archive = true, userId}) {
+    console.log('adminArchive', archive);
     if (!isMasterUser(userId)) {
         return accessDeniedResult;
     }
@@ -198,10 +199,10 @@ async function adminArchiveGroupAsync({group, isArchived = true, userId}) {
 
     var updates = {};
     _.forEach(_.keys(members), member => {
-        updates['userPrivate/' + member + '/group/' + group + '/archived'] = isArchived;
+        updates['userPrivate/' + member + '/group/' + group + '/archived'] = archive || null;
     });
 
-    updates['group/' + group + '/archived'] = true;
+    updates['group/' + group + '/archived'] = archive || null;
 
     return {success: true, updates};
 }

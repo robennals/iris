@@ -17,3 +17,13 @@ function firstName(name) {
     }
 }
 exports.firstName = firstName;
+
+
+function formatTime(time) {
+    if (time == 0) {
+        return 'NO TIME'
+    }
+    const date = new Date(time);
+    return date.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'}) 
+  }
+exports.formatTime = formatTime;  
