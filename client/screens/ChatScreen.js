@@ -403,7 +403,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
                 </FixedTouchable>
             </View>
 
-            <View style={{width: 48, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: message.published ? 24 : null}}>
+            <View style={{width: 64, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: message.published ? 24 : null}}>
                 {hover && myMessage ? 
                     <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
                         <FixedTouchable onPress={onEditClicked}>

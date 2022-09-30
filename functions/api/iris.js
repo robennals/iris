@@ -730,6 +730,7 @@ exports.logErrorAsync = logErrorAsync;
 async function publishMessageAsync({group, messageKey, publish, userId}) {
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community']); 
     const pTopic = FBUtil.getDataAsync(['group', group, 'topic']);
+    const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
     var replyToAuthor = null;
     if (message.replyTo) {
@@ -737,6 +738,8 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
     }
     const community = await pCommunity;
     const topic = await pTopic;
+    const members = await pMembers;
+    const member = members[userId];
 
     const published = await FBUtil.getDataAsync(['published', community, topic]);
     console.log('published', published);
@@ -750,7 +753,12 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
         return {success: false, message: 'No community or topic in this group'};
     }
     var updates = {};
-    const pubMessage = {...message, publishTime: Date.now(), replyToAuthor}
+    const pubMessage = {...message, 
+        authorName: member.name,
+        authorPhoto: member.photo,
+        publishTime: Date.now(), 
+        replyToAuthorName: replyToAuthor ? members[replyToAuthor]?.name : null
+    }
     updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;
     if (publish) {
         updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;

@@ -85,11 +85,13 @@ export function GroupProfileScreen({navigation, route}) {
         <ScreenContentScroll>
             <View style={{marginHorizontal: 16}}>
                 <View style={{marginVertical: 16}}>
-                {communityInfo ? 
-                    <View style={{alignItems: 'center', flexDirection: 'row'}}>
-                        <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} thumb={false} size={24} />
-                        <Text style={{fontSize: 18, marginLeft: 4, fontWeight: 'bold'}}>{communityInfo.name}</Text>
-                    </View>
+                {communityInfo ?
+                    <FixedTouchable onPress={() => navigation.navigate('community', {community})} > 
+                        <View style={{alignItems: 'center', flexDirection: 'row'}}>
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} thumb={false} size={24} />
+                            <Text style={{fontSize: 18, marginLeft: 4, fontWeight: 'bold'}}>{communityInfo.name}</Text>
+                        </View>
+                    </FixedTouchable>
                 : null}
                 <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 8}}>{name}</Text>
             </View>

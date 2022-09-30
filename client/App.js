@@ -41,6 +41,7 @@ import * as Sentry from 'sentry-expo';
 import { setUserPropertiesAsync } from './data/metrics';
 import { AdminLoginScreen } from './screens/AdminLogin';
 import Constants from "expo-constants";
+import { PublishedHeader, PublishedScreen } from './screens/Published';
 
 
 Sentry.init({
@@ -71,7 +72,8 @@ const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
     join: 'join/:community',
     newTopic: 'newTopic/:community',
     editTopic: 'editTopic/:community/:topic',
-    communityProfile: 'communityProfile/:community'
+    communityProfile: 'communityProfile/:community',
+    published: 'published/:community/:topic',
   }
 }}
 
@@ -204,7 +206,8 @@ export default function App() {
     join: {component: IntakeScreen, title: 'Join Community'},
     newTopic: {component: EditTopicScreen, title: 'New Topic'},
     editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
-    adminLogin: {component: AdminLoginScreen, title: 'Admin Login'}
+    adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
+    published: {component: PublishedScreen, headerTitle: PublishedHeader}
   }
 
   // console.log('intialUrl', initialUrl);

@@ -5,7 +5,7 @@ import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, Smal
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
-import { CommunityPhotoIcon } from '../components/photo';
+import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { setTitle, track, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
@@ -117,7 +117,18 @@ export function CommunityScreen({navigation, route}) {
       )
 }
 
+function topicLastTime({topicKey, topics, topicStates}) {
+    const state = topicStates[topicKey];
+    const topic = topics[topicKey];
+    if (state == 'yes' || state == 'maybe') {
+        return Math.max(topic?.time, topic?.lastMessage?.publishTime || 0); 
+    } else {
+        return topic?.time || 0;
+    }
+}
+
 function TopicList({community, topics, communityInfo, topicStates}) {
+    const sortedTopicKeys = _.sortBy(_.keys(topics), topicKey => topicLastTime({topicKey, topics, topicStates}));
     return (
         <BottomFlatScroller
             style={{flex: 1, flexShrink: 1}}
@@ -125,7 +136,7 @@ function TopicList({community, topics, communityInfo, topicStates}) {
                 {key: 'space', item: 
                     <View style={{height: 16}} />
                 },
-                ... _.keys(topics).map(k => ({key: k, item: 
+                ... sortedTopicKeys.map(k => ({key: k, item: 
                     <Topic community={community} topics={topics} topicKey={k} communityInfo={communityInfo} topicStates={topicStates} />
                 })),
                 {key: 'pad', item: <View style={{height: 8}} />}
@@ -140,10 +151,12 @@ const shadowStyle = {
     shadowOpacity: 0.5, elevation: 2}
 
 
-function PillButton({children, color = 'white', onPress}){
+function PillButton({selected, children, color = 'white', onPress}){
     return (
         <FixedTouchable onPress={onPress}>
-            <View style={{borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', 
+            <View style={{borderRadius: 16, 
+                borderWidth: selected ? 2 : StyleSheet.hairlineWidth, 
+                borderColor: selected ? 'black' : '#ddd', 
                 paddingVertical: 4, paddingHorizontal: 8, marginHorizontal: 4, backgroundColor: color}}>
                 <Text>{children}</Text>
             </View>
@@ -178,7 +191,11 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
             <View style={{marginVertical: 8, marginHorizontal: 16}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 4, marginVertical: 2}}>               
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={16} />  */}
-                    <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
+                    {topic.lastMessage ? 
+                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New response published {formatTime(topic.lastMessage.publishTime)}</Text>
+                    : 
+                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
+                    }
                 </View>
                 <View style={{flexDirection: 'row', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
@@ -208,44 +225,79 @@ function Topic({community, communityInfo, topics, topicKey, topicStates}) {
                         <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
                             <Text style={{fontSize: 12, color: "#999"}}>Do you want to talk about this?</Text>
                             <View style={{flexDirection: 'row', marginTop: 4}}>
-                                <PillButton color={green} onPress={() => setTopicState('yes')}>Yes</PillButton>
-                                <PillButton color={yellow} onPress={() => setTopicState('maybe')}>Maybe</PillButton>
-                                <PillButton color={red} onPress={() => setTopicState('no')}>No</PillButton>
-                            </View>
-                        
+                                <PillButton selected={state=='yes'} color={green} onPress={() => setTopicState('yes')}>Yes</PillButton>
+                                <PillButton selected={state=='maybe'} color={yellow} onPress={() => setTopicState('maybe')}>Maybe</PillButton>
+                                <PillButton selected={state=='no'} color={red} onPress={() => setTopicState('no')}>No</PillButton>
+                            </View>                        
                         </View>
+                        <PublishedPreview topic={topic} community={community} topicKey={topicKey} />
                     </View>
                 </View>
             </View>
         )
     } else {
         return (
-            <FixedTouchable onPress={() => setExpanded(true)} style={{flexShrink: 1}}>
+            <View style={{marginVertical: 8, marginHorizontal: 16}}>
+                {topic.lastMessage && (state=='yes' || state=='maybe') ? 
+                    <Text style={{marginHorizontal: 16, fontSize: 12, color: '#666', marginLeft: 4}}>New response published {formatTime(topic.lastMessage.publishTime)}</Text>
+                : null}
                 <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                                flexDirection: 'row', alignItems: 'center',
-                                borderRadius: 8, maxWidth: 550, 
-                                paddingRight: 4,
-                                marginVertical: 8, marginHorizontal: 16,
-                                flexShrink: 1, alignSelf: 'flex-start',
+                                // flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                                borderRadius: 8, maxWidth: 450, 
+                                // marginVertical: 8, marginHorizontal: 16,
+                                // flexShrink: 1, alignSelf: 'flex-start',
                                 ...shadowStyle }}>
+                    <FixedTouchable onPress={() => setExpanded(true)} style={{flex: 1}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', flexShrink: 1}}>
+                                <View style={{height: 20, borderRadius: 10, margin: 4, paddingHorizontal: 8, paddingVertical: 4,
+                                        alignItems: 'center', justifyContent: 'center', flexShrink: 1,
+                                        backgroundColor: state == 'maybe' ? yellow : (state == 'yes' ? green : red)}}>
+                                    {state == 'maybe' ?
+                                        <Text>Maybe</Text>
+                                    :
+                                        <Text>{state == 'yes' ? 'Yes' : 'No'}</Text>
+                                        // <Entypo name={state == 'yes' ? 'check' : 'cross'}/>
+                                    }
+                                </View>
+                                <View style={{paddingRight: 8, flexShrink: 1}}>
+                                    <OneLineText style={{color: '#222', flexShrink: 1}}>{topic.name}</OneLineText>
+                                </View>
+                            </View>
+                            <View style={{marginRight: 4}}>
+                                <Entypo color='#999' name='chevron-down' />
+                            </View>
+                        </View>
+                    </FixedTouchable>
+                    {state != 'no' ?
+                        <PublishedPreview topic={topic} community={community} topicKey={topicKey} />
+                    : null}
+                </View>
+            </View>
+        )
+    }
+}
 
-                    <View style={{width: 20, height: 20, borderRadius: 10, margin: 4,
-                            alignItems: 'center', justifyContent: 'center', flexShrink: 1,
-                            backgroundColor: state == 'maybe' ? yellow : (state == 'yes' ? green : red)}}>
-                        {state == 'maybe' ?
-                            <Text>?</Text>
-                        :
-                            <Entypo name={state == 'yes' ? 'check' : 'cross'}/>
-                        }
-                    </View>
-                    <View style={{paddingRight: 8, flexShrink: 1}}>
-                        <OneLineText style={{color: '#222', flexShrink: 1}}>{topic.name}</OneLineText>
-                    </View>
-                    <View>
-                        <Entypo color='#999' name='chevron-down' />
+function PublishedPreview({community, topicKey, topic, members}) {
+    const navigation = useCustomNavigation();
+    if (topic.publishCount && topic.lastMessage) {
+        return (
+            <FixedTouchable onPress={() => navigation.navigate('published', {community, topic: topicKey})}>
+                <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
+                    {topic.publishCount > 1 ?
+                    <Text style={{marginBottom: 4, color: '#666', fontSize: 12}}>View {topic.publishCount} published responses</Text>
+                    : null}
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <MemberPhotoIcon size={24} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
+                        <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16}}>
+                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
+                            <OneLineText>{topic.lastMessage.text}</OneLineText>
+                        </View>
                     </View>
                 </View>
             </FixedTouchable>
-        )
+        )    
+    } else {
+        return null;
     }
 }
