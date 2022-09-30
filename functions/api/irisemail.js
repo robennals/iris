@@ -13,7 +13,7 @@ async function irisDigestAsync() {
     // console.log('result', result);
     const randIndex = Math.floor(Math.random() * result.emails.length);
     // console.log('updates', result.updates);
-    console.log('emails', result.emails);
+    // console.log('emails', result.emails);
     console.log('randIndex', randIndex);
     console.log('email count', result.emails.length);
     return {success: true, html: result.emails[randIndex].HtmlBody};
@@ -38,7 +38,7 @@ async function sendMissedMessageEmailForAllUsers() {
         if (result) {
             updates = {...updates, ...result.updates};
             emails = [...emails, ...result.emails];
-            console.log('needsAppPromo', result.templateData.needsAppPromo, index);
+            // console.log('needsAppPromo', result.templateData.needsAppPromo, index);
             index++;
         }
     })
@@ -47,7 +47,7 @@ async function sendMissedMessageEmailForAllUsers() {
 
     return {success: true, emails, updates};
 }
-
+exports.sendMissedMessageEmailForAllUsers = sendMissedMessageEmailForAllUsers;
 
 async function getMissedMessagesForUser(user) {
     const pLastmessageTime = FBUtil.getDataAsync(['userPrivate', user, 'lastMessageTime']);
@@ -55,18 +55,19 @@ async function getMissedMessagesForUser(user) {
     const lastActionTime = await FBUtil.getDataAsync(['userPrivate', user, 'lastAction'], 0);
     const lastMessageTime = await pLastmessageTime;
     const lastNotifEmailTime = await pLastNotifEmailTime;
-    if (lastActionTime > lastMessageTime) {
-        console.log('No missed messages', user);
+    if (Math.max(lastActionTime || 0, lastNotifEmailTime || 0) > lastMessageTime) {
+        // console.log('No missed messages', user);
         return null; // no new messages since they last used the app
     }
     if (lastActionTime > Date.now() - (24 * Basics.hourMillis)) {
-        console.log('Active recently', user);
+        // console.log('Active recently', user);
         return null; // used the app within the last 24 hours.
     }
-    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > Date.now() - (48 * Basics.hourMillis)) {
-        console.log('Recent notif email', user);
+    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > (Date.now() - (7 * Basics.dayMillis))) {
+        // console.log('Recent notif email', user);
         return null; // sent a missed messages email in the last 48 hours, and they haven't logged in since then
     } 
+    // console.log('** Needs email', user, Basics.formatTime(lastNotifEmailTime), Basics.formatTime(lastActionTime));
 
     const pNotifToken = await FBUtil.getDataAsync(['userPrivate', user, 'notifToken'], false);
     const pName = FBUtil.getDataAsync(['userPrivate', user, 'name']);
@@ -74,7 +75,7 @@ async function getMissedMessagesForUser(user) {
     const groups = await FBUtil.getDataAsync(['userPrivate', user, 'group']);
     const notifToken = await pNotifToken;
 
-    console.log('notifToken', notifToken);
+    // console.log('notifToken', notifToken);
 
     const missedGroupKeys = _.filter(_.keys(groups), g => 
         groups[g]?.lastMessage?.time > Math.max(lastActionTime, groups[g]?.readTime || 0));
