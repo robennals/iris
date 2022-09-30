@@ -96,8 +96,8 @@ export function PublishedScreen({navigation, route}) {
 
 function Action({icon, name, pad=1, onPress}) {
     return (
-        <FixedTouchable onPress={onPress} style={{marginLeft: 16}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <FixedTouchable onPress={onPress} style={{marginLeft: 12}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 4}}>
                 <Ionicons name={icon} color='#666' />
                 <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
             </View>
@@ -145,12 +145,17 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                     <View style={{backgroundColor, marginLeft: 8, flexShrink: 1, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8}}>
                         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                             <Text style={{fontWeight: 'bold', fontSize: 12}}>{message.authorName}</Text>
-                            <Text style={{color: '#666', fontSize: 12}}>{formatMessageTime(message.publishTime)}</Text>
+                            <Text style={{color: '#666', fontSize: 12, marginLeft: 16}}>{formatMessageTime(message.publishTime)}</Text>
                         </View>
-                        <LinkText text={message.text} />
+                        {/* {message.replyToAuthorName ?
+                            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: '#999', borderLeftWidth: StyleSheet.hairlineWidth}}>
+                                <Text style={{color: '#666', fontSize: 12}}>Replying to a private message</Text>
+                            </View>
+                        :null} */}
+                        <LinkText color='#222' text={message.text} />
                     </View>
                     {message.from != getCurrentUser() ?
-                        <View style={{flexDirection: 'row', marginTop: 2}}>
+                        <View style={{flexDirection: 'row'}}>
                             <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
                                 name={(myVote == 'up' ? 'Upvoted' : 'Upvote') + upCountStr} 
                                 onPress={() => onVote('up')}/>                

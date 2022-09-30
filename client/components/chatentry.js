@@ -8,10 +8,9 @@ import { track } from './shim';
 
 var global_saveDrafts = {};
 
-export const ChatEntryBox = forwardRef(({group, messages, groupName, community, members, reply, onClearReply, onClearEdit, chatInputRef}, ref) => {
+export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onClearReply, onClearEdit, chatInputRef}, ref) => {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
-    const [nextHeight, setNextHeight] = useState(36);
     const [text, setText] = useState(null);
     const [edit, setEdit] = useState(null);
     const [textKey, setTextKey] = useState(0);

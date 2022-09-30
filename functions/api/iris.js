@@ -728,8 +728,8 @@ async function logErrorAsync({error, stack=null, context=null, userId}) {
 exports.logErrorAsync = logErrorAsync;
 
 async function publishMessageAsync({group, messageKey, publish, userId}) {
-    const pCommunity = FBUtil.getDataAsync(['group', group, 'community']); 
-    const pTopic = FBUtil.getDataAsync(['group', group, 'topic']);
+    const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null); 
+    const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
     var replyToAuthor = null;

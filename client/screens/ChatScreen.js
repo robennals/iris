@@ -8,7 +8,7 @@ import { LinkText } from '../components/linktext';
 import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
-import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate } from '../components/shim';
+import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate, useCustomNavigation } from '../components/shim';
 import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
@@ -174,7 +174,7 @@ export function ChatScreen({navigation, route}) {
                 (archived && !isMasterUser(getCurrentUser()) ? 
                 null
                 :
-                    <ChatEntryBox group={group} reply={reply} groupName={groupName}
+                    <ChatEntryBox key='chat' group={group} reply={reply} groupName={groupName}
                         community={community}
                         onClearReply={() => setReply(null)}
                         chatInputRef={chatInputRef} ref={chatEntryRef} />
@@ -222,6 +222,8 @@ function MessageList({group, onReply, onEdit}) {
     const messages = useDatabase([group], ['group', group, 'message']);
     const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
     const members = useDatabase([group], ['group', group, 'member']);
+    const community = useDatabase([group], ['group', group, 'community'], null);
+    const topic = useDatabase([group], ['group', group, 'topic'], null);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const likes = useDatabase([group], ['group', group, 'like']);
     const scrollRef = React.createRef();
@@ -252,7 +254,8 @@ function MessageList({group, onReply, onEdit}) {
                 ... shownMessageKeys.map((k,idx) => ({key: k, item: 
                     <Message key={k} messages={allMessages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
-                        memberHues={memberHues} messageLikes={likes?.[k]}
+                        memberHues={memberHues} messageLikes={likes?.[k]} 
+                        community={community} topic={topic}
                         onReply={onReply} onEdit={onEdit} />})),
                 {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
@@ -267,7 +270,8 @@ function MessageList({group, onReply, onEdit}) {
 // }
 
 
-function Message({group, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+function Message({group, community, topic, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+    const navigation = useCustomNavigation();
     const message = messages[messageKey];
     // if (message.type == 'like') return <PublishSuggestion publishSuggestion={message} messages={messages} members={members} memberHues={memberHues} />
     const prevMessage = messages[prevMessageKey] ?? {};
@@ -353,10 +357,12 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
             {/* <View style={message.published ? styles.publishedMessageBox : {flexShrink: 1}}> */}
             <View style={{flexShrink: 1}}>
                 {message.published ? 
-                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
-                        <Entypo name='star' color='#FABC05' size={16} />
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Highlighted Message</Text>
-                    </View>
+                    <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
+                        <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
+                            <Entypo name='star' color='#FABC05' size={16} />
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Highlighted Message - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                        </View>
+                    </FixedTouchable>
                 : null}
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>
@@ -366,7 +372,7 @@ function Message({group, messages, messageLikes=null, members, messageKey, prevM
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
-                            message.published ? {borderColor: '#222', borderWidth: 2, ...shadowStyle} : {},
+                            message.published ? {borderColor: '#222', borderWidth: 2, marginTop: 1, ...shadowStyle} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
                          ]} >
