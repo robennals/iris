@@ -229,6 +229,7 @@ function MessageList({group, onReply, onEdit}) {
     const scrollRef = React.createRef();
 
     if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
+    const meInGroup = members && members[getCurrentUser()];
 
     // const publishSuggestions = getPublishSuggestions({messages, likes});
 
@@ -256,6 +257,7 @@ function MessageList({group, onReply, onEdit}) {
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues} messageLikes={likes?.[k]} 
                         community={community} topic={topic}
+                        meInGroup={meInGroup}
                         onReply={onReply} onEdit={onEdit} />})),
                 {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
@@ -270,7 +272,7 @@ function MessageList({group, onReply, onEdit}) {
 // }
 
 
-function Message({group, community, topic, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+function Message({group, meInGroup, community, topic, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
     const message = messages[messageKey];
     // if (message.type == 'like') return <PublishSuggestion publishSuggestion={message} messages={messages} members={members} memberHues={memberHues} />
@@ -342,7 +344,7 @@ function Message({group, community, topic, messages, messageLikes=null, members,
 
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
-            {popup ? 
+            {popup && meInGroup ? 
                 <MessagePopup myMessage={myMessage} likedByMe={likedByMe} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} onLike={onLikeClicked} />
             : null}
             {myMessage ? null :
@@ -416,7 +418,7 @@ function Message({group, community, topic, messages, messageLikes=null, members,
             </View>
 
             <View style={{width: 64, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: message.published ? 24 : null}}>
-                {hover && myMessage ? 
+                {hover && meInGroup && myMessage ? 
                     <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
                         <FixedTouchable onPress={onEditClicked}>
                             <Entypo name='edit' size={20} color='#999' />
@@ -424,7 +426,7 @@ function Message({group, community, topic, messages, messageLikes=null, members,
                     </View>
                 : null}
 
-                {hover && !message.pending ? 
+                {hover && meInGroup && !message.pending ? 
                     <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
                         <FixedTouchable onPress={onReplyClicked}>
                             <Entypo name='reply' size={20} color='#999' />
@@ -432,7 +434,7 @@ function Message({group, community, topic, messages, messageLikes=null, members,
                     </View>
                 : null}
 
-                {hover && !myMessage ?
+                {hover && meInGroup && !myMessage ?
                     <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
                         <FixedTouchable onPress={onLikeClicked}>
                             <Entypo name={likedByMe ? 'heart' : 'heart-outlined'} size={20} color='#999' />
@@ -457,7 +459,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
         return null;
     }
     const likerNames = andFormatStrings(_.map(likers, m => 
-        m == getCurrentUser() ? 'You' : firstName(members?.[m].name || '')));
+        m == getCurrentUser() ? 'You' : firstName(members?.[m]?.name || '')));
 
     async function onPublish() {
         console.log('publish', messageKey);
@@ -481,7 +483,7 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
                 <Entypo name='heart' color='red' size={20} style={{marginRight: 4, marginLeft: 2}} />
                 {_.map(likers, m => 
                     <MemberPhotoIcon key={m} user={m} hue={memberHues?.[m]} size={20}
-                        photoKey={members?.[m]?.photo} name={members?.[m].name}  />
+                        photoKey={members?.[m]?.photo} name={members?.[m]?.name}  />
                 )}
                 <OneLineText style={{marginLeft: 8, color: '#666', fontSize: 12, marginRight: 8}}>
                     {likerNames} liked
