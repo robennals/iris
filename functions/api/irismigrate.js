@@ -45,6 +45,31 @@ function oldTopicsToNew(communityTopics, userTopics) {
     return out;
 }
 
+async function migrateLastReadAsync() {
+    console.log('reading...');
+    const privates = await FBUtil.getDataAsync(['userPrivate']);
+    console.log('got');
+    const updates = {};
+    // console.log('eh', privates);
+    _.forEach(_.keys(privates), u => {
+        console.log('user', u);
+        const userPrivate = privates[u];
+        const groups = userPrivate.group;
+        _.forEach(_.keys(groups), g => {
+            const group = groups[g];
+            const readTime = group.readTime;
+            if (readTime) {
+                updates['group/' + g + '/memberRead/' + u] = readTime;
+                if (group.community) {
+                    updates['adminCommunity/' + group.community + '/group/' + g + '/memberRead/' + u] = readTime;
+                }
+            }
+        })
+    })
+    console.log('updates', updates);
+    return {success: true, updates};
+}
+
 async function migrateLastSpokeAsync() {
     const groups = await FBUtil.getDataAsync(['group']);
     var updates = {};
@@ -182,6 +207,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateGroupTopicsAsync();
         case 'migrateLastSpoke': 
             return await migrateLastSpokeAsync();
+        case 'migrateLastRead': 
+            return await migrateLastReadAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }

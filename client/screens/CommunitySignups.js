@@ -20,7 +20,7 @@ function getPlatform(props) {
     }
 }
 
-function tabLineForMember({member, memberKey, questionNames, topicKeys, props, groupCount, spokeCount, lastSpoke}) {
+function tabLineForMember({member, memberKey, questionNames, topicKeys, props, groupCount, spokeCount, lastSpoke, lastRead, readCount}) {
     console.log('tabLine', {member, topicKeys});
     const fullTime = formatShortDate(member.intakeTime);
     const basics = [member?.answer?.[name_label] || '', member?.answer?.[email_label] || ''];
@@ -29,20 +29,28 @@ function tabLineForMember({member, memberKey, questionNames, topicKeys, props, g
     const confirmed = (member.confirmed == false ? 'NO' : 'yes');
     const platform = props?.['Has Platform iOS'] 
     const extras = [getPlatform(props), props?.['Mobile Notifs Connected'] || false]
-    const allCells = [fullTime, ...basics, confirmed, groupCount, spokeCount, lastSpoke ? formatShortDate(lastSpoke) : 'never', memberKey, ...extras, ...answers, ...topics];
+    const allCells = [fullTime, ...basics, confirmed, groupCount, spokeCount, readCount, 
+        lastSpoke ? formatShortDate(lastSpoke) : 'never', 
+        lastRead ? formatShortDate(lastRead) : 'never',
+        memberKey, ...extras, ...answers, ...topics];
     return _.join(allCells, '\t');
 }
 
 function getUserGroupCount(groups) {
     var userGroupCount = {};
     var userSpokeCount = {};
+    var userReadCount = {};
     var userLastSpoke = {};
+    var userLastRead = {};
     _.forEach(_.keys(groups), g => {
         const group = groups[g];
         _.forEach(_.keys(group.member), m => {
             const member = group.member[m];
             if (!userGroupCount[m]) {
                 userGroupCount[m] = 0;
+            }  
+            if (!userReadCount[m]) {
+                userReadCount[m] = 0;
             }  
             if (!userSpokeCount[m]) {
                 userSpokeCount[m] = 0;
@@ -52,9 +60,13 @@ function getUserGroupCount(groups) {
                 userSpokeCount[m] ++;
                 userLastSpoke[m] = Math.max(userLastSpoke[m] || 0, member.lastSpoke);
             }
+            if (group.memberRead[m]) {
+                userReadCount[m] ++;
+                userLastRead[m] = Math.max(userLastRead[m] || 0, group.memberRead[m]);
+            }
         })
     })
-    return {userGroupCount, userSpokeCount, userLastSpoke};
+    return {userGroupCount, userSpokeCount, userLastSpoke, userLastRead, userReadCount};
 }
 
 export function CommunitySignupsScreen({route}) {
@@ -78,20 +90,22 @@ export function CommunitySignupsScreen({route}) {
 
     // console.log('stuff', {community, members, info});
     
-    const {userGroupCount, userSpokeCount, userLastSpoke} = getUserGroupCount(groups);
+    const {userGroupCount, userSpokeCount, userLastSpoke, userLastRead, userReadCount} = 
+        getUserGroupCount(groups);
 
     const questions = parseQuestions(info.questions);
     // const topics = parseTopics(info.topics);
     const questionNames = questions.map(q => q.question).filter(n => n != email_label && n != name_label);
     const topicNames = _.keys(topics).map(k => topics[k].name);
 
-    const columns = ['Time', 'Name', 'Email', 'Confirmed', 'Groups', 'Spoke In', 'Last Spoke', 'UserId', 'Platform', 'Notifs', ... questionNames, ... topicNames] 
+    const columns = ['Time', 'Name', 'Email', 'Confirmed', 'Groups', 'Spoke In', 'Read In', 'Last Spoke', 'Last Read', 'UserId', 'Platform', 'Notifs', ... questionNames, ... topicNames] 
     const columnText = _.join(columns, '\t');
     const sortedMemberKeys = _.sortBy(_.keys(members), k => members[k].intakeTime);
     const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time);
     const itemLines = sortedMemberKeys.map(k => tabLineForMember({
         memberKey: k,
         groupCount: userGroupCount[k] || 0, spokeCount: userSpokeCount[k], lastSpoke: userLastSpoke[k],
+        lastRead: userLastRead[k], readCount: userReadCount[k],
         props: userProps?.[k], member: members[k], questionNames, topicKeys: sortedTopicKeys
     }));
     const allLines = [columnText, ...itemLines];

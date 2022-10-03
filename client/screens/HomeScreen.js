@@ -114,10 +114,12 @@ export class GroupList extends React.Component {
 
         const isCommunity = communitySet[k];
 
+        var groupCommunity = null;
         if (isCommunity) {
             track('View Community', {community: k, communityName: communitySet[k].name});
         } else {
             track('View Group', {group: k, groupName: groupSet[k].name});
+            groupCommunity = groupSet[k].community;
         }
 
         const thingType = communitySet[k] ? 'community' : 'group';
@@ -136,8 +138,17 @@ export class GroupList extends React.Component {
                 ],
             })
         }
-        setDataAsync(['userPrivate', getCurrentUser(), dataName, k, 'readTime'], getFirebaseServerTimestamp());
-        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], getFirebaseServerTimestamp())
+        const time = getFirebaseServerTimestamp();
+        setDataAsync(['userPrivate', getCurrentUser(), dataName, k, 'readTime'], time);
+        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], time)
+
+        if (!isCommunity) {
+            setDataAsync(['group', k, 'memberRead', getCurrentUser()], time);
+            console.log('logging read', groupCommunity, k, getCurrentUser());
+            if (groupCommunity) {
+                setDataAsync(['adminCommunity', groupCommunity, 'group', k, 'memberRead', getCurrentUser()], time);
+            }
+        }
     }
 
     render() {

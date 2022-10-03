@@ -34,7 +34,18 @@
     },
     "adminCommunity": {
       ".read": "root.child('special').child('master').child(auth.uid).exists()",
-      ".write": false
+      ".write": false,
+      "$community": {
+        "group": {
+          "$group": {
+            "memberRead": {
+              "$user": {
+                ".write": "$user == auth.uid"
+              }
+            }
+          }
+        }
+      }
     },
     "community": {
       ".read": true,
@@ -82,6 +93,11 @@
             "$user": {
               ".write": "$user == auth.uid"
             }
+          }
+        },
+        "memberRead": {
+          "$user": {
+            ".write": "$user == auth.uid"
           }
         }
       }
