@@ -50,11 +50,15 @@ async function sendMissedMessageEmailForAllUsers() {
 exports.sendMissedMessageEmailForAllUsers = sendMissedMessageEmailForAllUsers;
 
 async function getMissedMessagesForUser(user) {
-    const pLastmessageTime = FBUtil.getDataAsync(['userPrivate', user, 'lastMessageTime']);
+    const pLastmessageTime = FBUtil.getDataAsync(['userPrivate', user, 'lastMessageTime'], 0);
     const pLastNotifEmailTime = FBUtil.getDataAsync(['userPrivate', user, 'lastNotifEmailTime'], 0);
     const lastActionTime = await FBUtil.getDataAsync(['userPrivate', user, 'lastAction'], 0);
     const lastMessageTime = await pLastmessageTime;
     const lastNotifEmailTime = await pLastNotifEmailTime;
+    if (lastMessageTime == 0) {
+        // console.log('Never received a message', user);
+        return null;
+    }
     if (Math.max(lastActionTime || 0, lastNotifEmailTime || 0) > lastMessageTime) {
         // console.log('No missed messages', user);
         return null; // no new messages since they last used the app
@@ -63,11 +67,11 @@ async function getMissedMessagesForUser(user) {
         // console.log('Active recently', user);
         return null; // used the app within the last 24 hours.
     }
-    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > (Date.now() - (7 * Basics.dayMillis))) {
+    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > (Date.now() - (4 * Basics.dayMillis))) {
         // console.log('Recent notif email', user);
         return null; // sent a missed messages email in the last 48 hours, and they haven't logged in since then
     } 
-    // console.log('** Needs email', user, Basics.formatTime(lastNotifEmailTime), Basics.formatTime(lastActionTime));
+    console.log('** Needs email', user, Basics.formatTime(lastNotifEmailTime), Basics.formatTime(lastActionTime));
 
     const pNotifToken = await FBUtil.getDataAsync(['userPrivate', user, 'notifToken'], false);
     const pName = FBUtil.getDataAsync(['userPrivate', user, 'name']);
@@ -103,11 +107,14 @@ async function getMissedMessagesForUser(user) {
                 messageWord: groupMessageCount == 1 ? 'message' : 'messages',
                 senderNames: AndFormat.format(newMessageSenderNames)
             })
+        } else {
+            console.error('Unread group should not have zero unread messages', user, g, groups[g]?.readTime, lastActionTime);
         }
     })
 
     if (missedGroups.length == 0) {
-        console.error('Unread group should not have zero unread messages');
+        console.error('User with recent lastMessage should not have zero unread groups', 
+            user, lastMessageTime, lastActionTime);
         return null;
     }
 

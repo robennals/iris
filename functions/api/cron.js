@@ -5,6 +5,7 @@ const { sendPendingNotifsAsync } = require('../output/notifs');
 const { maybeSendWeeklyDigest } = require('./digest');
 const Iris = require('./iris');
 const Notifs = require('../output/notifs');
+const IrisEmail = require('../api/irisemail');
 
 function flattenObjectList(objectList) {
     var out = {};
@@ -30,8 +31,9 @@ async function maybeProdGroupsWithNextQuestionAsync() {
 }
 
 async function pingAsync({secret}){
-    // console.log('Ping received', secret);
-    return await maybeProdGroupsWithNextQuestionAsync();
+    console.log('Ping received', secret);
+    return IrisEmail.sendMissedMessageEmailForAllUsers();
+    // return await maybeProdGroupsWithNextQuestionAsync();
 
     // const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     // const users = _.keys(userEmails);
