@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
-import { adminJoinGroupAsync, likeMessageAsync, publishMessageAsync } from '../data/servercall';
+import { adminJoinGroupAsync, likeMessageAsync, publishMessageAsync, sendMessageAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
@@ -272,6 +272,10 @@ function MessageList({group, onReply, onEdit}) {
 // }
 
 
+async function retrySendingMessageAsync({messageKey, message, group}) {
+    await sendMessageAsync({messageKey, group, text: message.text, replyTo: message.replyTo});
+}
+
 function Message({group, meInGroup, community, topic, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
     const message = messages[messageKey];
@@ -412,7 +416,12 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                         : null }
                     </View>
                     {failed ? 
-                        <Text style={{color: 'red', marginRight: 8, marginBottom: 8}}>Failed to send message</Text>
+                        <View style={{flexDirection: 'row'}}>
+                            <Text style={{color: 'red', marginBottom: 8}}>Failed to send message - </Text>
+                            <FixedTouchable onPress={() => retrySendingMessageAsync({group, messageKey, message})}>
+                                <Text style={{color: 'red', marginRight: 8, marginBottom: 8, textDecorationLine: 'underline'}}>Try again</Text>
+                            </FixedTouchable>
+                        </View>
                     :null}
                 </FixedTouchable>
             </View>
