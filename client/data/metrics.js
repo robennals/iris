@@ -30,9 +30,9 @@ export async function setUserPropertiesAsync() {
 
     
     if (Platform.OS != 'web') {
-        props['Mobile Notifs Granted'] = notifStatus == 'granted';
+        props['Mobile Notifs Granted'] = notifStatus?.status;
     } else {
-        props['Web Notifs Granted'] = notifStatus == 'granted';
+        props['Web Notifs Granted'] = notifStatus?.status;
     }
     console.log('set user properties', props);
     updateDataAsync(['perUser', 'props', getCurrentUser()], props);

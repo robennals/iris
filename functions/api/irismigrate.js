@@ -4,6 +4,7 @@ const Email = require('../output/email');
 const FS = require('fs');
 const Mustache = require('mustache');
 const { importMixPanelEventsAsync } = require('../output/mixpanel');
+const { forEach } = require('lodash');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -42,6 +43,26 @@ function oldTopicsToNew(communityTopics, userTopics) {
         } 
     })
     return out;
+}
+
+async function migrateLastSpokeAsync() {
+    const groups = await FBUtil.getDataAsync(['group']);
+    var updates = {};
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        const community = group.community;
+        const messages = group.message;
+        const messageKeys = _.keys(messages);
+        if (community) {
+            const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
+            _.forEach(sortedMessageKeys, m => {
+                const message = messages[m];
+                updates['/adminCommunity/' + community + '/group/' + g + '/member/' + message.from + '/lastSpoke'] = message.time 
+            })
+        }
+    })
+    console.log('updates', updates);
+    return {success: true, updates}
 }
 
 async function migrateGroupTopicsAsync() {
@@ -159,6 +180,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migratePastMixPanelMessagesAsync();
         case 'migrateGroupTopics':
             return await migrateGroupTopicsAsync();
+        case 'migrateLastSpoke': 
+            return await migrateLastSpokeAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }

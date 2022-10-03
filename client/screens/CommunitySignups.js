@@ -1,19 +1,60 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TextInput } from 'react-native'
 import { email_label, name_label, parseQuestions, parseTopics, ScreenContentScroll } from '../components/basics'
-import { internalReleaseWatchers, watchData } from '../data/fbutil';
+import { internalReleaseWatchers, useDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
-import { formatFullTime, formatTime } from '../components/time';
+import { formatFullTime, formatShortDate, formatTime } from '../components/time';
 
-function tabLineForMember({member, questionNames, topicKeys}) {
+function getPlatform(props) {
+    if (!props) {
+        return 'Unknown';
+    }
+    if (props['Has Platform iOS']) {
+        return 'iOS'
+    } else if (props['Has Platform Android']) {
+        return 'Android'
+    } else if (props['Has Platform Web']) {
+        return 'Web'
+    } else {
+        return 'unknown'
+    }
+}
+
+function tabLineForMember({member, memberKey, questionNames, topicKeys, props, groupCount, spokeCount, lastSpoke}) {
     console.log('tabLine', {member, topicKeys});
-    const fullTime = formatFullTime(member.intakeTime);
+    const fullTime = formatShortDate(member.intakeTime);
     const basics = [member?.answer?.[name_label] || '', member?.answer?.[email_label] || ''];
     const answers = questionNames.map(q => member?.answer?.[q]);
     const topics = topicKeys.map(t => member?.topic?.[t] || '');
     const confirmed = (member.confirmed == false ? 'NO' : 'yes');
-    const allCells = [fullTime, ...basics, confirmed, ...answers, ...topics];
+    const platform = props?.['Has Platform iOS'] 
+    const extras = [getPlatform(props), props?.['Mobile Notifs Connected'] || false]
+    const allCells = [fullTime, ...basics, confirmed, groupCount, spokeCount, lastSpoke ? formatShortDate(lastSpoke) : 'never', memberKey, ...extras, ...answers, ...topics];
     return _.join(allCells, '\t');
+}
+
+function getUserGroupCount(groups) {
+    var userGroupCount = {};
+    var userSpokeCount = {};
+    var userLastSpoke = {};
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        _.forEach(_.keys(group.member), m => {
+            const member = group.member[m];
+            if (!userGroupCount[m]) {
+                userGroupCount[m] = 0;
+            }  
+            if (!userSpokeCount[m]) {
+                userSpokeCount[m] = 0;
+            }  
+            userGroupCount[m] ++;
+            if (member.lastSpoke) {
+                userSpokeCount[m] ++;
+                userLastSpoke[m] = Math.max(userLastSpoke[m] || 0, member.lastSpoke);
+            }
+        })
+    })
+    return {userGroupCount, userSpokeCount, userLastSpoke};
 }
 
 export function CommunitySignupsScreen({route}) {
@@ -22,6 +63,8 @@ export function CommunitySignupsScreen({route}) {
     const [topics, setTopics] = useState(null);
     const [members, setMembers] = useState(null);
     const [info, setInfo] = useState(null);
+    const userProps = useDatabase([], ['perUser', 'props']);
+    const groups = useDatabase([community], ['adminCommunity', community, 'group']);
     useEffect(() => {
         var x = {};
         // watchData(x, ['intake', community], setIntake);
@@ -31,20 +74,26 @@ export function CommunitySignupsScreen({route}) {
         return () => internalReleaseWatchers(x);
     }, [community]);
 
-    if (!members || !info || !topics) return null;
+    if (!members || !info || !topics || !groups) return null;
 
     // console.log('stuff', {community, members, info});
+    
+    const {userGroupCount, userSpokeCount, userLastSpoke} = getUserGroupCount(groups);
 
     const questions = parseQuestions(info.questions);
     // const topics = parseTopics(info.topics);
     const questionNames = questions.map(q => q.question).filter(n => n != email_label && n != name_label);
     const topicNames = _.keys(topics).map(k => topics[k].name);
 
-    const columns = ['Time', 'Name', 'Email', 'Confirmed', ... questionNames, ... topicNames] 
+    const columns = ['Time', 'Name', 'Email', 'Confirmed', 'Groups', 'Spoke In', 'Last Spoke', 'UserId', 'Platform', 'Notifs', ... questionNames, ... topicNames] 
     const columnText = _.join(columns, '\t');
     const sortedMemberKeys = _.sortBy(_.keys(members), k => members[k].intakeTime);
     const sortedTopicKeys = _.sortBy(_.keys(topics), k => topics[k].time);
-    const itemLines = sortedMemberKeys.map(k => tabLineForMember({member: members[k], questionNames, topicKeys: sortedTopicKeys}));
+    const itemLines = sortedMemberKeys.map(k => tabLineForMember({
+        memberKey: k,
+        groupCount: userGroupCount[k] || 0, spokeCount: userSpokeCount[k], lastSpoke: userLastSpoke[k],
+        props: userProps?.[k], member: members[k], questionNames, topicKeys: sortedTopicKeys
+    }));
     const allLines = [columnText, ...itemLines];
     const tabText = _.join(allLines, '\n') + '\n';
 

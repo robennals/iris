@@ -29,6 +29,16 @@ export function formatFullTime(time) {
   return date.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'}) 
 }
 
+export function formatShortDate(time) {
+  const date = new Date(time);
+  const nowDate = new Date(Date.now());
+  if (isThisYear({date, nowDate})) {
+    return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) 
+  } else {
+    return date.toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'}) 
+  }
+}
+
 export function formatMessageTime(time) {
   const now = Date.now();
   const nowDate = new Date(now);

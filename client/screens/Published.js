@@ -110,7 +110,7 @@ function ExplainHighlights() {
         <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
             <Text style={{color: '#666', marginBottom: 4}}>
                 A highlight is a message from a group chat that the
-                the author decided to share more broadly.
+                author decided to share more broadly.
             </Text>
             <Text style={{color: '#666'}}>
                 At least one other person must like a message

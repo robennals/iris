@@ -12,6 +12,12 @@
           ".read": "$user == auth.uid",
           ".write": "$user == auth.uid"            
         }
+      },
+      "props": {
+        ".read": "root.child('special').child('master').child(auth.uid).exists()",
+        "$user": {
+	        ".write": "$user == auth.uid"            
+        }
       }
     },
     "special": {

@@ -371,6 +371,7 @@ async function sendMessageAsync({messageKey, isEdit=null, editTime=null, group, 
 
     if (community && !isEdit) {
         updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
+        updates['adminCommunity/' + community + '/group/' + group + '/member/' + userId + '/lastSpoke'] = time;
     }
 
     updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
