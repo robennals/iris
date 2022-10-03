@@ -136,7 +136,7 @@ function stripHiddenSymbolFromQuestion(q) {
 }
 
 
-async function writeIntroMessagesAsync({community, group, topic, members, updates}) {
+async function writeIntroMessagesAsync({community, group, topic, members, updates, chatExtra}) {
     const memberNames = members.map(m => m.name);
     const memberAnds = AndFormat.format(memberNames);
     const time = Date.now();
@@ -182,9 +182,15 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
         })
     }
 
+
+    var extraMessage = "Please also introduce yourself, and say why you are personally interested in this topic.";
+    if (chatExtra) {
+        extraMessage = chatExtra;
+    }
+
     timeIncrement++;
     botMessageAsync({group, 
-        text: "Please also introduce yourself, and say why you are personally interested in this topic.",
+        text: extraMessage, 
         time: time + timeIncrement + 1, updates
     })
 
@@ -256,8 +262,10 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 
     const pAllMembers = FBUtil.getDataAsync(['commMember', community]);
     const pTopic = FBUtil.getDataAsync(['topic', community, topicKey]);
+    const pChatExtra = FBUtil.getDataAsync(['community', community, 'chatExtra'], null);
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     const allMembers = await pAllMembers; const topic = await pTopic;
+    const chatExtra = await pChatExtra;
     const group = FBUtil.newKey();
 
     const pickedMembers = memberKeys.map(k => {
@@ -291,7 +299,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
     updates['adminCommunity/' + community + '/group/' + group + '/privateName'] = privateName;
     updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
 
-    await writeIntroMessagesAsync({community, group, members, topic, updates});
+    await writeIntroMessagesAsync({community, group, members, topic, updates, chatExtra});
 
     var notifs = []
     const notifBase = {
@@ -443,7 +451,7 @@ async function setProfilePhotoAsync({photoData, thumbData, userId}) {
 }
 exports.setProfilePhotoAsync = setProfilePhotoAsync;
 
-async function createOrUpdateCommunityAsync({community, photoKey, photoUser, photoData, thumbData, name, info, questions, topics, userId}) {
+async function createOrUpdateCommunityAsync({community, photoKey, photoUser, photoData, thumbData, name, info, chatExtra='', questions, topics, userId}) {
     const newPhotoKey = photoKey || FBUtil.newKey();
 
     var pPhotoUpload; var pThumbUpload;
@@ -455,7 +463,7 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
     const communityKey = community || FBUtil.newKey();
     var updates = {};
     updates['community/' + communityKey] = {
-        name, info, questions, topics: topics || '', photoKey: newPhotoKey, photoUser: photoUser || userId
+        name, info, chatExtra, questions, topics: topics || '', photoKey: newPhotoKey, photoUser: photoUser || userId
     }
 
     await pPhotoUpload;

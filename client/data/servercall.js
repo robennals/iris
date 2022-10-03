@@ -161,9 +161,9 @@ export async function setProfilePhotoAsync({photoData, thumbData}) {
     return await callServerApiAsync('setProfilePhoto', {photoData, thumbData});
 }
 
-export async function createOrUpdateCommunityAsync({community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics}) {
+export async function createOrUpdateCommunityAsync({community, photoData, thumbData, photoKey, photoUser, name, info, chatExtra, questions, topics}) {
     return await callServerApiAsync('createOrUpdateCommunity', {
-        community, photoData, thumbData, photoKey, photoUser, name, info, questions, topics});
+        community, photoData, thumbData, photoKey, photoUser, name, info, chatExtra, questions, topics});
 }
 
 export async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, topics}) {

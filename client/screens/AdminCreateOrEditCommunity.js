@@ -17,7 +17,7 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
     const [name, setName] = useState(null);
     const [info, setInfo] = useState(null);
     const [questions, setQuestions] = useState(null);
-    const [topics, setTopics] = useState(null);
+    const [chatExtra, setChatExtra] = useState(null);
     const [photoData, setPhotoData] = useState(null);
     const [thumbData, setThumbData] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -27,7 +27,7 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
         watchData(x, ['community', community], setOld);
     }, [community])
 
-    const merged = mergeEditedParams({oldObj: old, newObj: {name, info, questions, topics}});
+    const merged = mergeEditedParams({oldObj: old, newObj: {name, info, questions, chatExtra}});
 
     const textBoxStyle = {
         backgroundColor: 'white',
@@ -55,14 +55,15 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
         var result;
         await createOrUpdateCommunityAsync({community, photoData, thumbData, 
                 photoKey: old.photoKey || null, photoUser: old.photoUser || null, 
+                chatExtra: merged.chatExtra,
                 name: merged.name, info: merged.info, questions: merged.questions, topics: merged.topics});                        
         setUploading(false);
-        console.log('created community', name, result);
+        // console.log('created community', name, result);
         navigation.goBack();
     }
 
 
-    console.log('disabled props', {uploading, name: merged.name, info: merged.info, questions: merged.questions, photoData, })
+    // console.log('disabled props', {uploading, name: merged.name, info: merged.info, questions: merged.questions, photoData, })
 
     return (
         <ScreenContentScroll>
@@ -101,6 +102,12 @@ export function AdminCreateOrEditCommunityScreen({navigation, route}) {
                     style={[textBoxStyle, {height: 100}]}
                 />
             </FormTitle>
+            <FormTitle title='Chat Extra Message (optional)'>
+                <FormInput multiline style={[textBoxStyle, {height: 50}]}   
+                    placeholder='Message sent at the beginning of every chat, in addition to topic questions.'
+                    value={merged.chatExtra} onChangeText={setChatExtra} />
+            </FormTitle>
+
             {/* <FormTitle title='Topics'>
                 <TextInput multiline placeholder='Each topic starts wih "#". Followed by a list of questions, each of which starts with "*".'
                     onChangeText={setTopics} 
