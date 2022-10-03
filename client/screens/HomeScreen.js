@@ -3,7 +3,7 @@ import { Platform, SafeAreaView, ScrollView, SectionList, StyleSheet, Text, useW
 import { firstLine, FixedTouchable, GroupIcon, HeaderSpaceView, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
 import { AppContext } from '../components/context';
 import { appName, baseColor, minTwoPanelWidth } from '../data/config';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
@@ -136,8 +136,8 @@ export class GroupList extends React.Component {
                 ],
             })
         }
-        setDataAsync(['userPrivate', getCurrentUser(), dataName, k, 'readTime'], Date.now());
-        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
+        setDataAsync(['userPrivate', getCurrentUser(), dataName, k, 'readTime'], getFirebaseServerTimestamp());
+        setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], getFirebaseServerTimestamp())
     }
 
     render() {

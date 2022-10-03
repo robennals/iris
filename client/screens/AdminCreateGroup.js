@@ -76,7 +76,6 @@ function getUsersWithTopic(groups) {
 }
 
 function getTopicsForUser(groups) {
-    const timeCutoff = Date.now() - (14 * dayMillis);
     var topicsForUser = {};
     _.forEach(_.keys(groups), g => {
         const group = groups[g];

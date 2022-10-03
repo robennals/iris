@@ -32,8 +32,8 @@ export function ChatScreenHeader({navigation, route}) {
 
     useEffect(() => {
         function markThisChatRead() {
-            setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], Date.now());
-            setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], Date.now())
+            setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], getFirebaseServerTimestamp());
+            setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], getFirebaseServerTimestamp())
         }
     
         addFocusListener(markThisChatRead);
