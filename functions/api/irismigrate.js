@@ -103,7 +103,9 @@ async function migrateGroupTopicsAsync() {
             const topicKey = findTopicKey(communityTopics, group.name);
             if (topicKey) {
                 updates['group/' + g + '/topic'] = topicKey;
-            }  
+            } else {
+                console.log('Group lacks a topic ' + g);
+            }
         }
     })
     console.log('updates', updates);
