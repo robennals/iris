@@ -60,7 +60,7 @@ function getUserGroupCount(groups) {
                 userSpokeCount[m] ++;
                 userLastSpoke[m] = Math.max(userLastSpoke[m] || 0, member.lastSpoke);
             }
-            if (group.memberRead[m]) {
+            if (group?.memberRead?.[m]) {
                 userReadCount[m] ++;
                 userLastRead[m] = Math.max(userLastRead[m] || 0, group.memberRead[m]);
             }

@@ -32,8 +32,13 @@ export function ChatScreenHeader({navigation, route}) {
 
     useEffect(() => {
         function markThisChatRead() {
-            setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], getFirebaseServerTimestamp());
-            setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], getFirebaseServerTimestamp())
+            const time = getFirebaseServerTimestamp();
+            setDataAsync(['userPrivate', getCurrentUser(), 'group', group, 'readTime'], time);
+            setDataAsync(['userPrivate', getCurrentUser(), 'lastAction'], time)
+            setDataAsync(['group', group, 'memberRead', getCurrentUser()], time);
+            if (community) {
+                setDataAsync(['adminCommunity', community, 'group', group, 'memberRead', getCurrentUser()], time);
+            }
         }
     
         addFocusListener(markThisChatRead);
@@ -316,7 +321,7 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
         if (message.replyTo) {
             reply = {key: message.replyTo, text: messages[message.replyTo]?.text, name: members[message.replyTo]?.name};
         }        
-        onEdit({key: messageKey, text: message.text, time: message.time}, reply);
+        onEdit({key: messageKey, proposePublic: message.proposePublic, text: message.text, time: message.time}, reply);
     }
     function onLikeClicked() {
         setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
@@ -366,10 +371,17 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                     <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
                         <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                             <Entypo name='star' color='#FABC05' size={16} />
-                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Highlighted Message - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Published Highlight - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
                         </View>
                     </FixedTouchable>
                 : null}
+                {!message.published && message.proposePublic ? 
+                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
+                        <Entypo name='star' color='#FABC05' size={16} />
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Proposed Public Highlight</Text>
+                    </View>
+                : null}
+
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>
                     <View style={[myMessage ? styles.myMessage : styles.theirMessage, 
@@ -378,7 +390,7 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
-                            message.published ? {borderColor: '#222', borderWidth: 2, marginTop: 1, ...shadowStyle} : {},
+                            message.published || message.proposePublic ? {borderColor: '#222', borderWidth: 2, marginTop: 1, ...shadowStyle} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
                          ]} >
@@ -402,6 +414,11 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                                 <MessageLikes group={group} published={message.published} myMessage={myMessage} messageKey={messageKey} messageLikes={messageLikes} members={members} memberHues={memberHues} />
                             </View>                            
                         : null}
+                        {message.proposePublic && !message.published && !myMessage && !messageLikes ?  
+                            <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}> 
+                                <PublishLikeButton onPress={onLikeClicked} />
+                            </View>
+                        : null}
                         {message.pending && !failed ?
                             <View style={{width: 16, height: 16, backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, alignItems: 'center', justifyContent: 'center', 
                                     position: 'absolute', right: -4, bottom: -4}}>
@@ -424,9 +441,10 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                         </View>
                     :null}
                 </FixedTouchable>
+
             </View>
 
-            <View style={{width: 64, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: message.published ? 24 : null}}>
+            <View style={{width: 64, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: (message.published || message.proposePublic) ? 24 : null}}>
                 {hover && meInGroup && myMessage ? 
                     <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
                         <FixedTouchable onPress={onEditClicked}>
@@ -461,6 +479,20 @@ const shadowStyle = {
     shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5, elevation: 3}
 
+function PublishLikeButton({onPress}) {
+    return (
+        <FixedTouchable onPress={onPress} style={{marginLeft: 4}} >
+        <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
+        paddingHorizontal: 4, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
+            <Entypo name='heart' color='black' size={20} />
+            <Text style={{fontSize: 12, fontWeight: 'bold', marginRight: 4, marginLeft: 2}}>
+                Like to Publish
+            </Text>
+        </View>
+    </FixedTouchable>        
+    )
+}
+
 function MessageLikes({group, published, myMessage, messageKey, members, memberHues, messageLikes}) {
     const likers = _.keys(messageLikes || {});
     const [inProgress, setInProgress] = useState(false);
@@ -479,14 +511,6 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
 
     return (
         <View style={{alignSelf: 'stretch', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-start'}}>
-            {/* {myMessage ?
-                <FixedTouchable onPress={onPublish} dummy={inProgress} >
-                    <View style={{flexShrink: 0, marginRight: 8, marginTop: 8, flexDirection: 'row', alignItems: 'center'}}>
-                        <Entypo name='star-outlined' color='black' size={15} />
-                        <Text style={{color: 'black', fontSize: 13}}>{inProgress ? 'Publishing...' : 'Publish'}</Text>
-                    </View>
-                </FixedTouchable>
-            :null} */}
             <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
                     paddingHorizontal: 2, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
                 <Entypo name='heart' color='red' size={20} style={{marginRight: 4, marginLeft: 2}} />
@@ -498,19 +522,6 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
                     {likerNames} liked
                 </OneLineText>
             </View>
-            {myMessage ?
-                <FixedTouchable onPress={onPublish} dummy={inProgress} style={{marginLeft: 4}} >
-                    <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
-                    paddingHorizontal: 4, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
-
-                    {/* <View style={{flexShrink: 0, marginRight: 8, flexDirection: 'row', alignItems: 'center'}}> */}
-                        <Entypo name={published ? 'cross' : 'star-outlined'} color={published ? '#666' : 'black'} size={20} />
-                        <Text style={{color: published ? '#666' : 'black', fontSize: 12, fontWeight: published ? null : 'bold', marginRight: 4, marginLeft: 2}}>
-                            {inProgress ? (published ? 'Unhighlighting...' : 'Highlighting...') : (published ? 'Unhighlight' : 'Highlight')}</Text>
-                    </View>
-                </FixedTouchable>
-            :null}
-
         </View>
     )
 }

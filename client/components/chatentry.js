@@ -3,24 +3,30 @@ import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
 import { logErrorAsync, sendMessageAsync } from '../data/servercall';
-import { FixedTouchable, MinorButton, OneLineText, WideButton } from './basics';
+import { FixedTouchable, MinorButton, OneLineText, ToggleCheck, WideButton } from './basics';
 import { track } from './shim';
 
 var global_saveDrafts = {};
+
+export function IsPublicToggle({value, onValueChange}) {
+    return <Text>Propose as Public Summary</Text>
+}
 
 export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onClearReply, onClearEdit, chatInputRef}, ref) => {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [text, setText] = useState(null);
     const [edit, setEdit] = useState(null);
+    const [proposePublic, setProposePublic] = useState(false);
     const [textKey, setTextKey] = useState(0);
 
     useImperativeHandle(ref, () => ({
         setEdit: edit => {
-            console.log('setEdit', {edit, text});
+            // console.log('setEdit', {edit, text});
             if (!text || text != '') {
                 setText(edit.text);
                 setEdit(edit);
+                setProposePublic(edit.proposePublic);
                 return true;
             } else {
                 return false;
@@ -30,6 +36,7 @@ export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onC
 
     function onClearEdit() {
         setEdit(null);
+        setProposePublic(false);
         setText('');
         setHeight(36);
         onClearReply();
@@ -70,16 +77,18 @@ export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onC
         onClearReply();
         onClearEdit();
         setText('');
+        setProposePublic(false);
         global_saveDrafts[group] = null;
         setHeight(36);        
         await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
             time: edit?.time || getFirebaseServerTimestamp(),
             text: mergedText, replyTo, from: getCurrentUser(),
+            proposePublic,
             pending: true
         })
         setInProgress(false);
         try {
-            await sendMessageAsync({isEdit: edit ? true : false, editTime: edit?.time || null, messageKey, group, text: mergedText, replyTo});
+            await sendMessageAsync({proposePublic, isEdit: edit ? true : false, editTime: edit?.time || null, messageKey, group, text: mergedText, replyTo});
         } catch (e) {
             console.log('message send failed');
             await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);
@@ -129,7 +138,10 @@ export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onC
                          <Entypo name='circle-with-cross' size={20} color='#666' />
                     </FixedTouchable>
                 </View>
-            :null}
+            : null}
+            {!replyTo && text ?
+                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Propose as Public Highlight' style={{marginTop: 2}} />
+            : null }
             {textTooLong ? 
                 <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>Message is {textLength - maxMessageLength} chars too long</Text>
             : null}

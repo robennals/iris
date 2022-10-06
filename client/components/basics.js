@@ -383,7 +383,7 @@ export function ToggleCheck({value, onValueChange, label, style}) {
   return (
     <FixedTouchable onPress={() => onValueChange(!value)}>
       <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10, ...style}}>
-        <FontAwesome name={value ? 'check-circle' : 'circle-thin'} size={20} color={value ? baseColor : '#666'} />
+        <FontAwesome name={value ? 'check-circle' : 'circle-thin'} style={{marginTop: 2}} size={18} color={value ? baseColor : '#666'} />
         <Text style={{marginLeft: 4, color: '#666'}}>{label}</Text>
       </View>
     </FixedTouchable>

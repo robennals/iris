@@ -153,8 +153,8 @@ export async function adminCreateGroupAsync({community, topicKey, privateName, t
     return await callServerApiAsync('adminCreateGroup', {community, topicKey, privateName, tsvMembers, memberKeys});
 }
 
-export async function sendMessageAsync({messageKey, isEdit, editTime, group, text, replyTo}) {
-    return await callServerApiAsync('sendMessage', {messageKey, isEdit, editTime, group, text, replyTo});
+export async function sendMessageAsync({messageKey, isEdit, proposePublic, editTime, group, text, replyTo}) {
+    return await callServerApiAsync('sendMessage', {messageKey, isEdit, proposePublic, editTime, group, text, replyTo});
 }
 
 export async function setProfilePhotoAsync({photoData, thumbData}) {

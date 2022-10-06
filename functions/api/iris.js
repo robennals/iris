@@ -334,7 +334,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
 
 // TODO: Send notification to other group members on mobile
-async function sendMessageAsync({messageKey, isEdit=null, editTime=null, group, text, replyTo, userId, ip}) {
+async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, editTime=null, group, text, replyTo, userId, ip}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
@@ -353,6 +353,7 @@ async function sendMessageAsync({messageKey, isEdit=null, editTime=null, group, 
         replyTo: replyTo || null,
         text: text || null,
         editTime: isEdit ? Date.now() : null,
+        proposePublic,
         from: userId
     }   
 
@@ -746,20 +747,22 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
     if (message.replyTo) {
         replyToAuthor = await FBUtil.getDataAsync(['group', group, 'message', message.replyTo, 'from']);
     }
+    const author = message.from;
     const community = await pCommunity;
     const topic = await pTopic;
     const members = await pMembers;
-    const member = members[userId];
+    const member = members[author];
 
     const published = await FBUtil.getDataAsync(['published', community, topic]);
-    console.log('published', published);
+    // console.log('published', published);
     const oldPublishCount = _.keys(published).length;
     const newPublishCount = publish ? oldPublishCount + 1 : oldPublishCount - 1;
 
-    if (message.from != userId) {
-        return accessDeniedResult;
-    }
+    // if (message.from != userId) {        
+    //     return accessDeniedResult;
+    // }
     if (!community || !topic) {
+        console.log('no community or topic');
         return {success: false, message: 'No community or topic in this group'};
     }
     var updates = {};
@@ -793,13 +796,21 @@ async function likeMessageAsync({group, messageKey, userId}) {
         toUser: message.from,
         data: {type:'like', group, messageKey, time}
     }
-    const updates = {
+    var updates = {
         ['/userPrivate/' + message.from + '/group/' + group + '/lastMessage']: {
             text: likerName + ' liked your message',
             time
         }
     }
+    console.log('message', message);
+    if (message.proposePublic && !message.published) {
+        console.log('publishing message');
+        var publishResults = await publishMessageAsync({group, messageKey, publish: true, userId});
+        console.log('publishResults', publishResults);
+        updates = {...updates, ... publishResults.updates};
+    }
     return {success: true, updates, notifs: [notif]}
 }
 
 exports.likeMessageAsync = likeMessageAsync;
+
