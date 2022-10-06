@@ -12,7 +12,8 @@ export function IsPublicToggle({value, onValueChange}) {
     return <Text>Propose as Public Summary</Text>
 }
 
-export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onClearReply, onClearEdit, chatInputRef}, ref) => {
+/* eslint-disable react/display-name */
+export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onClearReply, chatInputRef}, ref) => {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [text, setText] = useState(null);
