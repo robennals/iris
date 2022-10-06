@@ -333,13 +333,29 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
 
 exports.adminCreateGroupAsync = adminCreateGroupAsync;
 
+function getPublishedTime({oldMessage, likes, proposePublic}) {
+    if (!proposePublic) {
+        return null;
+    } else if (oldMessage.published) {
+        return oldMessage.published;
+    } else if (likes) {
+        return Date.now();
+    } else {
+        return null;
+    }
+}
+
 // TODO: Send notification to other group members on mobile
 async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, editTime=null, group, text, replyTo, userId, ip}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
+    const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
+    const pLikes = FBUtil.getDataAsync(['group', group, 'like', messageKey], null);
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null);
+    const pOldMessage = FBUtil.getDataAsync(['group', group, 'message', messageKey]);
     const members = await pMembers; const groupName = await pGroupName; const community = await pCommunity;
+    const oldMessage = await pOldMessage; const topic = await pTopic; const likes = await pLikes;
     // console.log('members', members);
     if (!members[userId]) {
         return {success: false, message: 'access denied'};
@@ -348,12 +364,15 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
     const key = messageKey || FBUtil.newKey();
     const time = editTime || Date.now();
     const fromName = members[userId].name;
+
+    const published = getPublishedTime({oldMessage, likes, proposePublic});
+
     updates['group/' + group + '/message/' + key] = {
         time,
         replyTo: replyTo || null,
         text: text || null,
         editTime: isEdit ? Date.now() : null,
-        proposePublic,
+        proposePublic, published,
         from: userId
     }   
 
@@ -368,6 +387,18 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
 
     const lastMessage = {
         text: text || null, time, from: userId, fromName
+    }
+
+    if (oldMessage.published && proposePublic) {
+        // Editing a public message
+        updates['published/' + community + '/' + topic + '/' + messageKey + '/text'] = text;
+    } else if (oldMessage.published && !proposePublic) {
+        // Un-publish a public message
+        updates['published/' + community + '/' + topic + '/' + messageKey] = null;
+    } else if (likes && proposePublic) {
+        // Publish a liked message
+        const pubResult = await publishMessageAsync({group, messageKey, publish: true, updatePublished: false, userId, messageText: text});
+        updates = {...updates, ...pubResult.updates};
     }
 
     if (community && !isEdit) {
@@ -738,7 +769,7 @@ async function logErrorAsync({error, stack=null, context=null, userId}) {
 }
 exports.logErrorAsync = logErrorAsync;
 
-async function publishMessageAsync({group, messageKey, publish, userId}) {
+async function publishMessageAsync({group, messageKey, publish, updatePublished=true, messageText=null, userId}) {
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null); 
     const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
@@ -767,15 +798,18 @@ async function publishMessageAsync({group, messageKey, publish, userId}) {
     }
     var updates = {};
     const pubMessage = {...message, 
+        text: messageText || message.text,
         authorName: member.name,
         authorPhoto: member.photo,
         publishTime: Date.now(), 
         replyToAuthorName: replyToAuthor ? members[replyToAuthor]?.name : null
     }
-    updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;
-    if (publish) {
-        updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;
-    }    
+    if (updatePublished) {
+        updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;    
+        if (publish) {
+            updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;
+        }    
+    }
     updates['topic/' + community + '/' + topic + '/publishCount'] = newPublishCount;
     updates['published/' + community + '/' + topic + '/' + messageKey] = publish ? pubMessage : null;
     console.log('updates', updates);
