@@ -82,13 +82,13 @@ export class BottomFlatScroller extends React.Component {
     }
     
     render() {
-      const {data, style} = this.props;
+      const {data, renderItem, style} = this.props;
       
       return (
         <BottomScroller ref={r => this.scroller = r} style={style}>
-          {data.map(({key, item, value}) => 
-            <Catcher key={key}>
-              {item || value()}
+          {data.map(item => 
+            <Catcher key={item.key}>
+              {renderItem ? renderItem({item}) : (item.item || item.value())}
             </Catcher> 
           )}
         </BottomScroller>

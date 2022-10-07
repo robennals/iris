@@ -249,15 +249,50 @@ function MessageList({group, onReply, onEdit}) {
     // // const shownMessageKeys = sortedMessageKeys.slice(-showCount);
     const shownMessageKeys = sortedMessageKeys;
 
+    function renderMessage({item}) {
+        // console.log('renderMessage', item);
+        const {key, idx, k} = item;
+        if (key == 'space') {
+            return <View style={{height: 16}} />
+        } else if (key == 'archived') {
+            return <Feedback archived={archived} group={group} />
+        } else if (key == 'pad') {
+            return <View style={{height: 8}} />
+        } else {
+            return (
+                <Catcher>
+                    <Message messages={allMessages} members={members} group={group}
+                        messageKey={key} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
+                        memberHues={memberHues} messageLikes={likes?.[key]} 
+                        community={community} topic={topic}
+                        meInGroup={meInGroup}
+                        onReply={onReply} onEdit={onEdit} />
+                </Catcher>
+            )
+        }
+    }
+
     return (
         <View style={{flex: 1}}>
-            <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
+            <BottomFlatScroller style={{flex: 1, flexShrink: 1}} ref={scrollRef} 
+            renderItem={renderMessage}
+            extraData={group}
+            data={[
+                {key: 'space'},
+                ...shownMessageKeys.map((k,idx) => ({key: k, idx, message: allMessages[k]})),
+                {key: 'archived'},
+                {key: 'pad'}
+            ]}
+            />
+
+            {/* <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
                 // {key: 'more', item: 
                     // <MoreButton showCount={showCount} messageCount={sortedMessageKeys.length} onMore={() => setShowCount(showCount+40)} />},
                 {key: 'space', item: 
                     <View style={{height: 16}} />
                 },
-                ... shownMessageKeys.map((k,idx) => ({key: k, item: 
+                ... shownMessageKeys.map((k,idx) => ({key: k, value: () => 
+                // ... shownMessageKeys.map((k,idx) => ({key: k, item:  
                     <Message key={k} messages={allMessages} members={members} group={group}
                         messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues} messageLikes={likes?.[k]} 
@@ -266,10 +301,11 @@ function MessageList({group, onReply, onEdit}) {
                         onReply={onReply} onEdit={onEdit} />})),
                 {key: 'archived', item: <Feedback archived={archived} group={group} />},
                 {key: 'pad', item: <View style={{height: 8}} />}
-            ]} />
+            ]} /> */}
         </View>
     )
 }
+
 
 
 // function PublishSuggestion({messages, members, publishSuggestion, memberHues}) {

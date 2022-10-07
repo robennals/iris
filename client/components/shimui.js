@@ -14,7 +14,7 @@ function basicRenderItem ({item: {key, item, value}}) {
     state = {}
     safariScrollToEnd() {}
     render() {
-      const {data, style} = this.props;
+      const {data, renderItem, style} = this.props;
       const {height} = this.state;    
       return (
         <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
@@ -23,7 +23,7 @@ function basicRenderItem ({item: {key, item, value}}) {
             keyboardDismissMode='on-drag'
             // estimatedItemSize={78}
             data={data.slice().reverse()}
-            renderItem={basicRenderItem}
+            renderItem={renderItem || basicRenderItem}
             onContentSizeChange={(width, height) => this.setState({height})}
           />
         </View>
