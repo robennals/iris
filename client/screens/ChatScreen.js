@@ -145,7 +145,6 @@ export function ChatScreen({navigation, route}) {
     const groupName = useDatabase([group], ['group', group, 'name']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const [reply, setReply] = useState(null);
-    // const [edit, setEdit] = useState(null);
     const chatInputRef = React.createRef();
     const chatEntryRef = useRef();
     global_chatEntryRef = chatEntryRef;
@@ -155,10 +154,6 @@ export function ChatScreen({navigation, route}) {
         setReply(reply);
         global_chatInputRef?.current?.focus();
     }, [])
-    // function onReply(reply) {
-    //     setReply(reply);
-    //     chatInputRef?.current?.focus();
-    // }
 
     const onEdit = useCallback((edit,reply) => {
         if (global_chatEntryRef.current.setEdit(edit)) {
@@ -166,16 +161,15 @@ export function ChatScreen({navigation, route}) {
         }
     }, [])
 
+    const onClearReply = useCallback(() => {
+        setReply(null);
+    }, [])
+
     if (!members) {
         return <Loading />
     }
 
-    // function onEdit(edit, reply) {
-    //     console.log('chatEntryRef', chatEntryRef);
-    //     if (chatEntryRef.current.setEdit(edit)) {
-    //         setReply(reply);
-    //     }
-    // }
+    // console.log('render chatscreen');
 
     const iAmNotInGroup = members && !members[getCurrentUser()];
     
@@ -206,7 +200,7 @@ export function ChatScreen({navigation, route}) {
                 :
                     <ChatEntryBox key='chat' group={group} reply={reply} groupName={groupName}
                         community={community}
-                        onClearReply={() => setReply(null)}
+                        onClearReply={onClearReply}
                         chatInputRef={chatInputRef} ref={chatEntryRef} />
                 )
             }
@@ -262,8 +256,8 @@ function MoreButton({showCount, messageCount, onMore}) {
 
 const empty_object = {};
 
-// const MemoMessageList = React.memo(MessageList);
-const MemoMessageList = React.memo(MessageList, (prev, next) => thingsAreEqual('messageList', prev, next));
+const MemoMessageList = React.memo(MessageList);
+// const MemoMessageList = React.memo(MessageList, (prev, next) => thingsAreEqual('messageList', prev, next));
 
 function MessageList({group, onReply, onEdit}) {
     const messages = useListDatabase([group], ['group', group, 'message']);
@@ -280,7 +274,7 @@ function MessageList({group, onReply, onEdit}) {
 
     if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
 
-    // console.log('render messageList', group, messages);
+    console.log('render messageList', group);
 
     const meInGroup = members && members[getCurrentUser()];
 
@@ -400,8 +394,8 @@ function thingsAreEqual(thing, prev, next) {
 }
 
 
-const MemoMessage = React.memo(Message, (prev, next) => thingsAreEqual('message', prev, next));
-// const MemoMessage = React.memo(Message); // , messagesAreEqual);
+// const MemoMessage = React.memo(Message, (prev, next) => thingsAreEqual('message', prev, next));
+const MemoMessage = React.memo(Message); 
 
 
 function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
@@ -409,7 +403,6 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
 
-    // if (message.type == 'like') return <PublishSuggestion publishSuggestion={message} messages={messages} members={members} memberHues={memberHues} />
     const myMessage = message.from == getCurrentUser();
     const fromMember = members[message.from] || {name: 'User left the group'};
     const hue = memberHues[message.from] || 45;
