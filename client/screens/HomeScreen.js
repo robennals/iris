@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, SafeAreaView, ScrollView, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { firstLine, FixedTouchable, GroupIcon, HeaderSpaceView, MemberIcon, OneLineText, ScreenContentScroll, searchMatches, WideButton } from '../components/basics';
-import { AppContext } from '../components/context';
 import { appName, baseColor, minTwoPanelWidth } from '../data/config';
 import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, watchData } from '../data/fbutil';
 import _ from 'lodash';
@@ -85,7 +84,7 @@ const defaultCommunitySet = {
     }
 }
 
-export class GroupList extends React.Component {
+export class GroupList extends React.PureComponent {
     state = {groupSet: null, showArchived: false, selected: null, 
         localCommSet: null, masterCommSet: null,
         search: '', name: null, photo: null, allCommunities: {}}
@@ -144,7 +143,7 @@ export class GroupList extends React.Component {
 
         if (!isCommunity) {
             setDataAsync(['group', k, 'memberRead', getCurrentUser()], time);
-            console.log('logging read', groupCommunity || 'no community' , k, getCurrentUser());
+            // console.log('logging read', groupCommunity || 'no community' , k, getCurrentUser());
             if (groupCommunity) {
                 setDataAsync(['adminCommunity', groupCommunity, 'group', k, 'memberRead', getCurrentUser()], time);
             }

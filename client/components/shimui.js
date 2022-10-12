@@ -10,7 +10,7 @@ function basicRenderItem ({item: {key, item, value}}) {
     return <Catcher>{item || value()}</Catcher>;
   }
   
-  export class BottomFlatScroller extends React.Component {
+  export class BottomFlatScroller extends React.PureComponent {
     state = {}
     safariScrollToEnd() {}
     render() {

@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import { appDomain, appName, localWebDomain } from "../data/config";
 import { parsePhotoDataUri } from "./basics";
-import { AppContext } from "./context";
+import { NavContext } from "./context";
 import { getFirebaseNotifsSupported, getFirebaseNotifTokenAsync } from '../data/fbutil';
 import * as Sentry from 'sentry-expo';
 import * as SentryBrowser from "@sentry/react";
@@ -44,7 +44,7 @@ export function webInit() {
 }
   
 export function useCustomNavigation() {
-    const {navigation} = useContext(AppContext)
+    const navigation = useContext(NavContext)
     return navigation;
 }
 

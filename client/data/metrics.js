@@ -34,7 +34,7 @@ export async function setUserPropertiesAsync() {
     } else {
         props['Web Notifs Granted'] = notifStatus?.status;
     }
-    console.log('set user properties', props);
+    // console.log('set user properties', props);
     updateDataAsync(['perUser', 'props', getCurrentUser()], props);
     await people_set(props);
 }

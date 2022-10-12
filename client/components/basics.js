@@ -3,7 +3,6 @@ import { Image, Linking, Platform, SafeAreaView, ScrollView, StyleSheet, Text, T
 import { appIcon, appName, appSlogan, baseBackgroundColor, baseColor } from '../data/config';
 import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
-import { AppContext } from './context';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { getCurrentUser } from '../data/fbutil';
 

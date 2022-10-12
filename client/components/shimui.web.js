@@ -4,7 +4,6 @@ import { ScrollView, View, Text, FlatList} from 'react-native';
 import { appDomain, appName, localWebDomain } from "../data/config";
 import { FixedTouchable, HoverView, parsePhotoDataUri } from "./basics";
 import { Catcher } from './catcher';
-import { AppContext } from "./context";
 import {Audio} from 'expo-av';
 import { Entypo } from '@expo/vector-icons';
 import { querystringDecode } from '@firebase/util';

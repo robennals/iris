@@ -1,24 +1,18 @@
 import { FontAwesome } from '@expo/vector-icons';
-import { stringLength } from '@firebase/util';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { minTwoPanelWidth } from '../data/config';
-import { SidePanel } from '../screens/HomeScreen';
 import { FixedTouchable } from './basics';
-import { AppContext } from './context';
+import { NavContext } from './context';
 import _ from 'lodash';
 import { historyPushState } from './shim';
-import { update } from '@firebase/database';
-import { NotifLine } from './notifline';
 import { Catcher, headerProtector, screenProtector } from './catcher';
-import { ConnectedBanner } from './connectedbanner';
 
 const Stack = createStackNavigator();
 
 function makeOptions({navigation, route}, screenOptions) {
-    // console.log('makeOptions', route, screenOptions );
     const options = {
         title: screenOptions.title,
         header: screenOptions.noHeader ? () => null : undefined,
@@ -26,18 +20,7 @@ function makeOptions({navigation, route}, screenOptions) {
             (({children}) => headerProtector(screenOptions.headerTitle, {navigation,route}, children))
             : undefined,        
     }
-    // console.log('options', options);
     return options;
-
-    // return {
-    //     title: screenOptions.title,
-    //     header: (screenOptions.header != undefined) ? 
-    //         (({children}) => React.createElement(screenOptions.header, {navigation,route}, children))
-    //         : undefined,        
-    //     headerTitle: screenOptions.headerTitle ? 
-    //         (({children}) => React.createElement(screenOptions.headerTitle, {navigation,route}, children))
-    //         : undefined,        
-    // }
 }
 
 export function CustomNavigator(params) {
@@ -50,32 +33,25 @@ export function CustomNavigator(params) {
 
 export function MobileNavigator({screens, user, initialRouteName, linking, navigationRef}) {
     const screenNames = _.keys(screens);
-    // const navigationRef = useNavigationContainerRef();
 
     return (
-        <AppContext.Provider value={{user, navigation: navigationRef}}>
-            <View style={{flex: 1}}>
-                <NavigationContainer key='navigator' style={{flex: 2}} ref={navigationRef} linking={linking}>
-                    <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{headerBackTitleVisible: false}}>
-                        {screenNames.map(n => 
-                            <Stack.Screen name={n} key={n} component={screenProtector(screens[n].component)} 
-                                options={({navigation,route}) => makeOptions({navigation,route}, screens[n])}
-                            />
-                        )}
-                    </Stack.Navigator>
-                </NavigationContainer>
-            </View>
-        </AppContext.Provider>
+        <View style={{flex: 1}}>
+            <NavigationContainer key='navigator' style={{flex: 2}} ref={navigationRef} linking={linking}>
+                <Stack.Navigator initialRouteName={initialRouteName} screenOptions={{headerBackTitleVisible: false}}>
+                    {screenNames.map(n => 
+                        <Stack.Screen name={n} key={n} component={screenProtector(screens[n].component)} 
+                            options={({navigation,route}) => makeOptions({navigation,route}, screens[n])}
+                        />
+                    )}
+                </Stack.Navigator>
+            </NavigationContainer>
+        </View>
     )
 }
 
 function getScreenStyle(navState, index, wide, screen) {
     if (!wide || screen == 'photo') {
         return {flex: 1, position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: index}
-    // } else if (index == 0 & navState.length > 2) {
-    //     return {width: 49, flexGrow: 0, transition: 'width 1s'}
-    // } else if (navState.length > 2) {
-    //     return {flex: index + 1, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', transition: 'width 1s'}
     } else if (navState.length > 2 && index != 0 && index != navState.length - 1) {
         return {display: 'none'}
     } else {
@@ -102,7 +78,7 @@ function ScreenTitle({navigation, screens, screen, params, options, navState}) {
     }
 }
 
-function ScreenHeader({navigation, screens, screen, params, options, navState, index, wide}) {
+function ScreenHeader({navigation, screens, screen, params, options, index, wide}) {
     const screenInfo = screens[screen];
     if (index == 0 || screenInfo.noHeader) {
         return null;
@@ -146,7 +122,6 @@ function urlForScreen(topScreen, linking) {
 
 function setUrlFromNavState(navState, linking) {
     const url = urlForNavState(navState, linking);
-    // console.log('setUrl', navState, url);
     historyPushState({state: navState, url})
 }
 
@@ -185,32 +160,59 @@ function convertNavStack(navStack) {
 }
 
 
+function ScreenHolder({padState, wide, navFunc, screens, screen, params, options, index}) {
+    const navigation = useMemo(() => navFunc(index), [navFunc, index]);
+    return (
+        <NavContext.Provider value={navigation}>
+            <View style={getScreenStyle(padState, index, wide, screen)}>
+                <ScreenHeader navigation={navigation} screens={screens} screen={screen} 
+                    params={params} options={options} index={index} wide={wide} />
+                <Catcher style={{flex: 1}}>
+                {React.createElement(screens[screen].component, {
+                    navigation: navigation, 
+                    route: {params: {...params, wide, alwaysShow: true}}, 
+                    shrink: getShrink(padState, index), 
+                    key: screen})}
+                </Catcher>
+            </View>
+        </NavContext.Provider>
+    )
+}
+
+const MemoScreenHolder = React.memo(ScreenHolder);
+
+function basicReducer(state, action) {
+    return action(state);
+}
+
+
 export function WebNavigator({screens, user, initialRouteName, linking}) {
-    const [navState, setNavState] = useState(navStateFromCurrentUrl(linking));
+    const [navState, updateNavState] = useReducer(basicReducer, navStateFromCurrentUrl(linking));
     const {width} = useWindowDimensions();
     const wide = width > minTwoPanelWidth;
+    const padState = useMemo(() => 
+        (wide && navState.length == 1) ? [...navState, {screen: 'about'}] : navState
+    , [navState, wide]); 
 
-    function updateNavState(newNavState) {
-        setNavState(newNavState);
-        setUrlFromNavState(newNavState, linking);
-    }
-
-    const navigation = useCallback(index => ({
-        navigate: (screen, params) => updateNavState([...navState.slice(0,index+1), {screen, params}]),
-        replace: (screen, params) => updateNavState([...navState.slice(0, index), {screen, params}]),
-        goBack: () => updateNavState(navState.slice(0, index)),
-        setOptions: (newOptions) => {
-            const {screen, params, options} = navState[index];
-            setNavState([
-                ...navState.slice(0, index), 
+    const navFunc = useCallback(index => ({
+        navigate: (screen, params) => updateNavState(state => [...state.slice(0,index+1), {screen, params}]),
+        replace: (screen, params) => updateNavState(state => [...state.slice(0, index), {screen, params}]),
+        goBack: () => updateNavState(state => state.slice(0, index)),
+        setOptions: (newOptions) => updateNavState(state => {
+            const {screen, params, options} = state[index];
+            return [...navState.slice(0, index), 
                 {screen, params, options: {...options, ...newOptions}},
                 ...navState.slice(index+1)
-            ])
-        },
-        popToTop: () => updateNavState([{screen: initialRouteName}]), 
-        goHome: () => updateNavState([{screen: initialRouteName}]),
-        reset: (navStack) => updateNavState(convertNavStack(navStack))
-    }), [navState]);
+            ]            
+        }),
+        popToTop: () => updateNavState(() => [{screen: initialRouteName}]), 
+        goHome: () => updateNavState(() => [{screen: initialRouteName}]),
+        reset: (navStack) => updateNavState(() => convertNavStack(navStack))
+    }), []);
+
+    useEffect(() => {
+        setUrlFromNavState(navState, linking);
+    }, [navState])
 
     useEffect(() => {
         window.addEventListener('popstate', event => {
@@ -221,28 +223,13 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
         })
     },[])
 
-    const padState = (wide && navState.length == 1) ? [...navState, {screen: 'about'}] : navState; 
-
-    // console.log('navState', wide, navState)
-
     return (
         <View style={{flex: 1}}>
-            {/* <NotifLine navigation={navigation(0)} /> */}
             <View style={{flexDirection: 'row', flex: 1}}>
                 {padState.map(({screen, params, options}, i) =>
-                    <AppContext.Provider value={{user, navigationFunc: navigation, navigationPos: i}} key={urlForScreen({screen, params}, linking)}>
-                        <View style={getScreenStyle(padState, i, wide, screen)}>
-                            <ScreenHeader navigation={navigation(i)} screens={screens} screen={screen} 
-                                params={params} options={options} navState={navState} index={i} wide={wide} />
-                            <Catcher style={{flex: 1}}>
-                            {React.createElement(screens[screen].component, {
-                                navigation: navigation(i), 
-                                route: {params: {...params, wide, alwaysShow: true}}, 
-                                shrink: getShrink(padState, i), 
-                                key: screen})}
-                            </Catcher>
-                        </View>
-                    </AppContext.Provider>
+                    <MemoScreenHolder key={urlForScreen({screen, params}, linking)} 
+                        padState={padState} wide={wide} navFunc={navFunc} 
+                        screens={screens} screen={screen} params={params} options={options} index={i} />
                 )}
             </View>
         </View>

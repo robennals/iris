@@ -204,15 +204,12 @@ export function OLD_useListDatabase(dependencies, path) {
 var global_pathData = {};
 
 function onListValue(ref, watchFunc, checkLoaded) {
-    const key = Math.floor(Math.random() * 1000)
-    // console.log('add watchers', key);
     const addFunc = data => {
         if (!checkLoaded()) return;
         watchFunc(data.key, data.val(), true);
     }
     const changeFunc = data => {
         if (!checkLoaded()) return;
-        // console.log('change', key);
         watchFunc(data.key, data.val(), false);
     }
     const removeFunc = data => {
@@ -224,12 +221,10 @@ function onListValue(ref, watchFunc, checkLoaded) {
     const offChange = onChildChanged(ref, changeFunc);
     const offRemove = onChildRemoved(ref, removeFunc);
 
-    return {ref, offAdd, offChange, offRemove, key};
+    return {offAdd, offChange, offRemove};
 }
 
-function offListValue({ref, offAdd, offChange, offRemove, key}) {
-    // console.log('offListValue', {key, ref, addFunc, changeFunc, removeFunc});
-    // console.log('offListValue', key);
+function offListValue({offAdd, offChange, offRemove}) {
     try {
         offAdd();
         offChange();
@@ -252,7 +247,6 @@ export function useListDatabase(dependencies, path) {
                     const data = snap.val();
                     global_pathData[p] = data || {};
                     setValue(data);
-                    // console.log('loaded initial data', p, data);
                     loaded = true;
                 }
                 onValue(ref, initFunc, {onlyOnce: true});
@@ -261,19 +255,16 @@ export function useListDatabase(dependencies, path) {
                     if (!loaded) {
                         return;
                     } else if (isAdd && global_pathData[p][key]) {
-                        // console.log('Add event for known item', key);
                         return;
                     } else {
                         const data = {...global_pathData[p], [key]: value};
                         global_pathData[p] = data; 
                         setValue(data);
-                        // console.log('updated item', key, value, isAdd);
                     }
                 }
                 const offKey = onListValue(ref, watchFunc, checkLoaded);
         
                 return () => {
-                    console.log('detach', p);
                     offListValue(offKey)
                     off(ref, initFunc);
                 };

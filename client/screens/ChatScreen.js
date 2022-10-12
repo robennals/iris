@@ -441,7 +441,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
     function onEditClicked() {
         var reply = null;        
         if (message.replyTo) {
-            reply = {key: message.replyTo, text: messages[message.replyTo]?.text, name: members[message.replyTo]?.name};
+            reply = {key: message.replyTo, text: replyMessage?.text, name: members[replyMessage.from]?.name};
         }        
         onEdit({key: messageKey, proposePublic: message.proposePublic, text: message.text, time: message.time}, reply);
     }
