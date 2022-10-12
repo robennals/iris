@@ -274,7 +274,7 @@ function MessageList({group, onReply, onEdit}) {
 
     if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
 
-    console.log('render messageList', group);
+    // console.log('render messageList', group);
 
     const meInGroup = members && members[getCurrentUser()];
 
