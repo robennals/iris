@@ -144,7 +144,7 @@ export class GroupList extends React.Component {
 
         if (!isCommunity) {
             setDataAsync(['group', k, 'memberRead', getCurrentUser()], time);
-            console.log('logging read', groupCommunity, k, getCurrentUser());
+            console.log('logging read', groupCommunity || 'no community' , k, getCurrentUser());
             if (groupCommunity) {
                 setDataAsync(['adminCommunity', groupCommunity, 'group', k, 'memberRead', getCurrentUser()], time);
             }

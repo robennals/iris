@@ -2,7 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { stringLength } from '@firebase/util';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, InteractionManager, LogBox, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { minTwoPanelWidth } from '../data/config';
 import { SidePanel } from '../screens/HomeScreen';
@@ -195,7 +195,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
         setUrlFromNavState(newNavState, linking);
     }
 
-    const navigation = index => ({
+    const navigation = useCallback(index => ({
         navigate: (screen, params) => updateNavState([...navState.slice(0,index+1), {screen, params}]),
         replace: (screen, params) => updateNavState([...navState.slice(0, index), {screen, params}]),
         goBack: () => updateNavState(navState.slice(0, index)),
@@ -209,8 +209,8 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
         },
         popToTop: () => updateNavState([{screen: initialRouteName}]), 
         goHome: () => updateNavState([{screen: initialRouteName}]),
-        reset: (navStack) => updateNavState(convertNavStack(navStack))        
-    })
+        reset: (navStack) => updateNavState(convertNavStack(navStack))
+    }), [navState]);
 
     useEffect(() => {
         window.addEventListener('popstate', event => {
@@ -230,7 +230,7 @@ export function WebNavigator({screens, user, initialRouteName, linking}) {
             {/* <NotifLine navigation={navigation(0)} /> */}
             <View style={{flexDirection: 'row', flex: 1}}>
                 {padState.map(({screen, params, options}, i) =>
-                    <AppContext.Provider value={{user, navigation: navigation(i)}} key={urlForScreen({screen, params}, linking)}>
+                    <AppContext.Provider value={{user, navigationFunc: navigation, navigationPos: i}} key={urlForScreen({screen, params}, linking)}>
                         <View style={getScreenStyle(padState, i, wide, screen)}>
                             <ScreenHeader navigation={navigation(i)} screens={screens} screen={screen} 
                                 params={params} options={options} navState={navState} index={i} wide={wide} />

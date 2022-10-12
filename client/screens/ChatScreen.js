@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, WideButton } from '../components/basics';
+import { andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, OneLineText, shallowEqual, WideButton } from '../components/basics';
 import { ChatEntryBox } from '../components/chatentry';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -9,7 +9,7 @@ import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate, useCustomNavigation } from '../components/shim';
-import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, useListDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -123,6 +123,20 @@ function ArchivedBanner(){
 // const standardHues = [0, 90, 180, 270, , ]
 
 
+var global_chatInputRef = null;
+var global_chatEntryRef = null;
+
+export class PureChatScreen extends React.PureComponent {
+    shouldComponentUpdate({navigation, route}) {
+        const oldParams = this.props.route?.params; 
+        const newParams = route.params;
+        return !shallowEqual(oldParams, newParams);
+    }
+    render() {
+
+    }
+}
+
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
 
@@ -134,23 +148,34 @@ export function ChatScreen({navigation, route}) {
     // const [edit, setEdit] = useState(null);
     const chatInputRef = React.createRef();
     const chatEntryRef = useRef();
+    global_chatEntryRef = chatEntryRef;
+    global_chatInputRef = chatInputRef;
+
+    const onReply = useCallback(reply => {
+        setReply(reply);
+        global_chatInputRef?.current?.focus();
+    }, [])
+    // function onReply(reply) {
+    //     setReply(reply);
+    //     chatInputRef?.current?.focus();
+    // }
+
+    const onEdit = useCallback((edit,reply) => {
+        if (global_chatEntryRef.current.setEdit(edit)) {
+            setReply(reply);
+        }
+    }, [])
 
     if (!members) {
         return <Loading />
     }
 
-
-    function onReply(reply) {
-        setReply(reply);
-        chatInputRef?.current?.focus();
-    }
-
-    function onEdit(edit, reply) {
-        console.log('chatEntryRef', chatEntryRef);
-        if (chatEntryRef.current.setEdit(edit)) {
-            setReply(reply);
-        }
-    }
+    // function onEdit(edit, reply) {
+    //     console.log('chatEntryRef', chatEntryRef);
+    //     if (chatEntryRef.current.setEdit(edit)) {
+    //         setReply(reply);
+    //     }
+    // }
 
     const iAmNotInGroup = members && !members[getCurrentUser()];
     
@@ -170,7 +195,7 @@ export function ChatScreen({navigation, route}) {
           </Catcher>
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
-            <MessageList group={group} onReply={onReply} onEdit={onEdit} />            
+            <MemoMessageList group={group} onReply={onReply} onEdit={onEdit} />            
             {iAmNotInGroup ?
                 <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
                     Join Group Chat
@@ -223,18 +248,43 @@ function MoreButton({showCount, messageCount, onMore}) {
 //     return publishSuggestions;
 // }
 
+// var global_lastMessages = {};
+
+// function compareMessageChanges(messages) {
+//     console.log('== comparing messages ==');
+//     _.forEach(_.keys(messages), k => {
+//         if (global_lastMessages[k] && global_lastMessages[k] !== messages[k]) {
+//             console.log('message changed', k, global_lastMessages[k], messages[k]);
+//         }
+//     })
+//     global_lastMessages = {... (messages || {})};
+// }
+
+const empty_object = {};
+
+// const MemoMessageList = React.memo(MessageList);
+const MemoMessageList = React.memo(MessageList, (prev, next) => thingsAreEqual('messageList', prev, next));
+
 function MessageList({group, onReply, onEdit}) {
-    const messages = useDatabase([group], ['group', group, 'message']);
-    const localMessages = useDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
+    const messages = useListDatabase([group], ['group', group, 'message']);
+    const localMessages = useListDatabase([group], ['userPrivate', getCurrentUser(), 'localMessage', group]);
     const members = useDatabase([group], ['group', group, 'member']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const likes = useDatabase([group], ['group', group, 'like']);
     const scrollRef = React.createRef();
+    const memberHues = useMemo(() => memberKeysToHues(_.keys(members || {})), [members]);
+
+    // compareMessageChanges(messages);
 
     if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
+
+    // console.log('render messageList', group, messages);
+
     const meInGroup = members && members[getCurrentUser()];
+
+
 
     // const publishSuggestions = getPublishSuggestions({messages, likes});
 
@@ -242,7 +292,6 @@ function MessageList({group, onReply, onEdit}) {
     const messageKeys = Object.keys(allMessages || {});
     const sortedMessageKeys = _.sortBy(messageKeys, k => allMessages[k].time);
 
-    const memberHues = memberKeysToHues(_.keys(members || {}));
 
     // const messageKeys = Object.keys(messages || {});
     // const sortedMessageKeys = _.sortBy(messageKeys, k => messages[k].time);
@@ -250,7 +299,7 @@ function MessageList({group, onReply, onEdit}) {
     const shownMessageKeys = sortedMessageKeys;
 
     function renderMessage({item}) {
-        // console.log('renderMessage', item);
+        // console.log('renderMessageFunc', item);
         const {key, idx, k} = item;
         if (key == 'space') {
             return <View style={{height: 16}} />
@@ -259,9 +308,16 @@ function MessageList({group, onReply, onEdit}) {
         } else if (key == 'pad') {
             return <View style={{height: 8}} />
         } else {
+            const message = allMessages[key];
+            const prevMessage = allMessages[shownMessageKeys[idx-1]] ?? empty_object;
+            const nextMessage = allMessages[shownMessageKeys[idx+1]] ?? empty_object;
+            const replyMessage = message.replyTo ? allMessages[message.replyTo] : null;
             return (
                 <Catcher>
-                    <Message messages={allMessages} members={members} group={group}
+                    <MemoMessage
+                        message={message} prevMessage={prevMessage} nextMessage={nextMessage}
+                        replyMessage={replyMessage} 
+                        members={members} group={group}
                         messageKey={key} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
                         memberHues={memberHues} messageLikes={likes?.[key]} 
                         community={community} topic={topic}
@@ -317,22 +373,52 @@ async function retrySendingMessageAsync({messageKey, message, group}) {
     await sendMessageAsync({messageKey, group, text: message.text, replyTo: message.replyTo});
 }
 
-function Message({group, meInGroup, community, topic, messages, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+function messagesAreEqual(prev, next) {
+    const keys = _.keys(prev);
+    var equal = true;
+    _.forEach(keys, k => {
+        if (prev[k] !== next[k]) {
+            console.log('Message changed ' + k + ' - ' + next.message.text);
+            console.log('prev['+k+'] = ', prev[k]);
+            console.log('next['+k+'] = ', next[k]);
+            equal = false;
+        }
+    })   
+    return equal;
+}
+
+function thingsAreEqual(thing, prev, next) {
+    const keys = _.keys(prev);
+    var equal = true;
+    _.forEach(keys, k => {
+        if (prev[k] !== next[k]) {
+            console.log(thing + ' changed ' + k, {prev: prev[k], next: next[k]});
+            equal = false;
+        }
+    })   
+    return equal;
+}
+
+
+const MemoMessage = React.memo(Message, (prev, next) => thingsAreEqual('message', prev, next));
+// const MemoMessage = React.memo(Message); // , messagesAreEqual);
+
+
+function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
-    const message = messages[messageKey];
-    // if (message.type == 'like') return <PublishSuggestion publishSuggestion={message} messages={messages} members={members} memberHues={memberHues} />
-    const prevMessage = messages[prevMessageKey] ?? {};
-    const nextMessage = messages[nextMessageKey] ?? {};
-    const myMessage = message.from == getCurrentUser();
-    const fromMember = members[message.from] || {name: 'User left the group'};
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
+
+    // if (message.type == 'like') return <PublishSuggestion publishSuggestion={message} messages={messages} members={members} memberHues={memberHues} />
+    const myMessage = message.from == getCurrentUser();
+    const fromMember = members[message.from] || {name: 'User left the group'};
     const hue = memberHues[message.from] || 45;
     const hueStyle = (myMessage || message.from == 'zzz_irisbot') ? null : {backgroundColor: 'hsl(' + hue + ',40%, 90%)'};
 
     const timePassed = (message.time - (prevMessage.time || 0)) > (5 * minuteMillis);
     const timePassedToNext = ((nextMessage.time || 0) - message.time) > (5 * minuteMillis);
 
+    // console.log('renderMessage', message.text);
 
     const samePrevAuthor = !myMessage && !timePassed && message.from == prevMessage.from;
     const sameNextAuthor = !myMessage && !timePassedToNext && message.from == nextMessage.from;
@@ -438,7 +524,7 @@ function Message({group, meInGroup, community, topic, messages, messageLikes=nul
                         }
                         {message.replyTo ?
                             <Catcher label='RepliedMessage' context={{group, messageKey}}>
-                                <RepliedMessage message={message} messages={messages} members={members} />
+                                <RepliedMessage message={message} replyMessage={replyMessage} members={members} />
                             </Catcher> 
                         : null}
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
@@ -562,14 +648,13 @@ function MessageLikes({group, published, myMessage, messageKey, members, memberH
     )
 }
 
-function RepliedMessage({message, messages, members}) {
+function RepliedMessage({message, replyMessage, members}) {
     const myMessage = message.from == getCurrentUser();
-    const repliedMessage = messages[message.replyTo];
-    if (repliedMessage) {
+    if (replyMessage) {
         return (
             <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[repliedMessage.from]?.name}</Text>
-                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{repliedMessage.text}</Text>
+                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[replyMessage.from]?.name}</Text>
+                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{replyMessage.text}</Text>
             </View>
         )
     } else {

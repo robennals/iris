@@ -32,7 +32,7 @@ export function BAD_Catcher({context, children}) {
   )
 }
 
-export class Catcher extends React.Component {
+export class Catcher extends React.PureComponent {
   state = {hasError: false, error: null, info: null}
   componentDidCatch(error, info) {
     console.error('caught error', error);

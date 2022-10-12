@@ -7,6 +7,20 @@ import { AppContext } from './context';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { getCurrentUser } from '../data/fbutil';
 
+export function shallowEqual(a, b) {
+  const aKeys = _.keys(a);
+  const bKeys = _.keys(b);
+  if (aKeys.length != bKeys.length) {
+    return false;
+  }
+  _.forEach(aKeys, k => {
+    if (a[k] !== b[k]) {
+      return false;
+    }
+  })
+  return true;
+}
+
 export function parsePhotoDataUri(uri) {
   if (uri.startsWith('data:image/jpeg;base64,')) {
     return uri.slice(23)

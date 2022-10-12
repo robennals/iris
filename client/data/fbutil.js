@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {firebaseApp, masterUsers } from "./config";
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from "firebase/auth";
-import { getDatabase, ref, onValue, off, update, get, set, serverTimestamp, push } from "firebase/database";
+import { getDatabase, ref, onValue, off, update, get, set, serverTimestamp, push, onChildAdded, onChildChanged, onChildRemoved, remove } from "firebase/database";
 import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 import _ from 'lodash';
 import { Platform } from "react-native";
@@ -168,6 +168,123 @@ export function internalReleaseWatchers(obj) {
 		})
 	}
 }
+
+export function OLD_useListDatabase(dependencies, path) {
+    const [items, setItems] = useState(null);
+    useEffect(() => {
+        const hasNullDependencies = _.filter(dependencies, x => x == null).length > 0;
+        if (!hasNullDependencies) {
+            try {
+                const ref = refForPath(path);
+                const addFunc = data => {
+                    setItems({...items || {}, [data.key]: data.val()})
+                }
+                const changeFunc = data => {
+                    setItems({...items || {}, [data.key]: data.val()});
+                }
+                const removeFunc = data => {
+                    setItems({...items || {}, [data.key]: null})
+                }
+                onChildAdded(ref, addFunc);
+                onChildChanged(ref, changeFunc);
+                onChildRemoved(ref, removeFunc);
+                return () => {
+                    off(ref, addFunc);
+                    off(ref, changeFunc);
+                    off(ref, removeFunc);
+                }
+            } catch (e) {
+                captureException(e);
+            }
+        }
+    }, dependencies);
+    return items;
+}
+
+var global_pathData = {};
+
+function onListValue(ref, watchFunc, checkLoaded) {
+    const key = Math.floor(Math.random() * 1000)
+    // console.log('add watchers', key);
+    const addFunc = data => {
+        if (!checkLoaded()) return;
+        watchFunc(data.key, data.val(), true);
+    }
+    const changeFunc = data => {
+        if (!checkLoaded()) return;
+        // console.log('change', key);
+        watchFunc(data.key, data.val(), false);
+    }
+    const removeFunc = data => {
+        if (!checkLoaded()) return;
+        watchFunc(data.key(), null, false);
+    }
+
+    const offAdd = onChildAdded(ref, addFunc);
+    const offChange = onChildChanged(ref, changeFunc);
+    const offRemove = onChildRemoved(ref, removeFunc);
+
+    return {ref, offAdd, offChange, offRemove, key};
+}
+
+function offListValue({ref, offAdd, offChange, offRemove, key}) {
+    // console.log('offListValue', {key, ref, addFunc, changeFunc, removeFunc});
+    // console.log('offListValue', key);
+    try {
+        offAdd();
+        offChange();
+        offRemove();
+    } catch (e) {
+        console.error('off failed', e);
+    }
+}
+
+export function useListDatabase(dependencies, path) {
+    const [value, setValue] = useState(null);
+    var loaded = false;
+    const p = _.join(path, '/');
+    useEffect(() => {
+        const hasNullDependencies = _.filter(dependencies, x => x == null).length > 0;
+        if (!hasNullDependencies) {
+            try {                
+                const ref = refForPath(path);
+                const initFunc = snap => {
+                    const data = snap.val();
+                    global_pathData[p] = data || {};
+                    setValue(data);
+                    // console.log('loaded initial data', p, data);
+                    loaded = true;
+                }
+                onValue(ref, initFunc, {onlyOnce: true});
+                const checkLoaded = () => loaded;
+                const watchFunc = (key, value, isAdd) => {
+                    if (!loaded) {
+                        return;
+                    } else if (isAdd && global_pathData[p][key]) {
+                        // console.log('Add event for known item', key);
+                        return;
+                    } else {
+                        const data = {...global_pathData[p], [key]: value};
+                        global_pathData[p] = data; 
+                        setValue(data);
+                        // console.log('updated item', key, value, isAdd);
+                    }
+                }
+                const offKey = onListValue(ref, watchFunc, checkLoaded);
+        
+                return () => {
+                    console.log('detach', p);
+                    offListValue(offKey)
+                    off(ref, initFunc);
+                };
+            } catch (e) {
+                captureException(e);
+            }
+        }
+    }, dependencies)
+    return value;
+}
+
 
 export function useDatabase(dependencies, path, fallback = {}, init = null) {
     const [value, setValue] = useState(init);

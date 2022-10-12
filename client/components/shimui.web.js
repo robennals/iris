@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import { findDOMNode } from 'react-dom';
-import { ScrollView, View, Text} from 'react-native';
+import { ScrollView, View, Text, FlatList} from 'react-native';
 import { appDomain, appName, localWebDomain } from "../data/config";
 import { FixedTouchable, HoverView, parsePhotoDataUri } from "./basics";
 import { Catcher } from './catcher';
@@ -16,7 +16,8 @@ import _ from 'lodash';
 
 /* eslint-disable react/no-find-dom-node */
 
-export class BottomScroller extends React.Component {
+
+export class BottomScroller extends React.PureComponent {
     state = {rendered: false, atBottom: true}
     safariScrollToEnd() {
       const {atBottom} = this.state;
@@ -33,7 +34,7 @@ export class BottomScroller extends React.Component {
     maybeScrollToEnd(animated) {
       const {atBottom} = this.state;
       if (atBottom) {
-        this.scrollView.scrollToEnd({animated: false});
+        this.scrollView?.scrollToEnd({animated: false});
       }
     }
   
@@ -76,7 +77,7 @@ export class BottomScroller extends React.Component {
     }
   }
 
-export class BottomFlatScroller extends React.Component {
+export class BottomFlatScroller extends React.PureComponent {
     safariScrollToEnd() {
       this.scroller && this.scroller.safariScrollToEnd();
     }
