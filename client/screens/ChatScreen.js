@@ -398,7 +398,7 @@ function thingsAreEqual(thing, prev, next) {
 const MemoMessage = React.memo(Message); 
 
 
-function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, prevMessageKey, nextMessageKey, memberHues, onReply, onEdit}) {
+function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
