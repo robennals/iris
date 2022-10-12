@@ -31,7 +31,10 @@ export function CustomNavigator(params) {
     }
 }
 
-export function MobileNavigator({screens, user, initialRouteName, linking, navigationRef}) {
+export const MemoCustomNavigator = React.memo(CustomNavigator);
+
+
+export function MobileNavigator({screens, initialRouteName, linking, navigationRef}) {
     const screenNames = _.keys(screens);
 
     return (
@@ -186,7 +189,7 @@ function basicReducer(state, action) {
 }
 
 
-export function WebNavigator({screens, user, initialRouteName, linking}) {
+export function WebNavigator({screens, initialRouteName, linking}) {
     const [navState, updateNavState] = useReducer(basicReducer, navStateFromCurrentUrl(linking));
     const {width} = useWindowDimensions();
     const wide = width > minTwoPanelWidth;

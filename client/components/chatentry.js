@@ -1,5 +1,5 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
-import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, memo, useContext, useEffect, useImperativeHandle, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
 import { logErrorAsync, sendMessageAsync } from '../data/servercall';
@@ -13,13 +13,13 @@ export function IsPublicToggle({value, onValueChange}) {
 }
 
 /* eslint-disable react/display-name */
-export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onClearReply, chatInputRef}, ref) => {
+export const ChatEntryBox = memo(forwardRef(
+        ({group, groupName, community, reply, onClearReply, chatInputRef}, ref) => {
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [text, setText] = useState(null);
     const [edit, setEdit] = useState(null);
     const [proposePublic, setProposePublic] = useState(false);
-    const [textKey, setTextKey] = useState(0);
 
     useImperativeHandle(ref, () => ({
         setEdit: edit => {
@@ -156,7 +156,6 @@ export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onC
             : null}
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextInput // disabled={inProgress} 
-                    key={textKey}
                     ref={chatInputRef}
                     value={mergedText}
                     onChangeText={onChangeText}
@@ -196,4 +195,4 @@ export const ChatEntryBox = forwardRef(({group, groupName, community, reply, onC
             :null}
         </View>
     )
-})
+}))

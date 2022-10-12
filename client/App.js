@@ -18,7 +18,7 @@ import { GroupProfileScreen } from './screens/GroupProfileScreen';
 import { NotifScreen } from './screens/NotifScreen';
 import { identify, playAlertSound, resetMixpanel, track, webInit } from './components/shim';
 import { PhotoScreen } from './screens/PhotoScreen';
-import { CustomNavigator } from './components/customnavigator';
+import { CustomNavigator, MemoCustomNavigator } from './components/customnavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LeaveGroupScreen } from './screens/LeaveGroupScreen';
 import { AboutScreen } from './screens/AboutScreen';
@@ -59,7 +59,7 @@ LogBox.ignoreLogs(['AsyncStorage'])
 // const Stack = createStackNavigator();
 
 const prefix = Linking.createURL('/');
-const linking = {prefixes: [prefix, 'https://talkwell.net'], config: {
+const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
   initialRouteName: 'home',
   screens: {
     group: 'group/:group',
@@ -186,37 +186,7 @@ export default function App() {
     };
   }, []);
 
-  const screens = {
-    home: {component: HomeScreen, noHeader: true},
-    group: {component: ChatScreen, headerTitle: ChatScreenHeader}, 
-    pgroup: {component: ChatScreen, headerTitle: ChatScreenHeader},
-    profile: {component: ProfileScreen, title: 'User Profile'},
-    groupProfile: {component: GroupProfileScreen, title: 'Conversation Info'},
-    reportAbuse: {component: ReportAbuseScreen, title: 'Report Abuse'},
-    notifs: {component: NotifScreen, title: 'Notifications'},
-    photo: {component: PhotoScreen, title: 'Photo', noHeader: true},
-    empty: {component: EmptyScreen, noHeader: true},
-    leaveGroup: {component: LeaveGroupScreen, title: 'Leave Group'},
-    about: {component: AboutScreen, title: 'About ' + appName},
-    addsubgroup: {component: AddSubgroupScreen, title: 'Add Subgroup'},
-    digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
-    adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
-    myProfile: {component: MyProfileScreen, title: 'My Profile'},
-    createCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Create Community'},    
-    editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
-    community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
-    communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
-    communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
-    communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
-    adminCommand: {component: AdminCommandScreen, title: 'Admin Command'},
-    unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'},
-    join: {component: IntakeScreen, title: 'Join Community'},
-    newTopic: {component: EditTopicScreen, title: 'New Topic'},
-    editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
-    adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
-    published: {component: PublishedScreen, headerTitle: PublishedHeader},
-    highlights: {component: PublishedScreen, headerTitle: PublishedHeader}
-  }
+
 
   // console.log('intialUrl', initialUrl);
 
@@ -236,11 +206,43 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <NetworkStateProvider>
-          <CustomNavigator user={user} screens={screens} initialRouteName='home' linking={linking} navigationRef={navigationRef} />
+          <MemoCustomNavigator screens={screens} initialRouteName='home' linking={linking} navigationRef={navigationRef} />
         </NetworkStateProvider>
       </SafeAreaProvider>
     )
   }
+}
+
+const screens = {
+  home: {component: HomeScreen, noHeader: true},
+  group: {component: ChatScreen, headerTitle: ChatScreenHeader}, 
+  pgroup: {component: ChatScreen, headerTitle: ChatScreenHeader},
+  profile: {component: ProfileScreen, title: 'User Profile'},
+  groupProfile: {component: GroupProfileScreen, title: 'Conversation Info'},
+  reportAbuse: {component: ReportAbuseScreen, title: 'Report Abuse'},
+  notifs: {component: NotifScreen, title: 'Notifications'},
+  photo: {component: PhotoScreen, title: 'Photo', noHeader: true},
+  empty: {component: EmptyScreen, noHeader: true},
+  leaveGroup: {component: LeaveGroupScreen, title: 'Leave Group'},
+  about: {component: AboutScreen, title: 'About ' + appName},
+  addsubgroup: {component: AddSubgroupScreen, title: 'Add Subgroup'},
+  digestFreq: {component: DigestFreqScreen, title: 'Set Digest Frequency'},
+  adminCreateGroup: {component: AdminCreateGroupScreen, title: 'Admin Create Groups'},
+  myProfile: {component: MyProfileScreen, title: 'My Profile'},
+  createCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Create Community'},    
+  editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
+  community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
+  communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
+  communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
+  communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
+  adminCommand: {component: AdminCommandScreen, title: 'Admin Command'},
+  unsubscribe: {component: UnsubscribeScreen, title: 'Leave Communities'},
+  join: {component: IntakeScreen, title: 'Join Community'},
+  newTopic: {component: EditTopicScreen, title: 'New Topic'},
+  editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
+  adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
+  published: {component: PublishedScreen, headerTitle: PublishedHeader},
+  highlights: {component: PublishedScreen, headerTitle: PublishedHeader}
 }
 
 function parseUrl(url) {
