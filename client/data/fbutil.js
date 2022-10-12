@@ -244,8 +244,8 @@ export function useListDatabase(dependencies, path) {
             try {                
                 const ref = refForPath(path);
                 const initFunc = snap => {
-                    const data = snap.val();
-                    global_pathData[p] = data || {};
+                    const data = snap.val() || {};
+                    global_pathData[p] = data;
                     setValue(data);
                     loaded = true;
                 }

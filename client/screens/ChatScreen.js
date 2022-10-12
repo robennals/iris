@@ -272,6 +272,8 @@ function MessageList({group, onReply, onEdit}) {
 
     // compareMessageChanges(messages);
 
+    // console.log('messageList', {messages, localMessages, members, likes});
+
     if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
 
     // console.log('render messageList', group);
