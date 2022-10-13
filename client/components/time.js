@@ -39,6 +39,24 @@ export function formatShortDate(time) {
   }
 }
 
+export function formatSummaryTime(time) {
+  const now = Date.now();
+  const date = new Date(time);
+  const nowDate = new Date(Date.now());
+  if (!time) {
+    return '';
+  } else if ((now - time) < (2 * minuteMillis)) {
+    return 'just now';
+  } else if (isToday({date, nowDate})) {
+    return date.toLocaleTimeString(undefined, {hour: 'numeric', minute: 'numeric'}).toLowerCase()
+  } else if (isThisYear({date, nowDate})) {
+    return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) 
+  } else {
+    return date.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) 
+  }
+}
+
+
 export function formatMessageTime(time) {
   const now = Date.now();
   const nowDate = new Date(now);

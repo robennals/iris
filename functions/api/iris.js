@@ -351,11 +351,16 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
     const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
-    const pLikes = FBUtil.getDataAsync(['group', group, 'like', messageKey], null);
+    const pLikes = FBUtil.getDataAsync(['group', group, 'endorse', messageKey], null);
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null);
     const pOldMessage = FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    var pSummary;
+    if (proposePublic) {
+        pSummary = FBUtil.getDataAsync(['group', group, 'memberSummary', userId], null);
+    }
     const members = await pMembers; const groupName = await pGroupName; const community = await pCommunity;
     const oldMessage = await pOldMessage; const topic = await pTopic; const likes = await pLikes;
+    const summary = await pSummary;
     // console.log('members', members);
     if (!members[userId]) {
         return {success: false, message: 'access denied'};
@@ -375,6 +380,17 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
         proposePublic, published,
         from: userId
     }   
+
+    if (proposePublic) {
+        console.log('proposePublic');
+        updates['group/' + group + '/memberSummary/' + userId] = key;
+        if (summary && summary != key && community && topic) {
+            updates['group/' + group + '/message/' + summary + '/proposePublic'] = null;
+            updates['group/' + group + '/message/' + summary + '/published'] = null;
+            updates['group/' + group + '/message/' + summary + '/prevPublic'] = true;
+            updates['published/' + community + '/' + topic + '/' + summary] = null;
+        }
+    }
 
     var notifs = [];
     const notifBase = {
@@ -428,6 +444,8 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
     })
 
     // console.log('notifs', notifs);
+    // console.log('updates', updates);
+
 
     return {success: true, updates, notifs}
 }
@@ -773,6 +791,7 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null); 
     const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
+    const pEndorsers = FBUtil.getDataAsync(['group', group, 'endorse', messageKey]);
     const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
     var replyToAuthor = null;
     if (message.replyTo) {
@@ -782,6 +801,7 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
     const community = await pCommunity;
     const topic = await pTopic;
     const members = await pMembers;
+    const endorsers = await pEndorsers;
     const member = members[author];
 
     const published = await FBUtil.getDataAsync(['published', community, topic]);
@@ -796,12 +816,19 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
         console.log('no community or topic');
         return {success: false, message: 'No community or topic in this group'};
     }
+
+    const endorserInfo = _.mapValues(endorsers, (v,k) => ({name: members[k]?.name, time: endorsers[k]}));
+    // console.log('endorsers', endorserInfo);
+    // console.log('members', members);
+
     var updates = {};
     const pubMessage = {...message, 
         text: messageText || message.text,
         authorName: member.name,
         authorPhoto: member.photo,
         publishTime: Date.now(), 
+        fromSummary: true,
+        endorsers: endorserInfo,
         replyToAuthorName: replyToAuthor ? members[replyToAuthor]?.name : null
     }
     if (updatePublished) {
@@ -812,13 +839,14 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
     }
     updates['topic/' + community + '/' + topic + '/publishCount'] = newPublishCount;
     updates['published/' + community + '/' + topic + '/' + messageKey] = publish ? pubMessage : null;
-    console.log('updates', updates);
+    // console.log('updates', updates);
     return {success: true, updates};
 }
 exports.publishMessageAsync = publishMessageAsync;
 
 // Actually liking the message is done on the client.
 // All we have to do here is send a notif to the message author, and light up the group for them
+// TODO: Remove like-as-publish once front end updated
 async function likeMessageAsync({group, messageKey, userId}) {
     const pLikerName = FBUtil.getDataAsync(['group', group, 'member', userId, 'name']);
     const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
@@ -836,11 +864,11 @@ async function likeMessageAsync({group, messageKey, userId}) {
             time
         }
     }
-    console.log('message', message);
+    // console.log('message', message);
     if (message.proposePublic && !message.published) {
-        console.log('publishing message');
+        // console.log('publishing message');
         var publishResults = await publishMessageAsync({group, messageKey, publish: true, userId});
-        console.log('publishResults', publishResults);
+        // console.log('publishResults', publishResults);
         updates = {...updates, ... publishResults.updates};
     }
     return {success: true, updates, notifs: [notif]}
@@ -848,3 +876,52 @@ async function likeMessageAsync({group, messageKey, userId}) {
 
 exports.likeMessageAsync = likeMessageAsync;
 
+
+// Actually liking the message is done on the client.
+// All we have to do here is send a notif to the message author, and light up the group for them
+async function endorseMessageAsync({group, messageKey, endorse, userId}) {
+    const pLikerName = FBUtil.getDataAsync(['group', group, 'member', userId, 'name']);
+    const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null); 
+    const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
+    const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    const likerName = await pLikerName; const community = await pCommunity; const topic = await pTopic;
+    const time = Date.now();
+
+    if (endorse) {
+        const notif = {
+            title: likerName + ' endorsed your summary',
+            body: message.text,
+            toUser: message.from,
+            data: {type:'like', group, messageKey, time}
+        }
+        var updates = {
+            ['/userPrivate/' + message.from + '/group/' + group + '/lastMessage']: {
+                text: likerName + ' endorsed your summary',
+                time
+            }
+        }
+        if (message.proposePublic && !message.published) {
+            // console.log('publishing message');
+            var publishResults = await publishMessageAsync({group, messageKey, publish: true, userId});
+            console.log('publishResults', publishResults);
+            updates = {...updates, ... publishResults.updates};
+        } else {
+            updates['published/' + community + '/' + topic + '/' + messageKey + '/endorsers/' + userId] = {
+                name: likerName, time
+            }
+        }
+
+        // console.log('endorse', updates);
+
+        return {success: true, updates, notifs:  [notif]}
+    } else {
+        var updates = {};
+        updates['published/' + community + '/' + topic + '/' + messageKey + '/endorsers/' + userId] = null;
+
+        // console.log('un-endorse', updates);
+
+        return {success: true, updates, notifs: endorse ? [notif] : []}
+    }
+}
+
+exports.endorseMessageAsync = endorseMessageAsync;

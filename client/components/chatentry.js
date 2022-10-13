@@ -1,7 +1,7 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { forwardRef, memo, useContext, useEffect, useImperativeHandle, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync, useDatabase } from '../data/fbutil';
 import { logErrorAsync, sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, MinorButton, OneLineText, ToggleCheck, WideButton } from './basics';
 import { track } from './shim';
@@ -15,6 +15,7 @@ export function IsPublicToggle({value, onValueChange}) {
 /* eslint-disable react/display-name */
 export const ChatEntryBox = memo(forwardRef(
         ({group, groupName, community, reply, onClearReply, chatInputRef}, ref) => {
+    const mySummary = useDatabase([group], ['group', group, 'memberSummary', getCurrentUser()], null);
     const [inProgress, setInProgress] = useState(false);
     const [height, setHeight] = useState(36);
     const [text, setText] = useState(null);
@@ -63,8 +64,8 @@ export const ChatEntryBox = memo(forwardRef(
 
     const mergedText = text != null ? text : (global_saveDrafts[group] || '');
     const textLength = mergedText.length;
-    const maxMessageLength = 350;
-    const textGettingLong = textLength > 300;
+    const maxMessageLength = 400;
+    const textGettingLong = textLength > 350;
     const textTooLong = textLength > maxMessageLength;
 
     const maxByMe = 3;
@@ -80,11 +81,11 @@ export const ChatEntryBox = memo(forwardRef(
         setText('');
         setProposePublic(false);
         global_saveDrafts[group] = null;
-        setHeight(36);        
+        setHeight(36);
         await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey], {
             time: edit?.time || getFirebaseServerTimestamp(),
             text: mergedText, replyTo, from: getCurrentUser(),
-            proposePublic,
+            proposePublic: proposePublic && !replyTo,
             pending: true
         })
         setInProgress(false);
@@ -141,8 +142,11 @@ export const ChatEntryBox = memo(forwardRef(
                 </View>
             : null}
             {!replyTo && text ?
-                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Propose as Public Highlight' style={{marginTop: 2}} />
+                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Propose as Public Summary' style={{marginTop: 4}} />
             : null }
+            {!replyTo && text && proposePublic && mySummary ?
+                <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>This will replace your previous summary</Text>
+            : null}
             {textTooLong ? 
                 <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>Message is {textLength - maxMessageLength} chars too long</Text>
             : null}

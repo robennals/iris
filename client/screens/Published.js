@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { FixedTouchable, memberKeysToHues, ScreenContentScroll } from '../components/basics';
+import { andFormatStrings, FixedTouchable, memberKeysToHues, ScreenContentScroll } from '../components/basics';
 import { BottomFlatScroller } from '../components/shimui';
 import { MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
-import { formatMessageTime } from '../components/time';
+import { formatMessageTime, formatSummaryTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
 import { Loading } from '../components/loading';
@@ -25,7 +25,7 @@ export function PublishedHeader({navigation, route}) {
             <Entypo name='star' color='#FABC05' size={32} style={{marginRight: 4}} />
             <View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>Highlighted Messages</Text>
+                    <Text>Published Summaries</Text>
                 </View>
                 <Text style={{fontSize: 12}}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
@@ -109,12 +109,12 @@ function ExplainHighlights() {
     return (
         <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
             <Text style={{color: '#666', marginBottom: 4}}>
-                A highlight is a message from a group chat that the
-                author decided to share more broadly.
+                A summary is one person's attempt to summarize 
+                the most important conclusions of a private group chat.
             </Text>
             <Text style={{color: '#666'}}>
-                At least one other person must like a message
-                before you can highlight it.
+                At least one other person must support a summary
+                in order for it to be published to the wider community.
             </Text>
         </View>
     )
@@ -135,6 +135,9 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
         setDataAsync(['published', community, topic, messageKey, 'chat', getCurrentUser()], meChat ? null : true)
     }
 
+    const sortedEndorserKeys = _.sortBy(_.keys(message.endorsers || {}), k => message.endorsers[k]?.time);
+    const endorserSummary = andFormatStrings(sortedEndorserKeys.map(k => message.endorsers[k].name));
+
     const upCount = _.filter(_.keys(message.vote), k => message.vote[k] == 'up').length;
     const upCountStr = upCount == 0 ? '' : ' (' + upCount + ')'
     return (
@@ -143,9 +146,17 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                 <MemberPhotoIcon style={{marginTop: 2}} hue={hue} user={message.from} photoKey={message.authorPhoto} name={message.authorName} />
                 <View style={{flexShrink: 1}}>
                     <View style={{backgroundColor, marginLeft: 8, flexShrink: 1, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8}}>
-                        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{message.authorName}</Text>
-                            <Text style={{color: '#666', fontSize: 12, marginLeft: 16}}>{formatMessageTime(message.publishTime)}</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between'}}>
+                            <Text style={{fontSize: 12}}>
+                                <Text style={{fontWeight: 'bold', fontSize: 12}}>{message.authorName}</Text>
+                                {message.endorsers ?
+                                    <Text>
+                                        <Text> with </Text>
+                                        <Text style={{fontWeight: 'bold'}}>{endorserSummary}</Text>
+                                    </Text>
+                                : null}
+                            </Text>
+                            <Text style={{color: '#666', fontSize: 10, marginLeft: 16}}>{formatSummaryTime(message.publishTime)}</Text>
                         </View>
                         {/* {message.replyToAuthorName ?
                             <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: '#999', borderLeftWidth: StyleSheet.hairlineWidth}}>

@@ -210,6 +210,11 @@ export async function likeMessageAsync({group, messageKey}) {
     return await callServerApiAsync('likeMessage', {group, messageKey});
 }
 
+export async function endorseMessageAsync({group, messageKey, endorse}) {
+    return await callServerApiAsync('endorseMessage', {group, messageKey, endorse});
+}
+
+
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
         return await callServerApiAsync('logError', {error, stack, context});

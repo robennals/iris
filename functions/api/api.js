@@ -137,6 +137,9 @@ async function apiActionAsync({action, components, params}) {
         case 'likeMessage': {
             return Iris.likeMessageAsync(params);
         }
+        case 'endorseMessage': {
+            return Iris.endorseMessageAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

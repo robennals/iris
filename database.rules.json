@@ -95,6 +95,13 @@
             }
           }
         },
+        "endorse": {
+          "$message": {
+            "$user": {
+              ".write": "$user == auth.uid"
+            }
+          }
+        },
         "memberRead": {
           "$user": {
             ".write": "$user == auth.uid"

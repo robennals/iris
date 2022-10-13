@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
-import { adminJoinGroupAsync, likeMessageAsync, publishMessageAsync, sendMessageAsync } from '../data/servercall';
+import { adminJoinGroupAsync, endorseMessageAsync, likeMessageAsync, publishMessageAsync, sendMessageAsync } from '../data/servercall';
 import { BottomFlatScroller, ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
@@ -267,6 +267,7 @@ function MessageList({group, onReply, onEdit}) {
     const topic = useDatabase([group], ['group', group, 'topic'], null);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const likes = useDatabase([group], ['group', group, 'like']);
+    const endorsements = useDatabase([group], ['group', group, 'endorse']);
     const scrollRef = React.createRef();
     const memberHues = useMemo(() => memberKeysToHues(_.keys(members || {})), [members]);
 
@@ -274,7 +275,7 @@ function MessageList({group, onReply, onEdit}) {
 
     // console.log('messageList', {messages, localMessages, members, likes});
 
-    if (!messages || !localMessages || !members || !likes) return <Loading style={{flex: 1}} />
+    if (!messages || !localMessages || !members || !likes || !endorsements) return <Loading style={{flex: 1}} />
 
     // console.log('render messageList', group);
 
@@ -315,7 +316,8 @@ function MessageList({group, onReply, onEdit}) {
                         replyMessage={replyMessage} 
                         members={members} group={group}
                         messageKey={key} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
-                        memberHues={memberHues} messageLikes={likes?.[key]} 
+                        memberHues={memberHues} 
+                        messageLikes={likes?.[key]} messageEndorsements={endorsements?.[key]} 
                         community={community} topic={topic}
                         meInGroup={meInGroup}
                         onReply={onReply} onEdit={onEdit} />
@@ -400,7 +402,7 @@ function thingsAreEqual(thing, prev, next) {
 const MemoMessage = React.memo(Message); 
 
 
-function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, memberHues, onReply, onEdit}) {
+function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, messageEndorsements=null, members, messageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
@@ -420,7 +422,8 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
     const prevAlsoMe = myMessage && !timePassed && prevMessage.from == getCurrentUser();
     const nextAlsoMe = myMessage && !timePassedToNext && nextMessage.from == getCurrentUser();
 
-    const likedByMe = messageLikes?.[getCurrentUser()];
+    const likedByMe = message.proposePublic ? messageEndorsements?.[getCurrentUser()] : messageLikes?.[getCurrentUser()];
+    const hasLikes = message.proposePublic ? messageEndorsements : messageLikes;
 
     function onPress() {
         if (!message.pending) {
@@ -441,10 +444,16 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
         onEdit({key: messageKey, proposePublic: message.proposePublic, text: message.text, time: message.time}, reply);
     }
     function onLikeClicked() {
-        setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
-        if (!likedByMe) {
-            console.log('like', group, messageKey);
-            likeMessageAsync({group, messageKey});
+        if (message.proposePublic) {
+            setDataAsync(['group', group, 'endorse', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+            console.log('endorse', {group, messageKey, likedByMe, messageLikes, messageEndorsements});
+            endorseMessageAsync({group, messageKey, endorse: !likedByMe});
+        } else {
+            setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+            if (!likedByMe) {
+                console.log('like', group, messageKey);
+                likeMessageAsync({group, messageKey});
+            }
         }
     }
 
@@ -459,7 +468,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
         // }
         //     onSwipeableWillOpen={() => onReply(messageKey)}
         // >
-        <View style={{marginBottom: messageLikes ? 24 : null}}>
+        <View style={{marginBottom: hasLikes ? 24 : null}}>
         {/* <View> */}
             {timePassed ? 
                 <Text style={{textAlign: 'center', fontSize: 13, color: '#999', marginTop: 16, marginBottom: 4}}>
@@ -471,7 +480,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
         <View style={[myMessage ? styles.myMessageRow : styles.theirMessageRow]} 
             onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>            
             {popup && meInGroup ? 
-                <MessagePopup myMessage={myMessage} likedByMe={likedByMe} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} onLike={onLikeClicked} />
+                <MessagePopup myMessage={myMessage} likedByMe={likedByMe} isPublic={message.proposePublic} onClose={() => setPopup(false)} onReply={onReplyClicked} onEdit={onEditClicked} messageKey={messageKey} onLike={onLikeClicked} />
             : null}
             {myMessage ? null :
                 (samePrevAuthor ? 
@@ -488,15 +497,21 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                     <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
                         <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                             <Entypo name='star' color='#FABC05' size={16} />
-                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Published Highlight - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Published Summary - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
                         </View>
                     </FixedTouchable>
                 : null}
                 {!message.published && message.proposePublic ? 
                     <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                         <Entypo name='star' color='#FABC05' size={16} />
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Proposed Public Highlight</Text>
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Proposed Public Summary</Text>
                     </View>
+                : null}
+                {!message.published && !message.proposePublic && message.prevPublic ? 
+                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
+                        {/* <Entypo name='star' color='#FABC05' size={16} /> */}
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Previous summary</Text>
+                    </View>            
                 : null}
 
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
@@ -508,6 +523,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
                             message.published || message.proposePublic ? {borderColor: '#222', borderWidth: 2, marginTop: 1, ...shadowStyle} : {},
+                            message.prevPublic && (!message.proposePublic) ? {marginTop: 1} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
                          ]} >
@@ -526,14 +542,15 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                         {message.editTime ? 
                             <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
                         : null}
-                        {messageLikes ?
+                        {hasLikes ?
                             <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}>
-                                <MessageLikes group={group} published={message.published} myMessage={myMessage} messageKey={messageKey} messageLikes={messageLikes} members={members} memberHues={memberHues} />
+                                <MessageLikes messageLikes={message.proposePublic ? messageEndorsements : messageLikes} 
+                                        isPublic={message.proposePublic} members={members} memberHues={memberHues} />
                             </View>                            
                         : null}
                         {message.proposePublic && !message.published && !myMessage && !messageLikes ?  
                             <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}> 
-                                <PublishLikeButton onPress={onLikeClicked} />
+                                <PublishEndorseButton onPress={onLikeClicked} />
                             </View>
                         : null}
                         {message.pending && !failed ?
@@ -561,9 +578,10 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
 
             </View>
 
-            <View style={{width: 64, flexShrink: 0, flexDirection: 'row', alignItems: 'center', marginTop: (message.published || message.proposePublic) ? 24 : null}}>
+            <View style={{width: 64, flexShrink: 0, flexDirection: 'row', justifyContent: myMessage ? 'flex-end' : 'flex-start', alignItems: 'center', 
+                marginTop: (message.published || message.proposePublic || message.prevPublic) ? 24 : null}}>
                 {hover && meInGroup && myMessage ? 
-                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                    <View style={{marginHorizontal: 4}}>
                         <FixedTouchable onPress={onEditClicked}>
                             <Entypo name='edit' size={20} color='#999' />
                         </FixedTouchable>
@@ -571,7 +589,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                 : null}
 
                 {hover && meInGroup && !message.pending ? 
-                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                    <View style={{marginHorizontal: 4}}>
                         <FixedTouchable onPress={onReplyClicked}>
                             <Entypo name='reply' size={20} color='#999' />
                         </FixedTouchable>
@@ -579,9 +597,13 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                 : null}
 
                 {hover && meInGroup && !myMessage ?
-                    <View style={{alignSelf: myMessage ? 'flex-end' : 'flex-start', marginHorizontal: 4}}>
+                    <View style={{marginHorizontal: 4}}>
                         <FixedTouchable onPress={onLikeClicked}>
-                            <Entypo name={likedByMe ? 'heart' : 'heart-outlined'} size={20} color='#999' />
+                            {message.proposePublic ? 
+                                <FontAwesome name='smile-o' size={20} color='#999' />
+                            : 
+                                <Entypo name={likedByMe ? 'heart' : 'heart-outlined'} size={20} color='#999' />
+                            }
                         </FixedTouchable>
                     </View>            
                 : null}
@@ -596,47 +618,43 @@ const shadowStyle = {
     shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5, elevation: 3}
 
-function PublishLikeButton({onPress}) {
+function PublishEndorseButton({onPress}) {
     return (
         <FixedTouchable onPress={onPress} style={{marginLeft: 4}} >
         <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
         paddingHorizontal: 4, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
-            <Entypo name='heart' color='black' size={20} />
-            <Text style={{fontSize: 12, fontWeight: 'bold', marginRight: 4, marginLeft: 2}}>
-                Like to Publish
+            <FontAwesome name='smile-o' color='black' size={20} />
+            <Text style={{fontSize: 12, fontWeight: 'bold', marginRight: 4, marginLeft: 4}}>
+                Endorse to Publish
             </Text>
         </View>
     </FixedTouchable>        
     )
 }
 
-function MessageLikes({group, published, myMessage, messageKey, members, memberHues, messageLikes}) {
+function MessageLikes({members, memberHues, messageLikes, isPublic}) {
     const likers = _.keys(messageLikes || {});
-    const [inProgress, setInProgress] = useState(false);
     if (likers.length == 0) {
         return null;
     }
     const likerNames = andFormatStrings(_.map(likers, m => 
         m == getCurrentUser() ? 'You' : firstName(members?.[m]?.name || '')));
 
-    async function onPublish() {
-        console.log('publish', messageKey);
-        setInProgress(true);
-        await publishMessageAsync({group, messageKey, publish: !published});
-        setInProgress(false);
-    }
-
     return (
         <View style={{alignSelf: 'stretch', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-start'}}>
             <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', backgroundColor: 'white', borderRadius: 16, 
                     paddingHorizontal: 2, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
-                <Entypo name='heart' color='red' size={20} style={{marginRight: 4, marginLeft: 2}} />
+                {isPublic ? 
+                    <FontAwesome name='smile-o' size={20} style={{marginRight: 4, marginLeft: 2}} />
+                : 
+                    <Entypo name='heart' color='red' size={20} style={{marginRight: 4, marginLeft: 2}} />
+                }
                 {_.map(likers, m => 
                     <MemberPhotoIcon key={m} user={m} hue={memberHues?.[m]} size={20}
                         photoKey={members?.[m]?.photo} name={members?.[m]?.name}  />
                 )}
                 <OneLineText style={{marginLeft: 8, color: '#666', fontSize: 12, marginRight: 8}}>
-                    {likerNames} liked
+                    {likerNames} {isPublic ? 'endorsed' : 'liked'}
                 </OneLineText>
             </View>
         </View>
@@ -664,13 +682,13 @@ function RepliedMessage({message, replyMessage, members}) {
 }
 
 
-function MessagePopup({messageKey, myMessage, likedByMe, onLike, onReply, onEdit, onClose}) {
+function MessagePopup({messageKey, myMessage, isPublic, likedByMe, onLike, onReply, onEdit, onClose}) {
     var actions = [];
     actions.push({id: 'reply', label: 'Reply'});
     if (myMessage) {
         actions.push({id: 'edit', label: 'Edit'});
     } else {
-        actions.push({id: 'like', label: likedByMe ? 'Unlike' : 'Like'});
+        actions.push({id: 'like', label: isPublic ? (likedByMe ? 'UnEndorse' : 'Endorse') : (likedByMe ? 'Unlike' : 'Like')});
     }
 
     return <ModalMenu items={actions} onClose={onClose} onSelect={async id => {
@@ -707,7 +725,8 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 16,
         marginVertical: 4,
-        marginHorizontal: 8,
+        // marginHorizontal: 8,
+        marginRight: 8,
         maxWidth: 550,
         flexShrink: 1,
         flexGrow: 0,
