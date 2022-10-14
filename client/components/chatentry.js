@@ -64,8 +64,8 @@ export const ChatEntryBox = memo(forwardRef(
 
     const mergedText = text != null ? text : (global_saveDrafts[group] || '');
     const textLength = mergedText.length;
-    const maxMessageLength = 400;
-    const textGettingLong = textLength > 350;
+    const maxMessageLength = proposePublic ? 800 : 400;
+    const textGettingLong = textLength > (maxMessageLength - 50);
     const textTooLong = textLength > maxMessageLength;
 
     const maxByMe = 3;
