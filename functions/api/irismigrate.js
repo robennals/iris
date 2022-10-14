@@ -45,6 +45,54 @@ function oldTopicsToNew(communityTopics, userTopics) {
     return out;
 }
 
+async function migrateHighlightsAsync() {
+    const groups = await FBUtil.getDataAsync(['group']);    
+    var updates = {};
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        const community = group.community;
+        const topic = group.topic;
+        const messages = group.message;
+        var lastHighlightForUser = {};
+        const sortedMessageKeys = _.sortBy(_.keys(messages), m => messages[m].time);
+        var hasHighlights = false; 
+        _.forEach(sortedMessageKeys, m => {
+           if (messages[m].published) {
+            lastHighlightForUser[messages[m].from] = m;
+            hasHighlights = true;
+           } 
+        });
+        _.forEach(sortedMessageKeys, m => {
+            if (messages[m].proposePublic && !lastHighlightForUser[messages[m].from]) {
+                lastHighlightForUser[messages[m].from] = m;
+                hasHighlights = true;
+            } 
+        });
+
+        if (hasHighlights) {
+            console.log('== group', group.name, lastHighlightForUser);
+        }
+        _.forEach(sortedMessageKeys, m => {
+            const message = messages[m];
+            if ((message.proposePublic || message.published) && lastHighlightForUser[message.from] && m != lastHighlightForUser[message.from] && community && topic) {
+                console.log('old highlight', m, message.text.slice(0,40));
+                console.log('replaced by', lastHighlightForUser[message.from]);
+                updates['published/' + community + '/' + topic + '/' + m] = null;
+                updates['group/' + g + '/message/' + m] = {
+                    ...message, proposePublic: null, published: null, 
+                    wasPublic: {proposePublic: message.proposePublic, published: message.published || null}
+                }
+            } else if (message.published) {
+                console.log('keeping public', m, message.text.slice(0,40));
+            } else if(message.proposePublic) {
+                console.log('keeping proposed', m, message.text.slice(0,40));
+            }
+         });
+    })
+    // console.log('updates', updates);
+    return {success: true};
+}
+
 async function migrateLastReadAsync() {
     console.log('reading...');
     const privates = await FBUtil.getDataAsync(['userPrivate']);
@@ -211,6 +259,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateLastSpokeAsync();
         case 'migrateLastRead': 
             return await migrateLastReadAsync();
+        case 'migrateHighlights':
+            return await migrateHighlightsAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }

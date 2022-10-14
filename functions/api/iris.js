@@ -827,6 +827,7 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
         authorName: member.name,
         authorPhoto: member.photo,
         publishTime: Date.now(), 
+        group,
         fromSummary: true,
         endorsers: endorserInfo,
         replyToAuthorName: replyToAuthor ? members[replyToAuthor]?.name : null
