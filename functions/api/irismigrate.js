@@ -75,22 +75,22 @@ async function migrateHighlightsAsync() {
         _.forEach(sortedMessageKeys, m => {
             const message = messages[m];
             if ((message.proposePublic || message.published) && lastHighlightForUser[message.from] && m != lastHighlightForUser[message.from] && community && topic) {
-                console.log('old highlight', m, message.text.slice(0,40));
-                console.log('replaced by', lastHighlightForUser[message.from]);
+                // console.log('old highlight', m, message.text.slice(0,40));
+                // console.log('replaced by', lastHighlightForUser[message.from]);
                 updates['published/' + community + '/' + topic + '/' + m] = null;
                 updates['group/' + g + '/message/' + m] = {
                     ...message, proposePublic: null, published: null, 
-                    wasPublic: {proposePublic: message.proposePublic, published: message.published || null}
+                    wasPublic: {proposePublic: message.proposePublic || null, published: message.published || null}
                 }
             } else if (message.published) {
-                console.log('keeping public', m, message.text.slice(0,40));
+                // console.log('keeping public', m, message.text.slice(0,40));
             } else if(message.proposePublic) {
-                console.log('keeping proposed', m, message.text.slice(0,40));
+                // console.log('keeping proposed', m, message.text.slice(0,40));
             }
          });
     })
-    // console.log('updates', updates);
-    return {success: true};
+    console.log('updates', updates);
+    return {success: true, updates};
 }
 
 async function migrateLastReadAsync() {
