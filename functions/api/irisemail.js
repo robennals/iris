@@ -4,8 +4,85 @@ const Mustache = require('mustache');
 const Email = require('../output/email');
 const _ = require('lodash');
 const Basics = require('./basics');
+const Iris = require('./iris');
 
 const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
+
+
+
+
+async function wakeupMessageAsync() {
+    const autobots = '-NAeYUhZwzFXOB6YqaX3';
+    const forward = '-NAihY80TpH1i4wGTEA7';
+    const fyke = 'tKj77s5p2hTmzn17FpZsRZPTCNT2';
+    const groupsToWakeUp = await findGroupsNeedingWakeup({community: forward, count: 10, user: fyke})
+
+    console.log('groups to wake up', groupsToWakeUp);
+
+    var updates = {};
+    var notifs = [];
+
+    const time = Date.now();
+
+    const text = "It's time to wrap up this conversation. " +
+    "Each person can write a public summary to share the insights they think are most important about this topic." +
+    // "Write a public summary to let other community members know the most important insights that came up in this conversation." +
+    // "Write a public summary to summarize your opinion on this topic in light of the discussion you just had." +  
+    "\n\nYour summary will be published if at least one other person endorses it." +
+    "\n\nThis conversation will close after 48 hours of inactivity.";
+
+    const pSendResults = _.map(groupsToWakeUp, group => Iris.sendMessageAsync({group, text, userId: 'zzz_irisbot'}));
+    const sendResults = await Promise.all(pSendResults);
+    _.forEach(sendResults, sendResult => {
+        updates = {...updates, ...sendResult.updates};
+        notifs = [...notifs, ...sendResult.notifs]
+    })
+
+    _.forEach(groupsToWakeUp, g => {
+        updates['group/' + g + '/wakeUp'] = time;
+    })
+
+    // console.log('updates', updates);
+    // console.log('notifs', notifs);
+
+    // return {success: true, updates, notifs}
+    return {success: true}
+}
+exports.wakeupMessageAsync = wakeupMessageAsync;
+
+
+
+// TODO: This will need to be more efficient
+async function findGroupsNeedingWakeup({community, count, user=null}) {
+    console.log('findGroups', community);
+    const twoDaysAgo = Date.now() - (Basics.dayMillis * 2);
+    const groups = await FBUtil.getDataAsync(['adminCommunity', community, 'group']);
+    const groupKeys = _.keys(groups || {});
+    const pGroupArchived = FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'archived'], null);
+    const pGroupWakeup = FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'wakeUp'], null);
+    const memberSummaries = await FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'memberSummary'], null);
+    const groupArchived = await pGroupArchived;
+    const groupWakeup = await pGroupWakeup;    
+    const groupsToWakeUp = _.filter(groupKeys, g => {
+        const group = groups[g];
+        const lastTime = group?.lastMessage?.time;
+        const stale = lastTime < twoDaysAgo;
+        const hasSummaries = memberSummaries[g];
+        const hasWakeUp = groupWakeup[g];
+        const archived = groupArchived[g];
+        const hasUser = !user || group.member[user];
+        console.log('group', group.name, g, stale, lastTime, hasSummaries, hasWakeUp, archived);
+        return stale && !hasSummaries && !hasWakeUp && !archived && hasUser;   
+    });
+
+    const sortedGroups = _.sortBy(groupsToWakeUp, g => groups[g]?.lastMessage?.time);
+    const firstSortedGroups = _.slice(sortedGroups, 0, count);
+
+    _.forEach(firstSortedGroups, g => {
+        console.log('wake up', groups[g].name, g);
+    })
+    return firstSortedGroups;
+}
 
 
 async function irisDigestAsync() {

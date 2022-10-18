@@ -142,7 +142,7 @@ export const ChatEntryBox = memo(forwardRef(
                 </View>
             : null}
             {!replyTo && text ?
-                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Propose as Public Summary' style={{marginTop: 4}} />
+                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Summary' style={{marginTop: 4}} textStyle={{color: 'black'}} />
             : null }
             {!replyTo && text && proposePublic && mySummary ?
                 <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>This will replace your previous summary</Text>
@@ -164,7 +164,7 @@ export const ChatEntryBox = memo(forwardRef(
                     value={mergedText}
                     onChangeText={onChangeText}
                     autoFocus={isWeb}
-                    placeholder='Type a message'
+                    placeholder='Type a message or public summary'
                     placeholderTextColor={'#999'}
                     multiline
                     style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 
