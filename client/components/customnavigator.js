@@ -221,7 +221,8 @@ export function WebNavigator({screens, initialRouteName, linking}) {
         window.addEventListener('popstate', event => {
             console.log('popstate', event.state);
             if (event.state) {
-                setNavState(event.state)
+                updateNavState(() => event.state);
+                // setNavState(event.state)
             }
         })
     },[])
