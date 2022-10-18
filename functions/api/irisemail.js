@@ -15,7 +15,7 @@ async function wakeupMessageAsync() {
     const autobots = '-NAeYUhZwzFXOB6YqaX3';
     const forward = '-NAihY80TpH1i4wGTEA7';
     const fyke = 'tKj77s5p2hTmzn17FpZsRZPTCNT2';
-    const groupsToWakeUp = await findGroupsNeedingWakeup({community: forward, count: 10, user: fyke})
+    const groupsToWakeUp = await findGroupsNeedingWakeup({community: forward, count: 20})
 
     console.log('groups to wake up', groupsToWakeUp);
 
@@ -26,8 +26,6 @@ async function wakeupMessageAsync() {
 
     const text = "It's time to wrap up this conversation. " +
     "Each person can write a public summary to share the insights they think are most important about this topic." +
-    // "Write a public summary to let other community members know the most important insights that came up in this conversation." +
-    // "Write a public summary to summarize your opinion on this topic in light of the discussion you just had." +  
     "\n\nYour summary will be published if at least one other person endorses it." +
     "\n\nThis conversation will close after 48 hours of inactivity.";
 
@@ -42,11 +40,7 @@ async function wakeupMessageAsync() {
         updates['group/' + g + '/wakeUp'] = time;
     })
 
-    // console.log('updates', updates);
-    // console.log('notifs', notifs);
-
-    // return {success: true, updates, notifs}
-    return {success: true}
+    return {success: true, updates, notifs}
 }
 exports.wakeupMessageAsync = wakeupMessageAsync;
 
