@@ -338,11 +338,14 @@ function getPublishedTime({oldMessage, likes, proposePublic}) {
         return null;
     } else if (oldMessage.published) {
         return oldMessage.published;
-    } else if (likes) {
-        return Date.now();
     } else {
-        return null;
+        return Date.now();
     }
+    // } else if (likes) {
+    //     return Date.now();
+    // } else {
+    //     return null;
+    // }
 }
 
 // TODO: Send notification to other group members on mobile
@@ -372,14 +375,16 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
 
     const published = getPublishedTime({oldMessage, likes, proposePublic});
 
-    updates['group/' + group + '/message/' + key] = {
+    const newMessage = {
         time,
         replyTo: replyTo || null,
         text: text || null,
         editTime: isEdit ? Date.now() : null,
         proposePublic, published,
         from: userId
-    }   
+    }
+
+    updates['group/' + group + '/message/' + key] = newMessage;
 
     if (proposePublic) {
         console.log('proposePublic');
@@ -411,9 +416,10 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
     } else if (oldMessage.published && !proposePublic) {
         // Un-publish a public message
         updates['published/' + community + '/' + topic + '/' + messageKey] = null;
-    } else if (likes && proposePublic) {
-        // Publish a liked message
-        const pubResult = await publishMessageAsync({group, messageKey, publish: true, updatePublished: false, userId, messageText: text});
+    // } else if (likes && proposePublic) {
+    } else if (proposePublic) {
+        // Publish it
+        const pubResult = await publishMessageAsync({group, newMessage, messageKey, publish: true, updatePublished: false, userId, messageText: text});
         updates = {...updates, ...pubResult.updates};
     }
 
@@ -787,12 +793,12 @@ async function logErrorAsync({error, stack=null, context=null, userId}) {
 }
 exports.logErrorAsync = logErrorAsync;
 
-async function publishMessageAsync({group, messageKey, publish, updatePublished=true, messageText=null, userId}) {
+async function publishMessageAsync({group, newMessage, messageKey, publish, updatePublished=true, messageText=null, userId}) {
     const pCommunity = FBUtil.getDataAsync(['group', group, 'community'], null); 
     const pTopic = FBUtil.getDataAsync(['group', group, 'topic'], null);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pEndorsers = FBUtil.getDataAsync(['group', group, 'endorse', messageKey]);
-    const message = await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
+    const message = newMessage || await FBUtil.getDataAsync(['group', group, 'message', messageKey]);
     var replyToAuthor = null;
     if (message.replyTo) {
         replyToAuthor = await FBUtil.getDataAsync(['group', group, 'message', message.replyTo, 'from']);
@@ -801,7 +807,7 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
     const community = await pCommunity;
     const topic = await pTopic;
     const members = await pMembers;
-    const endorsers = await pEndorsers;
+    const endorsers = await pEndorsers || {};
     const member = members[author];
 
     const published = await FBUtil.getDataAsync(['published', community, topic]);
@@ -820,6 +826,8 @@ async function publishMessageAsync({group, messageKey, publish, updatePublished=
     const endorserInfo = _.mapValues(endorsers, (v,k) => ({name: members[k]?.name, time: endorsers[k]}));
     // console.log('endorsers', endorserInfo);
     // console.log('members', members);
+
+    console.log('member', {message, member, name: member?.name});
 
     var updates = {};
     const pubMessage = {...message, 

@@ -26,7 +26,7 @@ async function wakeupMessageAsync() {
 
     const text = "It's time to wrap up this conversation. " +
     "Each person can write a public summary to share the insights they think are most important about this topic." +
-    "\n\nYour summary will be published if at least one other person endorses it." +
+    // "\n\nYour summary will be published if at least one other person endorses it." +
     "\n\nThis conversation will close after 48 hours of inactivity.";
 
     const pSendResults = _.map(groupsToWakeUp, group => Iris.sendMessageAsync({group, text, userId: 'zzz_irisbot'}));
