@@ -90,6 +90,7 @@ export const ChatEntryBox = memo(forwardRef(
             time: edit?.time || getFirebaseServerTimestamp(),
             text: mergedText, replyTo, from: getCurrentUser(),
             proposePublic: proposePublic && !replyTo,
+            published: proposePublic,
             pending: true
         })
         setInProgress(false);
