@@ -20,6 +20,7 @@ export const ChatEntryBox = memo(forwardRef(
     const [height, setHeight] = useState(36);
     const [text, setText] = useState(null);
     const [edit, setEdit] = useState(null);
+    const [textKey, setTextKey] = useState(0);
     const [proposePublic, setProposePublic] = useState(false);
 
     useImperativeHandle(ref, () => ({
@@ -63,6 +64,7 @@ export const ChatEntryBox = memo(forwardRef(
     }
 
     const mergedText = text != null ? text : (global_saveDrafts[group] || '');
+    const defaultText = global_saveDrafts[group];
     const textLength = mergedText.length;
     const maxMessageLength = proposePublic ? 800 : 400;
     const textGettingLong = textLength > (maxMessageLength - 50);
@@ -79,6 +81,7 @@ export const ChatEntryBox = memo(forwardRef(
         onClearReply();
         onClearEdit();
         setText('');
+        setTextKey(textKey + 1);
         setProposePublic(false);
         global_saveDrafts[group] = null;
         setHeight(36);
@@ -160,8 +163,9 @@ export const ChatEntryBox = memo(forwardRef(
             : null}
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TextInput // disabled={inProgress} 
+                    key={textKey}
                     ref={chatInputRef}
-                    value={mergedText}
+                    defaultValue={defaultText}
                     onChangeText={onChangeText}
                     autoFocus={isWeb}
                     placeholder='Type a message or public summary'
