@@ -123,7 +123,7 @@ export const ChatEntryBox = memo(forwardRef(
 
     const isWeb = Platform.OS == 'web'
 
-
+    const expanded = proposePublic || text;
 
     return (
         <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingHorizontal: 8, backgroundColor: 'white'}}>
@@ -144,10 +144,10 @@ export const ChatEntryBox = memo(forwardRef(
                     </FixedTouchable>
                 </View>
             : null}
-            {!replyTo && text ?
+            {!replyTo && expanded ?
                 <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Summary' style={{marginTop: 4}} textStyle={{color: 'black'}} />
             : null }
-            {!replyTo && text && proposePublic && mySummary ?
+            {!replyTo && expanded && proposePublic && mySummary ?
                 <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>This will replace your previous summary</Text>
             : null}
             {textTooLong ? 
@@ -168,7 +168,7 @@ export const ChatEntryBox = memo(forwardRef(
                     defaultValue={defaultText}
                     onChangeText={onChangeText}
                     autoFocus={isWeb}
-                    placeholder='Type a message or public summary'
+                    placeholder={proposePublic ? 'Write a public summary' : 'Write a private message'}
                     placeholderTextColor={'#999'}
                     multiline
                     style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 
@@ -180,6 +180,14 @@ export const ChatEntryBox = memo(forwardRef(
                     onContentSizeChange={onContentSizeChange}
                     onKeyPress={onKeyPress}                
                 />
+                {!expanded ? 
+                    <FixedTouchable onPress={() => setProposePublic(true)}>
+                        <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
+                            <Entypo name='star' color='#FABC05' size={16} />
+                            <Text style={{marginLeft: 2, color: '#999'}}>Summary</Text>
+                        </View>
+                    </FixedTouchable>                
+                : null}
                 {textLength > 0 && !textTooLong ?
                     (edit ? null
                     :                         
