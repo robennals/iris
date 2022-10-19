@@ -25,7 +25,7 @@ export function PublishedHeader({navigation, route}) {
             <Entypo name='star' color='#FABC05' size={32} style={{marginRight: 4}} />
             <View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>Published Summaries</Text>
+                    <Text>Public Summaries</Text>
                 </View>
                 <Text style={{fontSize: 12}}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
@@ -109,13 +109,13 @@ function ExplainHighlights() {
     return (
         <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
             <Text style={{color: '#666', marginBottom: 4}}>
-                A summary is one person's attempt to summarize 
+                A public summary is one person's attempt to summarize 
                 the most important conclusions of a private group chat.
             </Text>
-            <Text style={{color: '#666'}}>
+            {/* <Text style={{color: '#666'}}>
                 At least one other person must support a summary
                 in order for it to be published to the wider community.
-            </Text>
+            </Text> */}
         </View>
     )
 }
@@ -156,7 +156,7 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                                     </Text>
                                 : null}
                             </Text>
-                            <Text style={{color: '#666', fontSize: 10, marginLeft: 16}}>{formatSummaryTime(message.publishTime)}</Text>
+                            <Text style={{color: '#666', fontSize: 10, marginLeft: 16, flexShrink: 0}}>{formatSummaryTime(message.publishTime)}</Text>
                         </View>
                         {/* {message.replyToAuthorName ?
                             <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: '#999', borderLeftWidth: StyleSheet.hairlineWidth}}>
