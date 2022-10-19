@@ -29,6 +29,7 @@ export const ChatEntryBox = memo(forwardRef(
             if (!text || text != '') {
                 setText(edit.text);
                 setEdit(edit);
+                setTextKey(textKey + 1);
                 setProposePublic(edit.proposePublic);
                 return true;
             } else {
@@ -64,7 +65,7 @@ export const ChatEntryBox = memo(forwardRef(
     }
 
     const mergedText = text != null ? text : (global_saveDrafts[group] || '');
-    const defaultText = global_saveDrafts[group];
+    const defaultText = edit ? edit.text : global_saveDrafts[group];
     const textLength = mergedText.length;
     const maxMessageLength = proposePublic ? 800 : 400;
     const textGettingLong = textLength > (maxMessageLength - 50);
@@ -93,7 +94,7 @@ export const ChatEntryBox = memo(forwardRef(
         })
         setInProgress(false);
         try {
-            await sendMessageAsync({proposePublic, isEdit: edit ? true : false, editTime: edit?.time || null, messageKey, group, text: mergedText, replyTo});
+            await sendMessageAsync({proposePublic: proposePublic && !replyTo, isEdit: edit ? true : false, editTime: edit?.time || null, messageKey, group, text: mergedText, replyTo});
         } catch (e) {
             console.log('message send failed');
             await setDataAsync(['userPrivate', getCurrentUser(), 'localMessage', group, messageKey, 'failed'], true);
@@ -181,7 +182,7 @@ export const ChatEntryBox = memo(forwardRef(
                     onKeyPress={onKeyPress}                
                 />
                 {!expanded ? 
-                    <FixedTouchable onPress={() => setProposePublic(true)}>
+                    <FixedTouchable onPress={() => {setProposePublic(true); chatInputRef.current.focus()}}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='star' color='#FABC05' size={16} />
                             <Text style={{marginLeft: 2, color: '#999'}}>Summary</Text>
