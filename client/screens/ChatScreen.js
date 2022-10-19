@@ -499,7 +499,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                     <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
                         <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                             <Entypo name='star' color='#FABC05' size={16} />
-                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Published Summary - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Public Summary - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
                         </View>
                     </FixedTouchable>
                 : null}
@@ -524,7 +524,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
-                            message.published || message.proposePublic ? {borderColor: '#222', borderWidth: 2, marginTop: 1, ...shadowStyle} : {},
+                            message.published || message.proposePublic ? {borderColor: '#222', borderWidth: 4, marginTop: 1, marginBottom: 8, ...shadowStyle} : {},
                             message.prevPublic && (!message.proposePublic) ? {marginTop: 1} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
@@ -616,9 +616,14 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
     )
 }
 
+// const shadowStyle = {
+//     shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+//     shadowOpacity: 0.5, elevation: 3}
+
 const shadowStyle = {
-    shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.5, elevation: 3}
+    shadowRadius: 8, shadowColor: '#222', shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.6, elevation: 3}
+    
 
 function PublishEndorseButton({onPress}) {
     return (
