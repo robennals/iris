@@ -75,6 +75,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
+    profile: 'profile/:community/:member'
   }
 }}
 
@@ -217,7 +218,7 @@ const screens = {
   home: {component: HomeScreen, noHeader: true},
   group: {component: ChatScreen, headerTitle: ChatScreenHeader}, 
   pgroup: {component: ChatScreen, headerTitle: ChatScreenHeader},
-  profile: {component: ProfileScreen, title: 'User Profile'},
+  profile: {component: ProfileScreen, title: 'Profile'},
   groupProfile: {component: GroupProfileScreen, title: 'Conversation Info'},
   reportAbuse: {component: ReportAbuseScreen, title: 'Report Abuse'},
   notifs: {component: NotifScreen, title: 'Notifications'},

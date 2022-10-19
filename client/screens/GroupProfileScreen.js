@@ -5,8 +5,9 @@ import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
 import { adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
 import { CommunityPhotoIcon, GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
-import { resizeImageAsync } from '../components/shim';
+import { resizeImageAsync, useCustomNavigation } from '../components/shim';
 import { Catcher } from '../components/catcher';
+
 
 function BioAnswers({answers, bioQuestions}) {
     if (!bioQuestions || !answers) return null;
@@ -16,17 +17,22 @@ function BioAnswers({answers, bioQuestions}) {
     return <Text>{joinedAnswers}</Text>
 }
 
-function MemberPreview({members, hue, userId, bioQuestions}) {
+function MemberPreview({community, members, hue, userId, bioQuestions}) {
     const member=members[userId];
+    const navigation = useCustomNavigation();
     return (
         <View style={{flexDirection: 'row', height: 150}}>
-            <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+            <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: userId})} >
+                <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+            </FixedTouchable>
             <View style={{marginTop: 0, marginLeft: 16, flex: 1}}>
-                <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 4}}>{member.name}</Text>
-                <Text>{member.bio}</Text>
-                <Catcher>
-                    <BioAnswers answers={member.answers} bioQuestions={bioQuestions} />
-                </Catcher>
+                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: userId})} >
+                    <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 4}}>{member.name}</Text>
+                    <Text>{member.bio}</Text>
+                    <Catcher>
+                        <BioAnswers answers={member.answers} bioQuestions={bioQuestions} />
+                    </Catcher>
+                </FixedTouchable>
             </View>
         </View>
     )
@@ -113,7 +119,7 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
-                <MemberPreview key={m} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
+                <MemberPreview key={m} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
 

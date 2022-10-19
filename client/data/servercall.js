@@ -109,8 +109,8 @@ export async function postMessageAsync({group, text, type, title, photoKey, phot
     return await callServerApiAsync('postMessage', {group, text, type, photoKey, photoData, title, rootKey, editKey, replyTo, membersOnly});
 }
 
-export async function reportAbuseAsync({group, member, abuseType, details}) {
-    return await callServerApiAsync('reportAbuse', {group, member, abuseType, details});
+export async function reportAbuseAsync({group, community, member, abuseType, details}) {
+    return await callServerApiAsync('reportAbuse', {group, community, member, abuseType, details});
 }
 
 export async function setMemberRoleAsync({group, member, role}) {

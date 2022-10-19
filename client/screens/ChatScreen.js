@@ -487,7 +487,9 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                     <View style={{width: 40, marginLeft: 8}} />
                 :
                     <View style={{marginLeft: 4, alignSelf: 'flex-start', marginTop: message.published ? 26 : 8}}>
-                        <MemberPhotoIcon hue={hue} photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
+                        <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: message.from})}>
+                            <MemberPhotoIcon hue={hue} photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={40} style={{marginRight: 4}}/>            
+                        </FixedTouchable>
                     </View>
                 )
             }

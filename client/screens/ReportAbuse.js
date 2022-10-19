@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { track } from '../components/shim';
 
 export function ReportAbuseScreen({navigation, route}){
-    const {group, member} = route.params;
+    const {group, community, member} = route.params;
     const [abuseType, setAbuseType] = useState('');
     const [details, setDetails] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -30,7 +30,7 @@ export function ReportAbuseScreen({navigation, route}){
 
     async function submit() {
         track('Report Abuse', {group, member, abuseType});
-        await reportAbuseAsync({group, member, abuseType, details});        
+        await reportAbuseAsync({group, community, member, abuseType, details});        
         navigation.goBack();
     }
 
