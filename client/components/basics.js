@@ -395,7 +395,7 @@ export function LogoHeader() {
 export function ToggleCheck({value, onValueChange, label, style, textStyle=null}) {
   return (
     <FixedTouchable onPress={() => onValueChange(!value)}>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10, ...style}}>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 4, marginLeft: 10, ...style}}>
         <FontAwesome name={value ? 'check-circle' : 'circle-thin'} style={{marginTop: 2}} size={18} color={value ? baseColor : '#666'} />
         <Text style={[{marginLeft: 4, color: '#666'}, textStyle]}>{label}</Text>
       </View>

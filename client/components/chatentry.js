@@ -127,8 +127,12 @@ export const ChatEntryBox = memo(forwardRef(
 
     const expanded = proposePublic || text;
 
+    const webTextboxStyle = [styles.iosTextBox, {height}];
+    const textBoxStyle = Platform.OS == 'android' ? null : (Platform.OS == 'ios' ? styles.iosTextBox : webTextboxStyle);
+    const wrapperStyle = Platform.OS == 'android' ? styles.androidInputWrapper : styles.nonAndroidInputWrapper;
+
     return (
-        <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingHorizontal: 8, backgroundColor: 'white'}}>
+        <View style={styles.mainFrame}>
             {edit ?
                 <View>
                     <Text style={{color: '#222', fontWeight: 'bold', fontSize: 12, marginTop: 8, marginLeft: 8}}>Editing previous message</Text>
@@ -150,7 +154,7 @@ export const ChatEntryBox = memo(forwardRef(
                 <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Summary' style={{marginTop: 4}} textStyle={{color: 'black'}} />
             : null }
             {!replyTo && expanded && proposePublic && mySummary ?
-                <Text style={{color: '#666', fontSize: 12, marginTop: 8, marginLeft: 8}}>This will replace your previous summary</Text>
+                <Text style={{color: '#666', fontSize: 12, marginBottom: 8, marginTop: 4, marginLeft: 8}}>This will replace your previous summary</Text>
             : null}
             {textTooLong ? 
                 <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>Message is {textLength - maxMessageLength} chars too long</Text>
@@ -163,25 +167,24 @@ export const ChatEntryBox = memo(forwardRef(
                     You have written {byMeCount} messages in a row. Consider letting someone else speak before writing another message.
                 </Text>
             : null}
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <TextInput // disabled={inProgress} 
-                    key={textKey}
-                    ref={chatInputRef}
-                    defaultValue={defaultText}
-                    onChangeText={onChangeText}
-                    autoFocus={isWeb}
-                    placeholder={proposePublic ? 'Write a public summary' : 'Write a private message'}
-                    placeholderTextColor={'#999'}
-                    multiline
-                    style={[{backgroundColor: '#f4f4f4', borderRadius: 8, 
-                        borderWidth: StyleSheet.hairlineWidth, 
-                        borderColor: '#ddd', padding: 8,
-                        marginVertical: 8,
-                        fontSize: 16, lineHeight: 20, flex: 1
-                    }, {height: isWeb ? height : null}]}
-                    onContentSizeChange={onContentSizeChange}
-                    onKeyPress={onKeyPress}                
-                />
+            <View style={styles.buttonRow}>
+                <View style={wrapperStyle}>
+                    <TextInput // disabled={inProgress} 
+                        key={textKey}
+                        ref={chatInputRef}
+                        defaultValue={defaultText}
+                        onChangeText={onChangeText}
+                        autoFocus={isWeb}
+                        placeholder={proposePublic ? 'Write a public summary' : 'Write a private message'}
+                        placeholderTextColor={'#999'}
+                        multiline
+
+                        style={textBoxStyle}
+                        autoCorrect={Platform.OS == 'android' ? false : true}
+                        onContentSizeChange={onContentSizeChange}
+                        onKeyPress={onKeyPress}                
+                    />
+                </View>
                 {!expanded ? 
                     <FixedTouchable onPress={() => {setProposePublic(true); chatInputRef.current.focus()}}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
@@ -214,3 +217,31 @@ export const ChatEntryBox = memo(forwardRef(
         </View>
     )
 }))
+
+const styles=StyleSheet.create({
+    iosTextBox: {
+        backgroundColor: '#f4f4f4', borderRadius: 8, 
+        borderWidth: StyleSheet.hairlineWidth, 
+        borderColor: '#ddd', padding: 8,
+        marginVertical: 8,
+        // backgroundColor: 'red',
+        flexShrink: 0,
+        fontSize: 16, lineHeight: 20, flexGrow: 1
+    },
+    androidInputWrapper: {
+        flex: 1, backgroundColor: '#f4f4f4', borderRadius: 8,
+        borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingVertical: 4, paddingHorizontal: 8,
+        marginVertical: 8
+    },
+    nonAndroidInputWrapper: {
+        flex: 1
+    },
+    mainFrame: {
+        borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', paddingHorizontal: 8, backgroundColor: 'white'
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        alignItems: 'center'   
+    }
+
+})
