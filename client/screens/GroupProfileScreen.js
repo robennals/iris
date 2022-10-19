@@ -7,6 +7,7 @@ import { adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from
 import { CommunityPhotoIcon, GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync, useCustomNavigation } from '../components/shim';
 import { Catcher } from '../components/catcher';
+import { FollowAvoid } from '../components/followavoid';
 
 
 function BioAnswers({answers, bioQuestions}) {
@@ -33,6 +34,7 @@ function MemberPreview({community, members, hue, userId, bioQuestions}) {
                         <BioAnswers answers={member.answers} bioQuestions={bioQuestions} />
                     </Catcher>
                 </FixedTouchable>
+                <FollowAvoid user={userId} style={{marginTop: 16}}/>
             </View>
         </View>
     )

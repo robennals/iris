@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FixedTouchable, FormInput, FormTitle, parseQuestions, ScreenContentScroll, textToKey, WideButton } from '../components/basics';
+import { firstName, FixedTouchable, FormInput, FormTitle, parseQuestions, ScreenContentScroll, textToKey, WideButton } from '../components/basics';
 import { firebaseSignOut, getCurrentUser, internalReleaseWatchers, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { Picker, StyleSheet, View, Text } from 'react-native';
 import { reportMemberAsync, setMemberRoleAsync, updateProfileAsync } from '../data/servercall';
@@ -9,6 +9,9 @@ import { MemberPhotoIcon, MemberProfilePhotoPlaceholder, MemberProfilePhotoPrevi
 import { resizeImageAsync } from '../components/shim';
 import { Loading } from '../components/loading';
 import { Catcher } from '../components/catcher';
+import { FollowAvoid } from '../components/followavoid';
+
+
 
 export function ProfileScreen({navigation, route}) {
     const {community, member} = route.params;
@@ -16,10 +19,11 @@ export function ProfileScreen({navigation, route}) {
     const photoKey = useDatabase([community, member], ['commMember', community, member, 'photoKey']);
     const answers = useDatabase([community, member], ['commMember', community, member, 'answer']);
     const communityInfo = useDatabase([community], ['community', community]);
-    const followAvoid = useDatabase([member], ['perUser', ])
     const name = answers?.['Full Name'];
 
     if (!photoKey || !answers) return <Loading />
+    const first = firstName(name || '');
+
 
     return (
         <ScreenContentScroll>
@@ -29,6 +33,10 @@ export function ProfileScreen({navigation, route}) {
             <View style={{marginTop: 16, alignItems: 'center'}}>
                 <Text style={{fontSize: 32, fontWeight: 'bold'}}>{name}</Text>
             </View>
+            <FollowAvoid user={member} style={{justifyContent: 'center', marginVertical: 8}} />
+            <Text style={{color: '#666', fontSize: 12, alignSelf: 'center'}}>
+                Follow {first} to get matched with them more often.
+            </Text>
             {/* <Text style={{marginTop: 16, textAlign: 'center', fontSize: 20, fontWeight: 'bold'}}>Bio Answers</Text> */}
             <Catcher>
                 <BioAnswers communityInfo={communityInfo} answers={answers} />
