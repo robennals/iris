@@ -5,7 +5,7 @@ export class KeyboardSafeView extends React.Component {
   state = {verticalOffset:0} 
 
   onLayout() {
-    this.view.measure((x,y,width,height,pageX,pageY) => {
+    this.view?.measure((x,y,width,height,pageX,pageY) => {
       this.setState({verticalOffset: pageY})
       // console.log('keyboard offset', pageY)
     })

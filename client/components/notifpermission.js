@@ -9,20 +9,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { checkIfNotifsGranted, getNotifToken, notifsSupported, requestNotifPermission, track } from './shim';
 import { serverTimestamp } from 'firebase/database';
 
-// export async function checkIfNotifsGranted() {
-
-
-//     if (Platform.OS == 'web') {
-//       return Notification.permission == 'granted';
-//     }  
-//     const notifStatus = await Notifications.getPermissionsAsync();
-//     // console.log('notifStatus', notifStatus);
-//     if (_.get(notifStatus, 'status') != 'granted') {
-//       return false;
-//     } else { 
-//       return true;
-//     }   
-// }
 
 export async function refreshNotifToken() {
   // console.log('refreshNotifToken');
@@ -36,29 +22,13 @@ export async function refreshNotifToken() {
   } catch (e) {
     console.log('notif error', e);
   }
-
-    // if (Platform.OS == 'web') {
-    //   const notifToken = await getDataAsync(['userPrivate', getCurrentUser(), 'webNotifToken']);      
-    //   const fbNotifToken = getFirebaseNotifTokenAsync();
-    //   if (notifToken != fbNotifToken) {
-    //     await setDataAsync(['userPrivate', getCurrentUser(), 'webNotifToken'], expoNotifToken);
-    //   }
-    // }
-  
-    // try {
-    //   const notifToken = await getDataAsync(['userPrivate', getCurrentUser(), 'notifToken']);      
-    //   const expoNotifToken = (await Notifications.getExpoPushTokenAsync()).data;
-    //   if (notifToken != expoNotifToken) {
-    //     await setDataAsync(['userPrivate', getCurrentUser(), 'notifToken'], expoNotifToken);
-    //   }
-    // } catch (e) {
-    //   console.log('notif error', e);
-    // }
 }
 
 export class EnableNotifsBanner extends React.Component {
     state = {notifsEnabled: true, denied: false, later: true}
     async componentDidMount() {
+      if (!notifsSupported()) return null;
+
       watchData(this, ['userPrivate', getCurrentUser(), 'notifsLater'], later => this.setState({later}), false);
 
       const notifsEnabled = await checkIfNotifsGranted();
