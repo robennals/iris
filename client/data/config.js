@@ -33,7 +33,7 @@ export const highlightColor = '#ffffdd'
 
 export const minTwoPanelWidth = 700
 
-export const version = 40
+export const version = 41
 
 export const experienceId = '@robennals/iris-talk';
 

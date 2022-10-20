@@ -286,7 +286,7 @@ function PublishedPreview({community, topicKey, topic, members}) {
                         <MemberPhotoIcon size={24} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
                         <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16}}>
                             <Text style={{fontWeight: 'bold', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
-                            <OneLineText>{topic.lastMessage.text}</OneLineText>
+                            <Text numberOfLines={3}>{topic.lastMessage.text}</Text>
                         </View>
                     </View>
                 </View>

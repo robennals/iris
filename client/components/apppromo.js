@@ -23,23 +23,10 @@ export function AppPromo(){
 
                 <a target='_blank' rel='noreferrer' href='https://apps.apple.com/us/app/iris-talk/id1640562508' style={{alignSelf: 'center', textDecoration: 'none'}}>
                     <Image source={{uri: 'https://iris-talk.com/ios_app_promo.png'}} style={{width: 153, height: 45}} />
-                    {/* <View style={{backgroundColor: 'black', alignSelf: 'center', flexDirection: 'row', 
-                    alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, 
-                        marginHorizontal: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8}}>
-                        <FontAwesome name='apple' style={{marginRight: 8}} size={24}  color='white' />
-                        <Text style={{fontSize: 18, color: 'white', textDecorationLine: 'none'}}>Get the iOS App</Text>
-                    </View> */}
                 </a>
                 <View style={{height: 16}} />
                 <a target='_blank' rel='noreferrer' href='https://play.google.com/store/apps/details?id=us.mix5' style={{alignSelf: 'center', textDecoration: 'none'}}>
                     <Image source={{uri: 'https://iris-talk.com/android_app_promo.png'}} style={{width: 153, height: 45}} />
-{/* 
-                    <View style={{backgroundColor: 'black', alignSelf: 'center', flexDirection: 'row', 
-                    alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, marginTop: 8, 
-                        marginHorizontal: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 8}}>
-                        <FontAwesome name='apple' style={{marginRight: 8}} size={24}  color='white' />
-                        <Text style={{fontSize: 18, color: 'white', textDecorationLine: 'none'}}>Get the iOS App</Text>
-                    </View> */}
                 </a>
             </View>
         )

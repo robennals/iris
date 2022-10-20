@@ -499,20 +499,20 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                     <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
                         <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                             <Entypo name='star' color='#FABC05' size={16} />
-                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Public Summary - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Public Highlight - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
                         </View>
                     </FixedTouchable>
                 : null}
                 {!message.published && message.proposePublic ? 
                     <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                         <Entypo name='star' color='#FABC05' size={16} />
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Proposed Public Summary</Text>
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Proposed Public Highlight</Text>
                     </View>
                 : null}
                 {!message.published && !message.proposePublic && message.prevPublic ? 
                     <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                         {/* <Entypo name='star' color='#FABC05' size={16} /> */}
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Previous summary</Text>
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Previous highlight</Text>
                     </View>            
                 : null}
 

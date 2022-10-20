@@ -15,7 +15,7 @@ function BioAnswers({answers, bioQuestions}) {
     const goodQuestions = bioQuestions.map(q => q.question).filter(q => !shouldIgnoreQuestion(q));
     const sortedAnswers = goodQuestions.map(q => answers[textToKey(q)]);
     const joinedAnswers = _.join(sortedAnswers, ', ');
-    return <Text>{joinedAnswers}</Text>
+    return <Text numberOfLines={2}>{joinedAnswers}</Text>
 }
 
 function MemberPreview({community, members, hue, userId, bioQuestions}) {

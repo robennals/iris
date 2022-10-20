@@ -151,10 +151,10 @@ export const ChatEntryBox = memo(forwardRef(
                 </View>
             : null}
             {!replyTo && expanded ?
-                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Summary' style={{marginTop: 4}} textStyle={{color: 'black'}} />
+                <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Highlight' style={{marginTop: 4}} textStyle={{color: 'black'}} />
             : null }
             {!replyTo && expanded && proposePublic && mySummary ?
-                <Text style={{color: '#666', fontSize: 12, marginBottom: 8, marginTop: 4, marginLeft: 8}}>This will replace your previous summary</Text>
+                <Text style={{color: '#666', fontSize: 12, marginBottom: 8, marginTop: 4, marginLeft: 8}}>This will replace your previous highlight</Text>
             : null}
             {textTooLong ? 
                 <Text style={{color: 'red', fontSize: 12, marginTop: 8, marginLeft: 8}}>Message is {textLength - maxMessageLength} chars too long</Text>
@@ -175,21 +175,20 @@ export const ChatEntryBox = memo(forwardRef(
                         defaultValue={defaultText}
                         onChangeText={onChangeText}
                         autoFocus={isWeb}
-                        placeholder={proposePublic ? 'Write a public summary' : 'Write a private message'}
+                        placeholder={proposePublic ? 'Write a public highlight' : 'Write a private message'}
                         placeholderTextColor={'#999'}
                         multiline
-
                         style={textBoxStyle}
                         autoCorrect={Platform.OS == 'android' ? false : true}
-                        onContentSizeChange={onContentSizeChange}
-                        onKeyPress={onKeyPress}                
+                        onContentSizeChange={Platform.OS == 'web' ? onContentSizeChange : null}
+                        onKeyPress={Platform.OS == 'web' ? onKeyPress : null}                
                     />
                 </View>
                 {!expanded ? 
                     <FixedTouchable onPress={() => {setProposePublic(true); chatInputRef.current.focus()}}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='star' color='#FABC05' size={16} />
-                            <Text style={{marginLeft: 2, color: '#999'}}>Summary</Text>
+                            <Text style={{marginLeft: 2, color: '#999'}}>Highlight</Text>
                         </View>
                     </FixedTouchable>                
                 : null}

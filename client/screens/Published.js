@@ -25,7 +25,7 @@ export function PublishedHeader({navigation, route}) {
             <Entypo name='star' color='#FABC05' size={32} style={{marginRight: 4}} />
             <View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>Public Summaries</Text>
+                    <Text>Public Highlights</Text>
                 </View>
                 <Text style={{fontSize: 12}}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
@@ -109,8 +109,8 @@ function ExplainHighlights() {
     return (
         <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
             <Text style={{color: '#666', marginBottom: 4}}>
-                A public summary is one person's attempt to summarize 
-                the most important conclusions of a private group chat.
+                A public highlight is what one person thought was the most 
+                important insight that came out of their private conversation.
             </Text>
             {/* <Text style={{color: '#666'}}>
                 At least one other person must support a summary
