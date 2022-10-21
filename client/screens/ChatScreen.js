@@ -15,12 +15,13 @@ import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
 import { adminJoinGroupAsync, endorseMessageAsync, likeMessageAsync, publishMessageAsync, sendMessageAsync } from '../data/servercall';
-import { BottomFlatScroller, ModalMenu } from '../components/shimui';
+import { ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { Feedback } from '../components/feedback';
 import { Loading } from '../components/loading';
 import { StatusBar } from 'expo-status-bar';
+import { BottomFlatScroller } from '../components/bottomscroller';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -172,7 +173,7 @@ export function ChatScreen({navigation, route}) {
     // console.log('render chatscreen');
 
     const iAmNotInGroup = members && !members[getCurrentUser()];
-    
+
     return (
       <GroupContext.Provider value={{group}} >
       <KeyboardSafeView style={{flex: 1}}>
@@ -297,7 +298,7 @@ function MessageList({group, onReply, onEdit}) {
 
     function renderMessage({item}) {
         // console.log('renderMessageFunc', item);
-        const {key, idx, k} = item;
+        const {key, idx} = item;
         if (key == 'space') {
             return <View style={{height: 16}} />
         } else if (key == 'archived') {
@@ -310,7 +311,7 @@ function MessageList({group, onReply, onEdit}) {
             const nextMessage = allMessages[shownMessageKeys[idx+1]] ?? empty_object;
             const replyMessage = message.replyTo ? allMessages[message.replyTo] : null;
             return (
-                <Catcher>
+                <Catcher key={key}>
                     <MemoMessage
                         message={message} prevMessage={prevMessage} nextMessage={nextMessage}
                         replyMessage={replyMessage} 
@@ -326,6 +327,8 @@ function MessageList({group, onReply, onEdit}) {
         }
     }
 
+    // return <Text>Message List</Text>
+
     return (
         <View style={{flex: 1}}>
             <BottomFlatScroller style={{flex: 1, flexShrink: 1}} ref={scrollRef} 
@@ -338,24 +341,6 @@ function MessageList({group, onReply, onEdit}) {
                 {key: 'pad'}
             ]}
             />
-
-            {/* <BottomFlatScroller style={{flex: 1,flexShrink: 1}} ref={scrollRef} data={[
-                // {key: 'more', item: 
-                    // <MoreButton showCount={showCount} messageCount={sortedMessageKeys.length} onMore={() => setShowCount(showCount+40)} />},
-                {key: 'space', item: 
-                    <View style={{height: 16}} />
-                },
-                ... shownMessageKeys.map((k,idx) => ({key: k, value: () => 
-                // ... shownMessageKeys.map((k,idx) => ({key: k, item:  
-                    <Message key={k} messages={allMessages} members={members} group={group}
-                        messageKey={k} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
-                        memberHues={memberHues} messageLikes={likes?.[k]} 
-                        community={community} topic={topic}
-                        meInGroup={meInGroup}
-                        onReply={onReply} onEdit={onEdit} />})),
-                {key: 'archived', item: <Feedback archived={archived} group={group} />},
-                {key: 'pad', item: <View style={{height: 8}} />}
-            ]} /> */}
         </View>
     )
 }

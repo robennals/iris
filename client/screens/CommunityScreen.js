@@ -12,7 +12,7 @@ import { baseColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
-import { BottomFlatScroller } from '../components/shimui';
+import { BottomFlatScroller } from '../components/bottomscroller';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { PhotoPromo } from '../components/profilephoto';
 import { Loading } from '../components/loading';

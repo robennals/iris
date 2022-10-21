@@ -4,64 +4,28 @@ import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import _ from 'lodash';
-
-
-function basicRenderItem ({item: {key, item, value}}) {
-    return <Catcher>{item || value()}</Catcher>;
-  }
-  
-  export class BottomFlatScroller extends React.PureComponent {
-    state = {}
-    safariScrollToEnd() {}
-    render() {
-      const {data, renderItem, style} = this.props;
-      const {height} = this.state;    
-      return (
-        <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
-          <FlatList inverted initialNumToRender={20}
-            style={{flex: 1, /* maxHeight: height */}}
-            keyboardDismissMode='on-drag'
-            // estimatedItemSize={78}
-            data={data.slice().reverse()}
-            renderItem={renderItem || basicRenderItem}
-            onContentSizeChange={(width, height) => this.setState({height})}
-          />
-        </View>
-      )
-    }
-  }
+import { BottomFlatScroller } from './bottomscroller';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 export function ModalMenu({items, onSelect, onClose}) {
     return (
       <Modal style={{justifyContent: 'flex-end'}} 
           isVisible onBackdropPress={onClose} >
-        <FixedTouchable onPress={onClose} style={{flex: 1}}>
-          <BottomFlatScroller data={items.map(i => 
-            ({key: i.id, item: 
+        <FixedTouchable onPress={onClose}> 
+          <ScrollView>        
+            {items.map(i => 
               <FixedTouchable key={i.id} onPress={() => {
-                onSelect(i.id)
+                onSelect(i.id);
+                // onClose()
               }}>
                 <View style={{backgroundColor: '#fff', borderRadius: 16, padding: 8, alignItems: 'center', margin: 4}}>
                   <Text style={{fontSize: 20}}>{i.label}</Text>
                 </View>
               </FixedTouchable>
-            })
-          )} 
-          />
-          </FixedTouchable>
-        {/* <ScrollView>        
-          {items.map(i => 
-            <FixedTouchable key={i.id} onPress={() => {
-              onSelect(i.id);
-              // onClose()
-            }}>
-              <View style={{backgroundColor: '#fff', borderRadius: 16, padding: 8, alignItems: 'center', margin: 4}}>
-                <Text style={{fontSize: 20}}>{i.label}</Text>
-              </View>
-            </FixedTouchable>
-          )}
-        </ScrollView> */}
+            )}
+          </ScrollView>
+        </FixedTouchable>
       </Modal>
     )
   }
