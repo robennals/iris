@@ -123,6 +123,7 @@ exports.sendMissedMessageEmailForAllUsers = sendMissedMessageEmailForAllUsers;
 async function getMissedMessagesForUser(user) {
     const pLastmessageTime = FBUtil.getDataAsync(['userPrivate', user, 'lastMessageTime'], 0);
     const pLastNotifEmailTime = FBUtil.getDataAsync(['userPrivate', user, 'lastNotifEmailTime'], 0);
+
     const lastActionTime = await FBUtil.getDataAsync(['userPrivate', user, 'lastAction'], 0);
     const lastMessageTime = await pLastmessageTime;
     const lastNotifEmailTime = await pLastNotifEmailTime;
@@ -132,15 +133,15 @@ async function getMissedMessagesForUser(user) {
     }
     if (Math.max(lastActionTime || 0, lastNotifEmailTime || 0) > lastMessageTime) {
         // console.log('No missed messages', user);
-        return null; // no new messages since they last used the app
+        return null; // no new messages since they last used the app or we last sent an email
     }
-    if (lastActionTime > Date.now() - (24 * Basics.hourMillis)) {
+    if (lastActionTime > Date.now() - (48 * Basics.hourMillis)) {
         // console.log('Active recently', user);
-        return null; // used the app within the last 24 hours.
+        return null; // used the app within the last 48 hours.
     }
-    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > (Date.now() - (4 * Basics.dayMillis))) {
+    if ((lastNotifEmailTime > lastActionTime) && lastNotifEmailTime > (Date.now() - (7 * Basics.dayMillis))) {
         // console.log('Recent notif email', user);
-        return null; // sent a missed messages email in the last 48 hours, and they haven't logged in since then
+        return null; // sent a missed messages email in the last 7 days, and they haven't logged in since then
     } 
     console.log('** Needs email', user, Basics.formatTime(lastNotifEmailTime), Basics.formatTime(lastActionTime));
 
