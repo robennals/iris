@@ -83,6 +83,9 @@ export function Feedback({archived, group}) {
             <Text style={{color: '#666', fontSize: 12, maxWidth: 250, marginHorizontal: 32, textAlign: 'center'}}>
                 Rating this conversation will help us match you with better conversations.
             </Text>
+            <Text style={{color: '#666', marginVertical: 16, fontSize: 12, maxWidth: 250, marginHorizontal: 32, textAlign: 'center'}}>
+                Once you rate this conversation, it will be archived in completed conversations.
+            </Text>
         </View>
     )
 }

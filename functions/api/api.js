@@ -9,7 +9,7 @@ const Export = require('./export');
 const Iris = require('./iris');
 const IrisMigrate = require('./irismigrate');
 const Analysis = require('./analysis');
-const { irisDigestAsync, wakeupMessageAsync } = require('./irisemail');
+const { irisDigestAsync, wakeupMessageAsync, autoCloseAsync, wakeupGroupsAsync } = require('./irisemail');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -141,7 +141,10 @@ async function apiActionAsync({action, components, params}) {
             return Iris.endorseMessageAsync(params);
         }
         case 'wakeupMessage': {
-            return wakeupMessageAsync(params);
+            return wakeupGroupsAsync(params);
+        }
+        case 'autoClose': {
+            return autoCloseAsync(params);
         }
 
         default: {

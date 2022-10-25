@@ -65,6 +65,8 @@ function mergeObjectSets(a, b) {
 }
 
 function groupNeedsRating(groupInfo) {
+    return !groupInfo.rating && groupInfo.lastMessage;
+
     return !groupInfo.rating && groupInfo.lastMessage && groupInfo.lastMessage.from != 'zzz_irisbot';
 }
 

@@ -8,16 +8,103 @@ const Iris = require('./iris');
 
 const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
 
+const testCommunity = '-NAAotjBwgkzv0pQtxd3';
+const demoSociety = '-NALM8Vqo4Tie4rHugnY';
+
+async function autoCloseAsync() {
+    const forward = '-NAihY80TpH1i4wGTEA7';
+    const autobots = '-NAeYUhZwzFXOB6YqaX3';
+    const irisUsers = '-NCS3mSw7G2gm5Koihuc';
+
+    // const result = autoCloseCommunityGroupsAsync({community: irisUsers}); 
+    const result = autoCloseGroupsAsync();
+    // return result;
+    return {success: true}
+}
+exports.autoCloseAsync = autoCloseAsync;
+
+async function autoCloseGroupsAsync() {
+    const communities = await FBUtil.getDataAsync(['community']);
+    const communityKeys = _.keys(communities);
+    const filteredCommunityKeys = _.filter(communityKeys, c => c != testCommunity && c != demoSociety);
+    const autoCloseResults = await Promise.all(filteredCommunityKeys.map(
+        community => autoCloseCommunityGroupsAsync({community, name: communities[community].name}))
+    );
+    var updates = {};
+    _.forEach(autoCloseResults, r => {
+        updates = {...updates, ...r.updates};
+    })
+    console.log('updates', updates);
+    return {success: true}
+}
+exports.autoCloseGroupsAsync = autoCloseGroupsAsync;
+
+async function autoCloseCommunityGroupsAsync({community, name=''}) {
+    const adminGroups = await FBUtil.getDataAsync(['adminCommunity', community, 'group']);
+ 
+    var updates = {};
+    var maybeWakeupGroup = [];
+    const oldTime = Date.now() - (4 * Basics.dayMillis);
+    _.forEach(_.keys(adminGroups), g => {
+        const group = adminGroups[g];
+        if (group?.lastMessage?.time < oldTime) {
+            console.log('old group', name, g, group.name)
+            maybeWakeupGroup.push(g);
+        }
+    })
+    const groupWakeup = await FBUtil.getMultiDataAsync(maybeWakeupGroup, g => ['group', g, 'wakeUp'], null);
+    const groupArchived = await FBUtil.getMultiDataAsync(maybeWakeupGroup, g => ['group', g, 'archived'], null);
+
+    // console.log('wakeup', groupWakeup);
+    var wakeupGroup = [];
+    _.forEach(maybeWakeupGroup, g => {
+        if (groupWakeup[g] && !groupArchived[g]) {
+            console.log('old, woken, not archived', g, adminGroups[g].name);
+            wakeupGroup.push(g);
+        }
+    })
+    const archiveResults = await Promise.all(wakeupGroup.map(group => Iris.adminArchiveGroupAsync({group, userId: robUserId})));
+    // console.log('archiveResults', archiveResults);
+    _.forEach(archiveResults, r => {
+        updates = {...updates, ...r.updates};
+    })
+
+    console.log('updates', name, updates);
+    // return {success: true}
+    return {success: true, updates}
+}
 
 
 
-async function wakeupMessageAsync() {
+async function wakeupGroupsAsync() {
+    const communities = await FBUtil.getDataAsync(['community']);
+    const communityKeys = _.keys(communities);
+    const filteredCommunityKeys = _.filter(communityKeys, c => c != testCommunity && c != demoSociety);
+    const wakeupResults = await Promise.all(filteredCommunityKeys.map(
+        community => wakeupCommunityAsync({community, name: communities[community].name}))
+    );
+    var updates = {};
+    var notifs = [];
+    _.forEach(wakeupResults, r => {
+        updates = {...updates, ...r.updates};
+        notifs = [...notifs, ...r.notifs]
+    })
+    // console.log('updates', updates);
+    // console.log('notifs', notifs);
+    // return {success: true, updates};
+    return {success: true, updates, notifs}
+}
+exports.wakeupGroupsAsync = wakeupGroupsAsync;
+
+
+
+async function wakeupCommunityAsync({community, name = '', count = 30}) {
     const autobots = '-NAeYUhZwzFXOB6YqaX3';
     const forward = '-NAihY80TpH1i4wGTEA7';
     const fyke = 'tKj77s5p2hTmzn17FpZsRZPTCNT2';
-    const groupsToWakeUp = await findGroupsNeedingWakeup({community: forward, count: 20})
+    const groupsToWakeUp = await findGroupsNeedingWakeup({community, name, count})
 
-    console.log('groups to wake up', groupsToWakeUp);
+    console.log('groups to wake up', name, groupsToWakeUp);
 
     var updates = {};
     var notifs = [];
@@ -42,38 +129,38 @@ async function wakeupMessageAsync() {
 
     return {success: true, updates, notifs}
 }
-exports.wakeupMessageAsync = wakeupMessageAsync;
+// exports.wakeupMessageAsync = wakeupMessageAsync;
 
 
 
 // TODO: This will need to be more efficient
-async function findGroupsNeedingWakeup({community, count, user=null}) {
-    console.log('findGroups', community);
-    const twoDaysAgo = Date.now() - (Basics.dayMillis * 2);
+async function findGroupsNeedingWakeup({community, name='', count, user=null}) {
+    console.log('findGroups', community, name);
+    const fourDaysAgo = Date.now() - (Basics.dayMillis * 4);
     const groups = await FBUtil.getDataAsync(['adminCommunity', community, 'group']);
     const groupKeys = _.keys(groups || {});
     const pGroupArchived = FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'archived'], null);
     const pGroupWakeup = FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'wakeUp'], null);
-    const memberSummaries = await FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'memberSummary'], null);
+    // const memberSummaries = await FBUtil.getMultiDataAsync(groupKeys, g => ['group', g, 'memberSummary'], null);
     const groupArchived = await pGroupArchived;
     const groupWakeup = await pGroupWakeup;    
     const groupsToWakeUp = _.filter(groupKeys, g => {
         const group = groups[g];
         const lastTime = group?.lastMessage?.time;
-        const stale = lastTime < twoDaysAgo;
-        const hasSummaries = memberSummaries[g];
+        const stale = lastTime < fourDaysAgo;
+        // const hasSummaries = memberSummaries[g];
         const hasWakeUp = groupWakeup[g];
         const archived = groupArchived[g];
         const hasUser = !user || group.member[user];
-        console.log('group', group.name, g, stale, lastTime, hasSummaries, hasWakeUp, archived);
-        return stale && !hasSummaries && !hasWakeUp && !archived && hasUser;   
+        console.log('group', group.name, g, stale, lastTime, hasWakeUp, archived);
+        return stale && !hasWakeUp && !archived && hasUser;   
     });
 
     const sortedGroups = _.sortBy(groupsToWakeUp, g => groups[g]?.lastMessage?.time);
     const firstSortedGroups = _.slice(sortedGroups, 0, count);
 
     _.forEach(firstSortedGroups, g => {
-        console.log('wake up', groups[g].name, g);
+        console.log('wake up', name, groups[g].name, g);
     })
     return firstSortedGroups;
 }
@@ -224,6 +311,8 @@ async function getMissedMessagesForUser(user) {
         ]
     }
 }
+
+const robUserId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3';
 
 async function OLD_irisDigestAsync() {
     const members = [
