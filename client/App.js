@@ -75,7 +75,8 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
-    profile: 'profile/:community/:member'
+    profile: 'profile/:community/:member',
+    home: 'home/',
   }
 }}
 

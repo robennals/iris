@@ -2,7 +2,7 @@
 <html> 
 <head> 
 	<meta name="viewport" content="width=device-width, user-scalable=no">
-	<title>Mix5 - Get Conversations Started</title>
+	<title>Iris Talk - Get Conversations Started</title>
 	<style>
 		p {
 			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
@@ -248,7 +248,66 @@
             text-decoration: none;
             border-radius: 4px;
         }
-                
+
+        #quote-scroller {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;            
+            /* margin-top: 40px; */
+            margin-bottom: 40px;
+            width: 1400px;
+        }
+
+        .scroll-holder {
+            width: 100%;
+            /* height: 500px; */
+            overflow-x: scroll;
+        }
+
+        .quote-block {
+            width: 500px;
+            padding: 32px;
+            /* border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 8px; */
+        }
+        .quote-author {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu; 
+            margin-top: 4px;
+        }
+        .quote-block q {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu; 
+            color: #666
+        }
+
+
+        #partner-holder {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        #partners {
+            /* display: flex;
+            flex-direction: row; */
+            justify-content: center;
+            margin-bottom: 64px;
+        }
+        .partner {
+            display: inline-block;
+            margin: 32px;
+        }
+
+        .partner-logo {
+            /* width: 64px; */
+            height: 64px;
+        }
+        
+        h3 {
+            text-align: center;
+            margin: 16px
+        }
+
         @media only screen and (min-width: 600px) {
             .innersection {
                 margin: auto;
@@ -292,6 +351,7 @@
 /*                flex-direction: column;*/
 /*                align-items: center;*/
             }
+
             #screenshot {
                 margin-right: 16px;
             }
@@ -328,7 +388,8 @@
       const auth = firebaseApp.auth();
       firebaseApp.auth().onAuthStateChanged(function(user) {        
         if (user) {
-          window.location.href = 'https://communitalk.org/home';
+            window.location.pathname = '/home';
+        //   window.location.href = 'https://iris-talk.com/home';
         } else {
           document.body.style.display = '';
         }
@@ -338,9 +399,9 @@
 	<header>
         <div id='top-head'>
             <div id='logo-head'>
-                <image src='https://communitalk.org/talkwell_icon.png' width='28px' height='28px' style='margin-left: 16px; margin-right: 8px' />
+                <image src='icon.png' width='28px' height='28px' style='margin-left: 16px; margin-right: 8px' />
                 <h1 style='font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif; font-size: 28px; font-weight: 500; margin-top: 10px; margin-bottom: 10px'>
-                    Mix5
+                    Iris Talk
                 </h1>
             </div>
             <div id='buttons' style='display: flex; justify-content: flex-end; flex-direction: row; margin-left: 8px'>
@@ -356,127 +417,140 @@
         
     <div id='top-part'>
         <h2 id='slogan'>
-            Get Conversations Started!
+            Get Conversations Started
         </h2>
         <div id='subhead'>
-            Groups organized around people, so the loudest people don't dominate.
+            Connect your community with small-group conversations
         </div>
 
         <section id='apps' style='text-align: center'>
-            <!-- <a href='https://apps.apple.com/bm/app/talkbeat/id1446803824' >
-                <img class='appbutton' src='https://talkbeat.com/app_store.png' style='width: 150px; margin-top: 32px'/>
-            </a> -->
-            <!-- <a href='https://play.google.com/store/apps/details?id=org.talkbeat'>
-                <img class='appbutton' src='https://talkbeat.com/google_play.png' style='width: 150px; margin-top: 32px'/>
-            </a> -->
+            <a href='https://apps.apple.com/us/app/iris-talk/id1640562508' ><img class='appbutton' src='https://talkbeat.com/app_store.png' style='width: 150px; margin-top: 32px'/></a>
+            <a href='https://play.google.com/store/apps/details?id=us.mix5'><img class='appbutton' src='https://talkbeat.com/google_play.png' style='width: 150px; margin-top: 32px'/></a>
         </section>
 
         
         <div id='box-row'>
             <div id='phone-box'>
-                <img id='phone-screenshot' src='iphone8_california.png' />
+                <img id='phone-screenshot' src='screenshots/iphone_awesomeness.png' />
             </div>
             <div id='pic-box'>
-                <img id='screenshot' src='web_california.png' />
+                <img id='screenshot' src='screenshots/web_awesomeness.png' />
             </div>
         </div>    
-    </div>
     <!-- EEF9FD -->
+
+        <h3>Used by</h3>
+        <!-- <div class='scroll-holder'> -->
+        <div id='partner-holder'>
+            <div id='partners'>
+                <div class='partner'>
+                    <img class='partner-logo' src="partners/braver_angels2.png" />
+                </div>
+                <div class='partner'>
+                    <img class='partner-logo' src="partners/american_public_square2.png" />
+                </div>
+                <div class='partner'>
+                    <img class='partner-logo' src="partners/crossing_party_lines.png" />
+                </div>
+            </div>
+        </div>
+         <!-- </div> -->
+
+        <h3>Quotes from Users</h3>
+        <div class='scroll-holder'>
+            <div id='quote-scroller'>
+                <div class='quote-block'>
+                    <q>Iris is a lot of fun. I deleted my FB, IG, Snap, Twitter, Reddit, etc. about 7 years ago and have found this app to be what I liked about social media without the privacy concerns.</q>
+                    <div class='quote-author'> - Lance</div>
+                </div>
+                <div class='quote-block'>
+                    <q>I am wiser and kinder now after having that conversation, and it probably could have only been done on Iris.</q>
+                    <div class='quote-author'> - Toby</div>
+                </div>
+                <div class='quote-block'>
+                    <q>I really appreciate the goal of diverse thinking, and it’s nice to have a chance to talk.</q>
+                    <div class='quote-author'> - John (disengaged from all social platforms until he found Iris)
+                    </div>
+                </div>
+                <div class='quote-block'>
+                    <q>Thanks for creating iris - I have been using it and the discourse is nowhere near as negative as what you see in social media.</q>
+                    <div class='quote-author'> - Mark
+                    </div>
+                </div>
+                <div class='quote-block'>
+                    <q>Hey everyone, just wanted to say thanks for all the fun conversations today! It was nice talking about politics without even saying what our political leanings are.</q>
+                    <div class='quote-author'>
+                        Mike
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     
 <!--    <div id='reasons'>-->
     <div class='section' style='background-image: linear-gradient(180deg,#f6f1fa,#fbf9fd)'>
         <div class='innersection'>
             <div class='sidebyside'>
                 <div class='text'>
-                <h3>Groups organized around People</h3>
+                <h3>Get your Members Engaged</h3>
                 <p>
-                  Talkwell is organized around people. The primary view of a group is the people in it. 
-                  Expand a person to see what they have been talking about, and maybe jump into conversation with them.
-                </p>              
+                    Many communities have thousands of disengaged members passively reading an email newsletter. 
+                    Often they have tried a large public forum, and found that most people don't feel comfortable talking
+                    honestly in front of a large audience.
+                </p>
+                <p>
+                    Iris Talk lets your community members talk to each other in a way that lets them feel safe, 
+                    establish genuine connections with each other, and geninely feel like part of a real community.
+                </p>
                 </div>
                 <div class='infopic'>
-                    <img src='pics/members.png' />
+                    <img src='pics/iris_diagram.png' />
                 </div>                
             </div>
 
             <div class='sidebyside'>
-              <div class='text'>
-              <h3>Big Groups made from Small Groups</h3>
+                <div class='text'>
+                <h3>Automatically Matched Small-Group Conversations</h3>
                 <p>
-                  Talkwell groups can contain sub-groups. This lets you have small tight-knit (&lt;50) groups that
-                  feel socially meaningful, and then connect them together into big groups that can get things done.
-                </p>
+                    A community member answers a few bio questions, and chooses topics they would like to talk to from a feed.
+                    Then Iris Talk automatically matches them into small private conversations.
+                </p>   
                 <p>
-                  Posts highlighted in a sub-group flow up to the parent group and vice-versa, allowing
-                  information to flow between groups and keeping every in sync.
+                    Each conversation has around five people, and our alorithms try to match people with people
+                    they will have a good conversation with.
                 </p>
-              </div>
-              <div class='infopic'>
-                  <img src='pics/subgroups.png' />
-              </div>                
+                </div>
+                <div class='infopic'>
+                    <img src='pics/profile.png' />
+                </div>                
             </div>
 
             <div class='sidebyside'>
                 <div class='text'>
-                    <h3>Avoid the Tyranny of the Annoying</h3>
+                    <h3>A Public Sphere made up of Private Conversations</h3>
                     <p>
-                      Other social products tend to be dominated by the people who talk loudest or talk most. 
+                        Like in an in-person breakout-group, it can be useful for a private discussion
+                        to share insights from their conversation with the wider community. 
+                        Iris lets each person in a conversation write one "Public Highlight" which 
+                        appears as part of the topic feed.
                     </p>
                     <p>
-                      In Talkwell, each person's posts are clustered under their name, making it easy to
-                      make sure that everyone gets heard equally. You can talk as much without worrying 
-                      about dominating the space, and it's easy to see if a quieter person has something to say.
-                    </p>
-                </div>
-                <div class='infopic'>
-                    <img src='pics/annoying.png' />
-                </div>
-            </div>            
-            
-            <div class='sidebyside'>
-                <div class='text'>
-                    <h3>Easy to Join. Hard to Disrupt</h3>
-                    <p>
-                      A common problem with online groups is the apparent tension between making your 
-                      group open enough that it can obtain new members, without making it so open that 
-                      it gets taken over by disruptive people who don't respect group norms.
-                    </p>
-                    <p>
-                      Talkwell distinguishes between Visitors and Members. 
-                      You can make it easy for people to visit your group, but 
-                      require them to win your trust before they become a member.
+                        These public highlights can then be the topic for another round of small group
+                        discussions, until the best ideas are being discussed by community leadership.
                     </p>
                 </div>
                 <div class='infopic'>
-                    <img src='pics/visitors.png' />
+                    <img src='pics/highlight.png' />
                 </div>
             </div>            
-            
-            <div class='sidebyside'>
-                <div class='text'>
-                    <h3>Avoid Public Arguments</h3>
-                    <p>
-                      A common problem in online spaces is getting drawn into a public argument.
-                      You say something dumb, and then find yourself having to defend it in front of an audience.
-                    </p>
-                    <p>
-                      In Talkwell, if you say something dumb, you can edit your original message to say something
-                      more reasonable. Crucially, and replies to that message will then be marked as "out of date"
-                      and can no longer be replied to.
-                    </p>
-                </div>
-                <div class='infopic'>
-                    <img src='pics/out_of_date.png' />
-                </div>
-            </div>            
-          </div>            
-
-                      
+                                  
             <div class='calltoaction'>
                 <div class='text'>
-                    <h3>Try it Yourself Now</h3>
+                    <h3>Try it Now</h3>
                     <p>
-                        <a target='_blank' href='https://talkwell.net/joinOrCreate'>Create your own</a> Talkwell group, or join the <a targe='_blank' href='https://talkwell.net/join/-MzGy4wc0yoVNDnB3fdL'>Talkwell Open House</a> group to chat with us about Talkwell.
+                        <a target='_blank' href='https://iris-talk.com/community/-NAilGYooypt_utC2dJ3'>Join our example community</a> or <a targe='_blank' href=mailto:info@iris-talk.com'>Contact Us</a> to talk about how Iris might help your community.
                     </p>
                 </div>
     
@@ -487,12 +561,12 @@
 <!--    </div>-->
 
     <div style='text-align: center; margin: auto; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu; color: #666; margin-top: 32px'>
-        Talkwell is a product of Talkful, Inc.
+        Iris Talk is a product of Talkful, Inc.
     </div>
     
     <footer>
         <div id='footlinks'>
-            <a href='mailto:info@talkwell.net'>Contact</a>
+            <a href='mailto:info@iris-talk.com'>Contact</a>
             <a href='/privacy.html'>Privacy</a>
             <a href='/license.html'>License</a>
         </div>

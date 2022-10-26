@@ -12,7 +12,7 @@
     "rewrites":[
       {"source": "/api/**", "function": "api"},
       {"source": "/g/**", "destination": "/jsindex.html"},
-      {"source": "/", "destination": "/jsindex.html"},
+      {"source": "/", "destination": "/index.html"},
       {"source": "/home", "destination": "/jsindex.html"},
       {"source": "/group/**", "destination": "/jsindex.html"},
       {"source": "/groupProfile/**", "destination": "/jsindex.html"},

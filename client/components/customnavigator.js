@@ -111,7 +111,7 @@ function urlForNavState(navState, linking) {
 function urlForScreen(topScreen, linking) {
     const format = linking.config.screens[topScreen.screen];
     if (topScreen.screen == 'home') {
-        return '/'
+        return '/home'
     }
     var path = '';
     if (format) {
