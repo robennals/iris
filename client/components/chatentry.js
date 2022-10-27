@@ -42,6 +42,7 @@ export const ChatEntryBox = memo(forwardRef(
         setEdit(null);
         setProposePublic(false);
         setText('');
+        setTextKey(textKey + 1);
         setHeight(36);
         onClearReply();
     }
