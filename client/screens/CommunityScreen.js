@@ -9,7 +9,7 @@ import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { setTitle, track, useCustomNavigation } from '../components/shim';
 import { formatLongTimeDate, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
+import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
 import { BottomFlatScroller } from '../components/bottomscroller';
@@ -69,11 +69,12 @@ export function CommunityScreen({navigation, route}) {
     const communityInfo = useDatabase([community], ['community', community]);
     const topicStates = useDatabase([community], ['commMember', community, getCurrentUser(), 'topic']);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
+    const topicRead = useDatabase([community], ['userPrivate', getCurrentUser(), 'topicRead', community]);
     const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
     const [renderTime, setRenderTime] = useState(null);
 
     useEffect(() => {
-        if (sortedTopicKeys) return;
+        // if (sortedTopicKeys) return;
         if (topics && topicStates && openTime !== renderTime) {
             const newSortedKeys = _.sortBy(_.keys(topics), topicKey => topicLastTime({topicKey, topics, topicStates})).reverse(); 
             setSortedTopicKeys(newSortedKeys);
@@ -94,7 +95,7 @@ export function CommunityScreen({navigation, route}) {
         )
     }
 
-    if (!topicStates || !topics || !sortedTopicKeys) return <Loading />;
+    if (!topicStates || !topics || !sortedTopicKeys || !topicRead) return <Loading />;
 
 
     return (
@@ -114,7 +115,7 @@ export function CommunityScreen({navigation, route}) {
                                 style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
                         </View>
                     :null} */}
-                    <TopicList topics={topics} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} />
+                    <TopicList topics={topics} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -131,14 +132,18 @@ function topicLastTime({topicKey, topics, topicStates}) {
     }
 }
 
-function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates}) {
+function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
 
     function renderItem(item) {
         const topicKey = item.item;
         if (topicKey == 'space' || topicKey == 'pad') {
             return <View style={{height: 16}} />;
         } else {
-            return <Catcher style={{alignSelf: 'stretch'}}><Topic community={community} topicKey={topicKey} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} /></Catcher>
+            return (
+                <Catcher style={{alignSelf: 'stretch'}}>
+                    <Topic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+                </Catcher>
+            )
         }
     }
 
@@ -174,7 +179,7 @@ const red = 'hsl(0, 50%, 90%)';
 const green = 'hsl(120, 50%, 90%)';
 const yellow = 'hsl(60, 50%, 90%)';
 
-function Topic({community, communityInfo, topic, topicKey, state}) {
+function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
     const navgation = useCustomNavigation();
     // const topic = topics[topicKey]
     const questions = JSON.parse(topic.questions)
@@ -213,7 +218,7 @@ function Topic({community, communityInfo, topic, topicKey, state}) {
                             ...shadowStyle }}>
                         <View style={{padding: 8}}>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                <Text style={{fontWeight: 'bold', fontSize: 15}}>{topic.name}</Text>
+                                <Text style={{fontWeight: 'bold', fontSize: 15, color: state ? '#666' : 'black'}}>{topic.name}</Text>
                                 {canEdit ? 
                                     <FixedTouchable onPress={() => navgation.navigate('editTopic', {community, topic: topicKey})}>
                                         <Entypo name='edit' color='#999' size={12}/>
@@ -255,7 +260,7 @@ function Topic({community, communityInfo, topic, topicKey, state}) {
                             </View>
                         : null}
                         
-                        <PublishedPreview topic={topic} community={community} topicKey={topicKey} />
+                        <PublishedPreview topic={topic} community={community} topicKey={topicKey} lastRead={lastRead} />
                     </View>
                 </View>
             </View>
@@ -280,23 +285,36 @@ function colorForState(state) {
 }
 
 
-function PublishedPreview({community, topicKey, topic, members}) {
+function PublishedPreview({community, topicKey, topic, lastRead}) {
     const navigation = useCustomNavigation();
     const extraCount = topic.publishCount -1;
+    function onClickHighlight(){ 
+        setDataAsync(['userPrivate', getCurrentUser(), 'topicRead', community, topicKey], getFirebaseServerTimestamp());
+        navigation.navigate('highlights', {community, topic: topicKey});
+    }
     if (topic.publishCount && topic.lastMessage) {
+        const unread = lastRead < topic.lastMessage.time;
         return (
-            <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic: topicKey})}>
+            <FixedTouchable onPress={onClickHighlight}>
                 <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
-                    {topic.publishCount > 1 ?
-                    <Text style={{marginBottom: 4, color: '#666', fontSize: 14, fontWeight: 'bold'}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlight'}</Text>
-                    : null}
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <MemberPhotoIcon size={24} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
-                        <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
-                            <Text numberOfLines={3}>{topic.lastMessage.text}</Text>
-                        </View>
+                    <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                        <MemberPhotoIcon size={24} style={{marginTop: 4}} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
+                        {unread ?
+                            <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, ...shadowStyle}}>
+                                <Text style={{fontWeight: 'bold', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
+                                <Text numberOfLines={3}>{topic.lastMessage.text}</Text>
+                            </View>
+                        : 
+                            <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16}}>
+                                <Text style={{fontWeight: 'bold', color: '#666', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
+                                <Text numberOfLines={1} style={{color: '#666'}}>{topic.lastMessage.text}</Text>
+                            </View>
+
+                        }
                     </View>
+                    {topic.publishCount > 1 ?
+                        <Text style={{marginTop: 8, marginLeft: 32, color: '#666', fontSize: 14, marginBottom: 4, fontWeight: 'bold'}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlight'}</Text>
+                    : null}
                 </View>
             </FixedTouchable>
         )    
