@@ -19,6 +19,28 @@ const email_label = 'Email Address';
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
 
+async function migrateLastHighlightAsync(){ 
+    const highlights = await FBUtil.getDataAsync(['published']);
+    const topics = await FBUtil.getDataAsync(['topic']);
+    const communities = await FBUtil.getDataAsync(['community']);
+    var updates = {};
+    _.forEach(_.keys(highlights), c => {
+        console.log('== ' + communities[c]?.name + '(' + c + ') ==');
+        _.forEach(_.keys(highlights[c]), t => {
+            console.log('* ' + topics[c][t].name);
+            const topicHighlights = highlights[c][t];
+            const sortedKeys = _.sortBy(_.keys(topicHighlights), h => topicHighlights[h].time).reverse();
+            const latestMessageKey = sortedKeys[0];
+            const latestMessage = topicHighlights[latestMessageKey];
+            console.log('latestMessage', topics[c][t].name, latestMessage.text.slice(0, 40));
+            updates['topic/' + c + '/' + t + '/lastMessage'] = latestMessage;
+        })
+    })
+    // console.log('updates', updates);
+    return {success: true, updates};
+}
+
+
 function textToKey(text) {
     return text.replace(/[\/\.\$\#\[\]]/g, '_');
 }
@@ -261,6 +283,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateLastReadAsync();
         case 'migrateHighlights':
             return await migrateHighlightsAsync();
+        case 'migrateLastHighlight':
+            return await migrateLastHighlightAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }
