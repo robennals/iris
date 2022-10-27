@@ -841,10 +841,10 @@ async function publishMessageAsync({group, newMessage, messageKey, publish, upda
         replyToAuthorName: replyToAuthor ? members[replyToAuthor]?.name : null
     }
     if (updatePublished) {
-        updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;    
-        if (publish) {
-            updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;
-        }    
+        updates['group/' + group + '/message/' + messageKey + '/published'] = publish ? Date.now() : null;        
+    }
+    if (publish) {
+        updates['topic/' + community + '/' + topic + '/lastMessage'] = pubMessage;
     }
     updates['topic/' + community + '/' + topic + '/publishCount'] = newPublishCount;
     updates['published/' + community + '/' + topic + '/' + messageKey] = publish ? pubMessage : null;
