@@ -335,9 +335,9 @@ export function SmallMinorButton({onPress, children, style=null, innerStyle=null
   return (
     <FixedTouchable onPress={onPress} >
       <View style={[{padding: 4, borderRadius: 8, borderColor: '#999', 
-            borderWidth: StyleSheet.hairlineWidth, marginHorizontal: 4, 
+            borderWidth: StyleSheet.hairlineWidth, marginHorizontal: 4, alignSelf: 'flex-start',
             alignItems: 'center'},style]}>
-        <Text style={{color: '#666', fontWeight: 'bold', marginHorizontal: 12, fontSize: 12, ...innerStyle}}>
+        <Text style={{color: '#666', fontWeight: 'bold', marginHorizontal: 8, fontSize: 12, ...innerStyle}}>
           {children}
         </Text>
       </View>

@@ -129,7 +129,7 @@ export class GroupList extends React.PureComponent {
 
         this.setState({selected: k});
         if (singleScreen || Platform.OS == 'web') {           
-            navigation.navigate(thingType, {[thingType]: k});
+            navigation.navigate(thingType, {[thingType]: k, openTime: Date.now()});
         } else {
             navigation.reset({
                 index: 1,
