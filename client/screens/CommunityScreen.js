@@ -1,6 +1,6 @@
 import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, SmallMinorButton, WideButton } from '../components/basics';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -134,26 +134,38 @@ function topicLastTime({topicKey, topics, topicStates}) {
 
 function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
 
-    function renderItem(item) {
-        const topicKey = item.item;
-        if (topicKey == 'space' || topicKey == 'pad') {
-            return <View style={{height: 16}} />;
-        } else {
-            return (
-                <Catcher style={{alignSelf: 'stretch'}}>
-                    <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
-                </Catcher>
-            )
-        }
-    }
+    // function renderItem(item) {
+    //     const topicKey = item.item;
+    //     if (topicKey == 'space' || topicKey == 'pad') {
+    //         return <View style={{height: 16}} />;
+    //     } else {
+    //         return (
+    //             <Catcher style={{alignSelf: 'stretch'}}>
+    //                 <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+    //             </Catcher>
+    //         )
+    //     }
+    // }
 
     return (
-        <FlatList
-            style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}
-            data={['space', ...sortedTopicKeys, 'pad']}
-            renderItem={renderItem} keyExtractor={k => k}
-        />
+        <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}>
+            <View style={{height: 16}} />
+            {sortedTopicKeys.map(topicKey => 
+                <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
+                    <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+                </Catcher>        
+            )}
+            <View style={{height: 16}} />
+        </ScrollView>
     )
+
+    // return (
+    //     <FlatList
+    //         style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}
+    //         data={['space', ...sortedTopicKeys, 'pad']}
+    //         renderItem={renderItem} keyExtractor={k => k}
+    //     />
+    // )
 }
 
 
@@ -193,7 +205,7 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
 
     async function setTopicState(state) {
         track('Set Topic State', {topic: topicKey, topicName: topic.name, state});
-        console.log('setTopicState', community, topicKey, state);
+        // console.log('setTopicState', community, topicKey, state);
         setExpanded(false);
         await setDataAsync(['commMember', community, getCurrentUser(), 'topic', topicKey], state);
     }

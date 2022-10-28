@@ -29,17 +29,24 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
 
         summaryLine = prefix + firstLine(_.get(communityInfo,['lastMessage','text'],''))
     }
+
+    const isPreview = communityInfo?.lastMessage?.text == 'Community you can join'
+
     return (
         <View style={[styles.groupPreview, 
                 highlight ? {backgroundColor: '#eee'} : null]}>
             <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={54} />
 
             <View style={styles.groupPreviewRight}>
+                <View style={{alignSelf: 'flex-start', paddingHorizontal: 6, marginBottom: 1, paddingVertical: 1, 
+                    borderRadius: 8, borderColor: unread ? 'black' : '#ddd', borderWidth: StyleSheet.hairlineWidth}}>
+                    <Text style={{fontSize: 10, color: unread ? 'black' : '#666'}}>{isPreview ? 'Community you can join' : 'Topic Feed'}</Text>
+                </View>
                 <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
                     {name}
                 </OneLineText>
                 <OneLineText numberOfLines={1} style={{
-                        color: '#666', marginTop: 4,
+                        color: '#666', marginTop: 0,
                         fontWeight: unread ? 'bold' : null}}>
                     {summaryLine}
                 </OneLineText>
