@@ -27,7 +27,7 @@ export function PublishedHeader({navigation, route}) {
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text>Public Highlights</Text>
                 </View>
-                <Text style={{fontSize: 12}}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
+                <Text style={{fontSize: 12}} numberOfLines={1}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
         </View>
     )

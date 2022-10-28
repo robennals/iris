@@ -141,7 +141,7 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
         } else {
             return (
                 <Catcher style={{alignSelf: 'stretch'}}>
-                    <Topic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+                    <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
                 </Catcher>
             )
         }
@@ -158,7 +158,8 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
 
 
 const shadowStyle = {
-    shadowRadius: 2, shadowColor: '#555', shadowOffset: {width: 0, height: 1},
+    shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+    // borderColor: '#ddd', borderWidth: 2,
     shadowOpacity: 0.5, elevation: 4}
 
 
@@ -178,6 +179,8 @@ function PillButton({selected, children, color = 'white', onPress}){
 const red = 'hsl(0, 50%, 90%)';
 const green = 'hsl(120, 50%, 90%)';
 const yellow = 'hsl(60, 50%, 90%)';
+
+const MemoTopic = React.memo(Topic);
 
 function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
     const navgation = useCustomNavigation();
@@ -212,10 +215,13 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
-                    <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                    <View style={[{
+                            backgroundColor: 'white',
+                            // backgroundColor: state ? 'hsl(216, 63%, 99%)' : 'white', 
+                            borderColor: !state ? '#ccc' : '#ddd', borderWidth: StyleSheet.hairlineWidth,
                             borderRadius: 8, maxWidth: 450, flexShrink: 1, flexGrow: 1, flex: 1,
-                            // marginHorizontal: 8,
-                            ...shadowStyle }}>
+                                        // marginHorizontal: 8,
+                            }, state ? null : shadowStyle]}>
                         <View style={{padding: 8}}>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <Text style={{fontWeight: 'bold', fontSize: 15, color: state ? '#666' : 'black'}}>{topic.name}</Text>
@@ -226,7 +232,7 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
                                 :null}
                             </View>
                             {expanded || !state ? 
-                                <View style={{flexShrink: 1, marginTop: 4}}>
+                                <View style={{flexShrink: 1, marginTop: 4, marginRight: 8}}>
                                     <LinkText linkColor={baseColor} style={{color: '#222', marginBottom: 4}} text={topic.summary} />
                                     {shownQuestions.map(question =>
                                         <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
@@ -296,24 +302,27 @@ function PublishedPreview({community, topicKey, topic, lastRead}) {
         const unread = lastRead < topic.lastMessage.time;
         return (
             <FixedTouchable onPress={onClickHighlight}>
-                <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
+                <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8,
+                    backgroundColor: unread ? 'white' : null, borderBottomLeftRadius: 8, borderBottomRightRadius: 8}}>
                     <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-                        <MemberPhotoIcon size={24} style={{marginTop: 4}} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
+                        <MemberPhotoIcon size={24} style={{marginTop: unread ? 4 : 3}} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
                         {unread ?
-                            <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, ...shadowStyle}}>
+                            <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', borderColor: '#ccc', borderWidth: 2, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, ...shadowStyle}}>
                                 <Text style={{fontWeight: 'bold', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
                                 <Text numberOfLines={3}>{topic.lastMessage.text}</Text>
                             </View>
                         : 
                             <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16}}>
-                                <Text style={{fontWeight: 'bold', color: '#666', fontSize: 12}}>{topic.lastMessage.authorName}</Text>
-                                <Text numberOfLines={1} style={{color: '#666'}}>{topic.lastMessage.text}</Text>
+                                <Text numberOfLines={1}>
+                                    <Text style={{fontWeight: 'bold', color: '#666', fontSize: 12}}>{topic.lastMessage.authorName}: </Text>
+                                    <Text numberOfLines={1} style={{color: '#666'}}>{topic.lastMessage.text}</Text>
+                                </Text>
                             </View>
 
                         }
                     </View>
                     {topic.publishCount > 1 ?
-                        <Text style={{marginTop: 8, marginLeft: 32, color: '#666', fontSize: 14, marginBottom: 4, fontWeight: 'bold'}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlights'}</Text>
+                        <Text style={{marginTop: unread ? 8 : 4, marginLeft: 32, color: '#666', fontSize: unread ? 14 : 12, marginBottom: 4, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlights'}</Text>
                     : null}
                 </View>
             </FixedTouchable>
