@@ -313,7 +313,7 @@ function PublishedPreview({community, topicKey, topic, lastRead}) {
                         }
                     </View>
                     {topic.publishCount > 1 ?
-                        <Text style={{marginTop: 8, marginLeft: 32, color: '#666', fontSize: 14, marginBottom: 4, fontWeight: 'bold'}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlight'}</Text>
+                        <Text style={{marginTop: 8, marginLeft: 32, color: '#666', fontSize: 14, marginBottom: 4, fontWeight: 'bold'}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlights'}</Text>
                     : null}
                 </View>
             </FixedTouchable>

@@ -810,7 +810,10 @@ async function publishMessageAsync({group, newMessage, messageKey, publish, upda
     const endorsers = await pEndorsers || {};
     const member = members[author];
 
+    const pFollowMembers = FBUtil.getDataAsync(['commMember', community]);
+    const pTopicName = FBUtil.getDataAsync(['topic', community, topic, 'name']);
     const published = await FBUtil.getDataAsync(['published', community, topic]);
+    const followMembers = await pFollowMembers; const topicName = await pTopicName;
     // console.log('published', published);
     const oldPublishCount = _.keys(published).length;
     const newPublishCount = publish ? oldPublishCount + 1 : oldPublishCount - 1;
@@ -827,7 +830,7 @@ async function publishMessageAsync({group, newMessage, messageKey, publish, upda
     // console.log('endorsers', endorserInfo);
     // console.log('members', members);
 
-    console.log('member', {message, member, name: member?.name});
+    // console.log('member', {message, member, name: member?.name});
 
     var updates = {};
     const pubMessage = {...message, 
@@ -849,6 +852,20 @@ async function publishMessageAsync({group, newMessage, messageKey, publish, upda
     updates['topic/' + community + '/' + topic + '/publishCount'] = newPublishCount;
     updates['published/' + community + '/' + topic + '/' + messageKey] = publish ? pubMessage : null;
     // console.log('updates', updates);
+
+    const lastMessage = {
+        text: 'New Highlight in ' + topicName,
+        time: Date.now()
+    }
+
+    _.forEach(_.keys(followMembers || {}), m => {
+        if (followMembers[m]?.topic?.[topic] == 'yes' && m != userId) {
+            // console.log('follower', m, community, topicName);
+            updates['userPrivate/' + m + '/comm/' + community + '/lastMessage'] = lastMessage;
+        }
+    })
+    updates['community/' + community + '/lastMessage'] = lastMessage;
+
     return {success: true, updates};
 }
 exports.publishMessageAsync = publishMessageAsync;
