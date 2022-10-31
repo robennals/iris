@@ -982,7 +982,9 @@ async function renameUserAsync({user, name, userId}) {
     const groupKeys = _.keys(await pGroups);
     const commKeys = _.keys(await pComm);
 
+    const pTopics = FBUtil.getMultiDataAsync(commKeys, c => ['topic', c]);
     const commPublished = await FBUtil.getMultiDataAsync(commKeys, c => ['published', c]);
+    const topics = await pTopics;
 
     var updates = {};
     updates['userPrivate/' + user + '/name'] = name;
@@ -999,6 +1001,13 @@ async function renameUserAsync({user, name, userId}) {
                 updates['published/' + c + '/' + t + '/' + m + '/authorName'] = name;
             }
           })            
+        })
+    })
+    _.forEach(_.keys(topics), c => {
+        _.forEach(_.keys(topics[c]), t => {
+            if (topics[c][t]?.lastMessage?.from == user) {
+                updates['topic/' + c + '/' + t + '/lastMessage/authorName'] = name;
+            }
         })
     })
     // console.log('updates', updates);
