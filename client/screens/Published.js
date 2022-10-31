@@ -11,6 +11,7 @@ import { formatMessageTime, formatSummaryTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
 import { Loading } from '../components/loading';
+import { useCustomNavigation } from '../components/shim';
 
 export function PublishedHeader({navigation, route}) {
     const {community, topic} = route.params;
@@ -125,6 +126,7 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
     const backgroundColor = message.from == getCurrentUser() ? '#eee' : 'hsl(' + hue + ',40%, 90%)';
     const myVote = message?.vote?.[getCurrentUser()];
     const meChat = message?.chat?.[getCurrentUser()];
+    const navigation = useCustomNavigation();
 
     async function onVote(vote) {
         const newVote = (vote == myVote) ? null : vote;
@@ -143,7 +145,9 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
     return (
         <View style={{marginBottom: 16, maxWidth: 450}}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start', flexShrink: 1}}>
-                <MemberPhotoIcon style={{marginTop: 2}} hue={hue} user={message.from} photoKey={message.authorPhoto} name={message.authorName} />
+                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: message.from})}>
+                    <MemberPhotoIcon style={{marginTop: 2}} hue={hue} user={message.from} photoKey={message.authorPhoto} name={message.authorName} />
+                </FixedTouchable>
                 <View style={{flexShrink: 1}}>
                     <View style={{backgroundColor, marginLeft: 8, flexShrink: 1, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8}}>
                         <View style={{flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between'}}>

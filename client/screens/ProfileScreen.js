@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { firstName, FixedTouchable, FormInput, FormTitle, parseQuestions, ScreenContentScroll, textToKey, WideButton } from '../components/basics';
-import { firebaseSignOut, getCurrentUser, internalReleaseWatchers, setDataAsync, useDatabase, watchData } from '../data/fbutil';
+import { firebaseSignOut, getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { Picker, StyleSheet, View, Text } from 'react-native';
-import { reportMemberAsync, setMemberRoleAsync, updateProfileAsync } from '../data/servercall';
+import { renameUserAsync, reportMemberAsync, setMemberRoleAsync, updateProfileAsync } from '../data/servercall';
 import _ from 'lodash';
 import { ModeToggle } from '../components/modetoggle';
 import { MemberPhotoIcon, MemberProfilePhotoPlaceholder, MemberProfilePhotoPreview, PhotoPreview, pickImage } from '../components/photo';
@@ -11,6 +11,32 @@ import { Loading } from '../components/loading';
 import { Catcher } from '../components/catcher';
 import { FollowAvoid } from '../components/followavoid';
 
+function RenameWidget({name, user}) {
+    const [newName, setNewName] = useState('');
+    const [inProgress, setInProgress] = useState(false);
+
+    async function onRename() {
+        setInProgress(true);
+        await renameUserAsync({name: newName || name, user});
+        setInProgress(false);
+    }
+
+    return (
+        <View style={{maxWidth: 450, alignSelf: 'center'}}>
+            <FormTitle title='Rename User'>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <FormInput value={newName || name} onChangeText={setNewName} />
+                    <WideButton onPress={onRename} 
+                        style={{margin: 0}} 
+                        alwaysActive progressText='Renaming...' disabled={inProgress}>
+                            Change Name
+                    </WideButton>
+                </View>
+            </FormTitle>
+        </View>
+    )
+
+}
 
 
 export function ProfileScreen({navigation, route}) {
@@ -45,6 +71,12 @@ export function ProfileScreen({navigation, route}) {
                         style={{alignSelf: 'center'}}>
                     Report Abuse
             </WideButton>
+            {isMasterUser() ? 
+                <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth}}>
+                    <RenameWidget name={name} user={member} />
+                </View>
+            : null}
+
 
         </ScreenContentScroll>
     )

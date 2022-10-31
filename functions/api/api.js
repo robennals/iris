@@ -146,6 +146,9 @@ async function apiActionAsync({action, components, params}) {
         case 'autoClose': {
             return autoCloseAsync(params);
         }
+        case 'renameUser': {
+            return Iris.renameUserAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

@@ -972,3 +972,36 @@ async function endorseMessageAsync({group, messageKey, endorse, userId}) {
 }
 
 exports.endorseMessageAsync = endorseMessageAsync;
+
+async function renameUserAsync({user, name, userId}) {
+    if (!isMasterUser(userId) && user != userId) {
+        return accessDeniedResult;
+    }
+    const pGroups = FBUtil.getDataAsync(['userPrivate', user, 'group']);
+    const pComm = FBUtil.getDataAsync(['userPrivate', user, 'comm']);
+    const groupKeys = _.keys(await pGroups);
+    const commKeys = _.keys(await pComm);
+
+    const commPublished = await FBUtil.getMultiDataAsync(commKeys, c => ['published', c]);
+
+    var updates = {};
+    updates['userPrivate/' + user + '/name'] = name;
+    _.forEach(groupKeys, g => {
+        updates['group/' + g + '/member/' + user + '/name'] = name;
+    })
+    _.forEach(commKeys, c => {
+        updates['commMember/' + c + '/' + user + '/answer/Full Name'] = name;
+    })
+    _.forEach(_.keys(commPublished), c => {
+        _.forEach(_.keys(commPublished[c]), t => {
+          _.forEach(_.keys(commPublished[c][t]), m => {
+            if (commPublished[c][t][m].from == user) {
+                updates['published/' + c + '/' + t + '/' + m + '/authorName'] = name;
+            }
+          })            
+        })
+    })
+    // console.log('updates', updates);
+    return {success: true, updates}
+}
+exports.renameUserAsync = renameUserAsync;

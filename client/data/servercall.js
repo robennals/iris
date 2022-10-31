@@ -214,6 +214,10 @@ export async function endorseMessageAsync({group, messageKey, endorse}) {
     return await callServerApiAsync('endorseMessage', {group, messageKey, endorse});
 }
 
+export async function renameUserAsync({user, name}) {
+    return await callServerApiAsync('renameUser', {name, user});
+}
+
 
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
