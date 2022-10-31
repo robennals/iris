@@ -527,7 +527,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                         : null}
                         <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
                         {message.editTime ? 
-                            <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
+                            <Text style={{fontSize: 12, marginTop: 2, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
                         : null}
                         {hasLikes ?
                             <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}>
@@ -535,7 +535,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                         isPublic={message.proposePublic} members={members} memberHues={memberHues} />
                             </View>                            
                         : null}
-                        {message.proposePublic && !message.published && !myMessage && !messageLikes ?  
+                        {message.proposePublic && !myMessage && !messageLikes ?  
                             <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}> 
                                 <PublishEndorseButton onPress={onLikeClicked} />
                             </View>
@@ -617,7 +617,7 @@ function PublishEndorseButton({onPress}) {
         paddingHorizontal: 4, paddingVertical: 1, ...shadowStyle, flexShrink: 1}}>
             <FontAwesome name='smile-o' color='black' size={20} />
             <Text style={{fontSize: 12, fontWeight: 'bold', marginRight: 4, marginLeft: 4}}>
-                Endorse to Publish
+                Endorse
             </Text>
         </View>
     </FixedTouchable>        
