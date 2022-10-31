@@ -18,6 +18,7 @@ import { PhotoPromo } from '../components/profilephoto';
 import { Loading } from '../components/loading';
 import { StatusBar } from 'expo-status-bar';
 import { Catcher } from '../components/catcher';
+import { editTopicAsync } from '../data/servercall';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -73,21 +74,18 @@ export function CommunityScreen({navigation, route}) {
     const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
     const [renderTime, setRenderTime] = useState(null);
 
+    const isMaster = isMasterUser();
+
     useEffect(() => {
         // if (sortedTopicKeys) return;
         if (topics && topicStates && openTime !== renderTime) {
-            const newSortedKeys = _.sortBy(_.keys(topics), topicKey => topicLastTime({topicKey, topics, topicStates})).reverse(); 
+            const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved);
+            const newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse(); 
             setSortedTopicKeys(newSortedKeys);
             setRenderTime(openTime);
         }
     }, [topics, topicStates, openTime])
 
-    const isMaster = isMasterUser();
-
-    // const sortedTopicKeys = _.sortBy(_.keys(topics), topicKey => topicLastTime({topicKey, topics, topicStates}); 
-
-    // const sortedTopicKeys = useMemo(() => _.sortBy(_.keys(topics), topicKey => topicLastTime({topicKey, topics, topicStates})), 
-    // [community, topics, openTime]);    
 
     if (getCurrentUser() == null || (!isMaster && !localComm?.name)) {
         return (
@@ -105,10 +103,11 @@ export function CommunityScreen({navigation, route}) {
                 <ConnectedBanner />
                 <PhotoPromo />
                 <View style={{backgroundColor: 'white', flex: 1}}>
-                    {isMasterUser(getCurrentUser) ? 
+                    {isMasterUser() ? 
                         <CommunityAdminActions community={community} />
-                    : null}     
-                    {/* {isMasterUser() ?
+                    : null
+                    } 
+                    {/* {!isMasterUser() ?
                         <View style={{borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ddd', backgroundColor: 'white'}}>
                             <WideButton alwaysActive
                                 onPress={() => navigation.navigate('newTopic', {community})} 
@@ -133,23 +132,26 @@ function topicLastTime({topicKey, topics, topicStates}) {
 }
 
 function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
-
-    // function renderItem(item) {
-    //     const topicKey = item.item;
-    //     if (topicKey == 'space' || topicKey == 'pad') {
-    //         return <View style={{height: 16}} />;
-    //     } else {
-    //         return (
-    //             <Catcher style={{alignSelf: 'stretch'}}>
-    //                 <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
-    //             </Catcher>
-    //         )
-    //     }
-    // }
-
+    const navigation = useCustomNavigation();
     return (
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}>
-            <View style={{height: 16}} />
+            {/* <View style={{height: 16}} /> */}
+
+            {isMasterUser() ? null :           
+                // <View style={{flexDirection: 'row', justifyContent: 'center'}}> 
+                //     <FixedTouchable style={{maxWidth: 450, flex: 1}} onPress={() => navigation.navigate('newTopic', {community})}>
+                //         <View style={{backgroundColor: '#f4f4f4', borderRadius: 8, borderWidth: StyleSheet.hairlineWidth,
+                //             borderColor: '#ddd', padding: 8, marginVertical: 8}}>
+                //             <Text style={{color: '#666'}}>Suggest a Topic</Text>
+                //         </View>
+                //     </FixedTouchable>
+                // </View>
+                <WideButton alwaysActive
+                    onPress={() => navigation.navigate('newTopic', {community})} 
+                    // onPress={() => console.log('community', community)}
+                    style={{alignSelf: 'center', margin: 8, marginTop: 16}}>Suggest Topic
+                </WideButton>
+            }
             {sortedTopicKeys.map(topicKey => 
                 <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
                     <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
@@ -158,14 +160,6 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
             <View style={{height: 16}} />
         </ScrollView>
     )
-
-    // return (
-    //     <FlatList
-    //         style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}
-    //         data={['space', ...sortedTopicKeys, 'pad']}
-    //         renderItem={renderItem} keyExtractor={k => k}
-    //     />
-    // )
 }
 
 
@@ -210,6 +204,10 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
         await setDataAsync(['commMember', community, getCurrentUser(), 'topic', topicKey], state);
     }
 
+    async function onApprove() {
+        await editTopicAsync({community, topic: topicKey, name: topic.name, questions: topic.questions, summary: topic.summary});
+    }
+
     const canEdit = topic.from == getCurrentUser() || isMasterUser();
 
 
@@ -219,10 +217,14 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                 <View style={{marginLeft: 4, marginVertical: 2}}>               
-                    {topic.lastMessage ? 
-                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New highlight published {formatTime(topic.lastMessage.publishTime)}</Text>
+                    {topic.approved !== false ? 
+                        (topic.lastMessage ? 
+                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New highlight published {formatTime(topic.lastMessage.publishTime)}</Text>
+                        : 
+                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
+                        )
                     : 
-                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
+                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic suggested by {topic.fromName} {formatTime(topic.time)}</Text>
                     }
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
@@ -258,7 +260,7 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
                                     <OneLineText style={{color: '#666', marginTop: 4}}>{condendedSummary}</OneLineText>
                                 </FixedTouchable>
                             }
-                            {state ? 
+                            {state && topic.approved !== false ? 
                                 <FixedTouchable onPress={() => setTopicState(null)}>
                                 <View style={{marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>                                    
                                     <View style={{backgroundColor: colorForState(state), width: 12, height: 12, borderRadius: 6}} />
@@ -267,7 +269,7 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
                                 </FixedTouchable>
                             : null}
                         </View>
-                        {!state ? 
+                        {!state && topic.approved !== false ? 
                             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
                                 <Text style={{fontSize: 12, color: "#666"}}>Do you want to talk about this?</Text>
                                 <View style={{flexDirection: 'row', marginTop: 4}}>
@@ -276,6 +278,16 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
                                     <PillButton selected={state=='no'} color={red} onPress={() => setTopicState('no')}>No</PillButton>
                                 </View>                        
                             </View>
+                        : null}
+
+                        {topic.approved === false && isMasterUser() ? 
+                            <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
+                                <Text style={{fontSize: 12, color: "#666", alignSelf: 'center', marginBottom: 8}}>Do you want to approve this topic?</Text>
+                                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                                    <WideButton onPress={onApprove} style={{margin: 0}}>Approve</WideButton>                              
+                                </View>  
+                            </View>
+                    
                         : null}
                         
                         <PublishedPreview topic={topic} community={community} topicKey={topicKey} lastRead={lastRead} />

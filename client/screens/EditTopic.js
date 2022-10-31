@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { FormCheckbox, FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
-import { internalReleaseWatchers, watchData } from '../data/fbutil';
+import { internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
 import { editTopicAsync } from '../data/servercall';
 import _ from 'lodash';
 
 function questionJsonToText(questions) {
-    console.log('questions', questions);
+    // console.log('questions', questions);
     if (!questions) {
         return '';
     }
     try {
         const questionList = JSON.parse(questions);
-        console.log('parsed', questionList);
+        // console.log('parsed', questionList);
         return _.join(questionList, '\n');
     } catch (e) {
         return '';
@@ -33,6 +33,8 @@ export function EditTopicScreen({navigation, route}) {
     const [summary, setSummary] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
     const [old, setOld] = useState({});
+
+    const isMaster = isMasterUser();
 
     useEffect(() => {
         var x = {};
@@ -69,6 +71,12 @@ export function EditTopicScreen({navigation, route}) {
     return (
         <ScreenContentScroll>
             <View style={{marginVertical: 16}}>
+                {!isMaster ?
+                    <View style={{margin: 16, padding: 8, borderColor: '#ddd', alignSelf: 'flex-start', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8}}>
+                        <Text>Your topic will need to be approved by a community admin.</Text>
+                    </View>
+                : null}
+
                 <View style={{margin: 16, alignItems: 'center', flexDirection: 'row'}}>
                     <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} thumb={false} size={64} />
                     <Text style={{fontSize: 24, marginLeft: 16, fontWeight: 'bold'}}>{communityInfo.name}</Text>
@@ -83,10 +91,12 @@ export function EditTopicScreen({navigation, route}) {
                 <FormTitle title='Three Short Questions (one per line)'>
                     <FormInput value={merged.questions || ''} onChangeText={setQuestions} multiline extraStyle={{flex: null, height: 72}} />
                 </FormTitle>
-                <FormCheckbox label='Pin in Intake Form' selected={merged.pinned} onChangeSelected={setPinned} />
+                {isMaster ?
+                    <FormCheckbox label='Pin in Intake Form' selected={merged.pinned} onChangeSelected={setPinned} />
+                : null}
                 <WideButton onPress={onSubmit} style={{marginTop: 32, alignSelf: 'flex-start'}} 
                     inProgress={topic ? 'Updating...' : 'Creating Topic...'}>
-                    {topic ? 'Update Topic' : 'Create Topic'}
+                    {topic ? 'Update Topic' : (isMaster ? 'Create Topic' : 'Suggest Topic')}
                 </WideButton>
             </View>
         </ScreenContentScroll>

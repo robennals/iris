@@ -749,19 +749,21 @@ async function editTopicAsync({community, topic=null, name, questions, pinned, s
     }
     const members = await pMembers; const communityName = await pCommunityName;
 
-    console.log('editTopic', topic, topicKey, pinned);
+    console.log('editTopic', topic, topicKey, pinned, oldTopic);
 
     const time = Date.now();
     updates['topic/' + community + '/' + topicKey] = {
         name, questions, summary, time: oldTopic?.time || time,
         pinned: pinned || null,
-        approved: isMaster, from: userId
+        approved: isMaster, from: userId,
+        fromName: members[userId]?.answer?.['Full Name'] || null
     }
     var notifs = [];
     const summaryText = summary ? (' - ' + summary) : '';
     const questionText = _.join(JSON.parse(questions), '\n');
 
-    if (!topic) {
+    if ((!topic || !oldTopic.approved) && isMaster) {
+        console.log('New topic or newly approved topic');
         const notifBase = {
             title: 'New Topic in ' + communityName,
             body: name + summaryText + '\n' + questionText,
@@ -779,9 +781,28 @@ async function editTopicAsync({community, topic=null, name, questions, pinned, s
             console.log('new topic notif', name);
         })
     }
+    if (!topic && !isMaster) {
+        console.log('New Topic suggestion');
+        const notifBase = {
+            title: 'Suggested Topic in ' + communityName,
+            body: name + summaryText + '\n' + questionText,
+            data: {
+                community, topicKey, time, type: 'topic'
+            }
+        }
+
+        const lastMessage = {text: 'Suggested topic: ' + name, time};
+        updates['community/' + community + '/lastMessage'] = lastMessage
+
+        masterUsers.forEach(master => {
+            updates['userPrivate/' + master + '/comm/' + community + '/lastMessage'] = lastMessage
+            notifs.push({...notifBase, toUser: master});
+        })
+    }
     return {success: true, updates, notifs}
 }
 exports.editTopicAsync = editTopicAsync;
+
 
 async function logErrorAsync({error, stack=null, context=null, userId}) {
     var updates = {};
