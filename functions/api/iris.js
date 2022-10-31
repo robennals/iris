@@ -1005,3 +1005,58 @@ async function renameUserAsync({user, name, userId}) {
     return {success: true, updates}
 }
 exports.renameUserAsync = renameUserAsync;
+
+
+
+function commMemberToGroupMember(member) {
+    return {
+        name: member.answer[name_label],
+        photo: member.photoKey,
+        answers: {...member.answer, [email_label]: null},
+    }
+}
+
+async function createDirectChatAsync({community, user, userId}) {
+    const pMe = FBUtil.getDataAsync(['commMember', community, userId]);
+    const pThem = FBUtil.getDataAsync(['commMember', community, user]);
+    const pDirect = FBUtil.getDataAsync(['special', 'direct', user, userId], null);
+    const me = await pMe; const them = await pThem; const direct = await pDirect;
+    const meMember = commMemberToGroupMember(me);
+    const themMember = commMemberToGroupMember(them);
+
+    if (direct) {
+        return {success: true, data: {group: direct}}
+    }
+
+    var updates = {};
+    const group = FBUtil.newKey();
+    const time = Date.now();
+    const lastMessage = {text: 'New Direct Conversation', time};
+    const groupInfo = {
+        name: meMember.name + ' & ' + themMember.name,
+        community,
+        topic: null,
+        member: {[user]: themMember, [userId]: meMember},       
+        lastMessage 
+    }
+    updates['group/' + group] = groupInfo;
+    updates['adminCommunity/' + community + '/group/' + group] = groupInfo;
+    updates['special/direct/' + user + '/' + userId] = group;
+    updates['special/direct/' + userId + '/' + user] = group;
+    updates['userPrivate/' + user + '/group/' + group] = {
+        name: meMember.name,
+        lastMessage 
+    }
+    updates['userPrivate/' + userId + '/group/' + group] = {
+        name: themMember.name,
+        lastMessage 
+    }
+
+    console.log('updates', updates);
+    console.log('group', group);
+
+    // return {success: true};
+    return {success: true, updates, data: {group}}
+}
+
+exports.createDirectChatAsync = createDirectChatAsync;

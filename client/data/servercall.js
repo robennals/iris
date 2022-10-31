@@ -218,6 +218,10 @@ export async function renameUserAsync({user, name}) {
     return await callServerApiAsync('renameUser', {name, user});
 }
 
+export async function createDirectChatAsync({community, user}) {
+    return await callServerApiAsync('createDirectChat', {community, user});
+}
+
 
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {

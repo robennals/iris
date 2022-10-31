@@ -47,7 +47,7 @@ async function autoCloseCommunityGroupsAsync({community, name=''}) {
     const oldTime = Date.now() - (4 * Basics.dayMillis);
     _.forEach(_.keys(adminGroups), g => {
         const group = adminGroups[g];
-        if (group?.lastMessage?.time < oldTime) {
+        if (group?.lastMessage?.time < oldTime && group.topic) {
             console.log('old group', name, g, group.name)
             maybeWakeupGroup.push(g);
         }
@@ -153,7 +153,7 @@ async function findGroupsNeedingWakeup({community, name='', count, user=null}) {
         const archived = groupArchived[g];
         const hasUser = !user || group.member[user];
         console.log('group', group.name, g, stale, lastTime, hasWakeUp, archived);
-        return stale && !hasWakeUp && !archived && hasUser;   
+        return stale && !hasWakeUp && !archived && hasUser && group.topic;   
     });
 
     const sortedGroups = _.sortBy(groupsToWakeUp, g => groups[g]?.lastMessage?.time);

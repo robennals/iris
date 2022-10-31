@@ -22,6 +22,8 @@ export const ChatEntryBox = memo(forwardRef(
     const [edit, setEdit] = useState(null);
     const [textKey, setTextKey] = useState(0);
     const [proposePublic, setProposePublic] = useState(false);
+    const topic = useDatabase([group], ['group', group, 'topic'], null);
+
 
     useImperativeHandle(ref, () => ({
         setEdit: edit => {
@@ -151,7 +153,7 @@ export const ChatEntryBox = memo(forwardRef(
                     </FixedTouchable>
                 </View>
             : null}
-            {!replyTo && expanded ?
+            {!replyTo && expanded && topic ?
                 <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Highlight' style={{marginTop: 4}} textStyle={{color: 'black'}} />
             : null }
             {!replyTo && expanded && proposePublic && mySummary ?
@@ -185,7 +187,7 @@ export const ChatEntryBox = memo(forwardRef(
                         onKeyPress={Platform.OS == 'web' ? onKeyPress : null}                
                     />
                 </View>
-                {!expanded ? 
+                {!expanded && topic ? 
                     <FixedTouchable onPress={() => {setProposePublic(true); chatInputRef.current.focus()}}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='star' color='#FABC05' size={16} />

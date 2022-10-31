@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { getCurrentUser } from '../data/fbutil';
+import _ from 'lodash';
 
 export function shallowEqual(a, b) {
   const aKeys = _.keys(a);

@@ -26,7 +26,7 @@ import { BottomFlatScroller } from '../components/bottomscroller';
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
 
-    const name = useDatabase([group], ['group', group, 'name'], '');
+    const name = useDatabase([group], ['userPrivate', getCurrentUser(), 'group', group, 'name'], '');
     const members = useDatabase([group], ['group', group, 'member']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const communityInfo = useDatabase([community], ['community', community]);
@@ -126,17 +126,6 @@ function ArchivedBanner(){
 
 var global_chatInputRef = null;
 var global_chatEntryRef = null;
-
-export class PureChatScreen extends React.PureComponent {
-    shouldComponentUpdate({navigation, route}) {
-        const oldParams = this.props.route?.params; 
-        const newParams = route.params;
-        return !shallowEqual(oldParams, newParams);
-    }
-    render() {
-
-    }
-}
 
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;

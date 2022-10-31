@@ -149,6 +149,9 @@ async function apiActionAsync({action, components, params}) {
         case 'renameUser': {
             return Iris.renameUserAsync(params);
         }
+        case 'createDirectChat': {
+            return Iris.createDirectChatAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);
