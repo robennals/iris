@@ -4,7 +4,6 @@ import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import _ from 'lodash';
-import { BottomFlatScroller } from './bottomscroller';
 import { ScrollView } from 'react-native-gesture-handler';
 
 

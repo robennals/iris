@@ -6,17 +6,7 @@ import { Catcher } from './catcher';
 
 export class BottomScroller extends React.PureComponent {
     state = {rendered: false, atBottom: true}
-    safariScrollToEnd() {
-      const {atBottom} = this.state;
-      if (atBottom) {
-        const scroller = findDOMNode(this.scrollView);
-        scroller.id = 'scroller';
-        setTimeout(() => {
-          scroller.scrollTop = scroller.scrollHeight;
-          // scroller.scrollTo(0, scroller.scrollHeight)
-          },100);
-      }
-    }
+    safariScrollToEnd() {}
   
     maybeScrollToEnd(animated) {
       const {atBottom} = this.state;
@@ -24,20 +14,7 @@ export class BottomScroller extends React.PureComponent {
         this.scrollView?.scrollToEnd({animated: false});
       }
     }
-  
-    // onScroll() {
-    //   const {atBottom} = this.state;
-    //   const scroller = findDOMNode(this.scrollView);
-    //   if (!scroller) return null;
-    //   const scrollBottom = scroller.scrollTop + scroller.parentNode.scrollHeight;
-    //   const scrollGap = scroller.scrollHeight - scrollBottom;
-  
-    //   const newAtBottom = scrollGap < 40;
-    //   if (atBottom != newAtBottom) {
-    //     this.setState({atBottom: newAtBottom});
-    //   }
-    // }
-  
+    
     render() {
       const {children, style} = this.props;
       const {rendered} = this.state;

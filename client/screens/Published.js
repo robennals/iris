@@ -3,7 +3,6 @@ import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
 import { andFormatStrings, FixedTouchable, memberKeysToHues, ScreenContentScroll } from '../components/basics';
-import { BottomFlatScroller } from '../components/shimui';
 import { MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
