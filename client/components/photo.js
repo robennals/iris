@@ -10,6 +10,7 @@ import { getCurrentUser } from '../data/fbutil';
 import _ from 'lodash';
 
 export async function pickImage() {
+  console.log('pickImage');
 
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: 'Images',

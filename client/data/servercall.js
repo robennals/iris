@@ -50,7 +50,7 @@ async function callServerApiAsync(action, params) {
     const actionUrl = getApiPrefix() + action;
     const fullParams = makeFullParams(params);
     // const fetchUrl = makeQueryUrl(action, params);
-    console.log('calling API', action, params);
+    console.log('calling API', action);
     const response = await fetch(actionUrl, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},

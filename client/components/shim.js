@@ -37,8 +37,8 @@ export function getCurrentDomain(){
 
 export function webInit() {}
 
-export async function resizeImageAsync({uri, pickedImage, rotate=false, maxSize = 400}) {
-    const {width, height} = pickedImage;
+export async function resizeImageAsync({uri, bigPhoto, rotate=false, maxSize = 400}) {
+    const {width, height} = bigPhoto;
     var newHeight; var newWidth;
     if (width > height) {
       newHeight = maxSize; 

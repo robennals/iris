@@ -10,6 +10,7 @@ import { resizeImageAsync, track } from './shim';
 
 export async function chooseProfilePhotoAsync(setUploading) {
     track('Set Profile Photo');
+    console.log('choose profile photo');
     const bigPhoto = await pickImage();
     setUploading(true);
     const photoData = await resizeImageAsync({uri: bigPhoto.uri, bigPhoto, rotate: true, maxSize:  600})
