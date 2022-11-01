@@ -12,13 +12,13 @@ import { baseColor } from '../data/config';
 import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { IntakeScreen } from './IntakeScreen';
 import _ from 'lodash';
-import { BottomFlatScroller } from '../components/bottomscroller';
 import { ConnectedBanner } from '../components/connectedbanner';
 import { PhotoPromo } from '../components/profilephoto';
 import { Loading } from '../components/loading';
 import { StatusBar } from 'expo-status-bar';
 import { Catcher } from '../components/catcher';
 import { editTopicAsync } from '../data/servercall';
+import { Help, HelpText } from '../components/help';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -48,6 +48,31 @@ export function CommunityScreenHeader({navigation, route, children}) {
                 </View>
             </View>
         </FixedTouchable>
+    )
+}
+
+
+function FeedHelp({communityName}) {
+    return (
+        <Help id='feed' title='About the Topic Feed'>
+            <HelpText>
+                The topic feed contains topics that can talk about with other members. 
+            </HelpText>
+            <HelpText>
+                Select 'Yes', 'No', or 'Maybe' for each topic to let us know which topics you'd 
+                like to discuss. We will match you into small private conversations about 
+                those topics.
+            </HelpText>
+            <HelpText>                
+                While each conversation is private, members can choose to publicly highlight the
+                best insights from their conversations. You can see such highlights attached 
+                to some of the topics in the feed.
+            </HelpText>
+            <HelpText>
+                You already chose an initial set of topics as part of the signup process. 
+                This feed contains a larger set of topics and is regularly updated.
+            </HelpText>
+        </Help>
     )
 }
 
@@ -137,6 +162,12 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}>
             {/* <View style={{height: 16}} /> */}
 
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <View style={{maxWidth: 450, flex: 1, marginVertical: 16}}>
+                    <FeedHelp communityName={communityInfo.name} />
+                </View>
+            </View>
+
             {isMasterUser() ? null :           
                 // <View style={{flexDirection: 'row', justifyContent: 'center'}}> 
                 //     <FixedTouchable style={{maxWidth: 450, flex: 1}} onPress={() => navigation.navigate('newTopic', {community})}>
@@ -152,6 +183,13 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
                     style={{alignSelf: 'center', margin: 8, marginTop: 16}}>Suggest Topic
                 </WideButton>
             }
+
+            {/* <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <View style={{maxWidth: 450, flex: 1, marginVertical: 16}}>
+                    <Text style={{fontSize: 18, fontWeight: 'bold'}}>What Topics would you Like to Dicuss?</Text>
+                </View>
+            </View> */}
+
             {sortedTopicKeys.map(topicKey => 
                 <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
                     <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
