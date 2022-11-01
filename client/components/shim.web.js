@@ -81,7 +81,13 @@ export function getTimeNow() {
 }
 
 export function historyPushState({state, url}) {
-    history.pushState(state, '', url);
+  history.pushState(state, '', url);
+  try {
+    const ioslink = document.getElementById('ioslink');
+    ioslink.setAttribute('content', 'app-id=1640562508, app-argument=' + url);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 
