@@ -96,7 +96,7 @@ export function PublishedScreen({navigation, route}) {
 
 function Action({icon, name, pad=1, onPress}) {
     return (
-        <FixedTouchable onPress={onPress} style={{marginLeft: 12}}>
+        <FixedTouchable onPress={onPress} style={{marginLeft: 8}}>
             <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 4}}>
                 <Ionicons name={icon} color='#666' />
                 <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
@@ -176,7 +176,7 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                             <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
                                 name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
                             <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
-                                name={meChat ? 'Want to chat' : 'Chat'} onPress={onChat} />
+                                name='Want to discuss' onPress={onChat} />
                         </View>
                     : null}
                 </View>
