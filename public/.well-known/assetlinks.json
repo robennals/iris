@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "us.mix5",
+    "sha256_cert_fingerprints": ["BB:BD:10:FC:C9:45:87:39:59:EA:53:3E:39:3C:8A:9E:B4:B2:6E:0B:BB:5D:04:F0:1B:E7:93:A7:D1:E7:63:8A"]
+  }
+}]
