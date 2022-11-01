@@ -101,17 +101,20 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [gotAuth, setGotAuth] = useState(false);
   // const [notif, setNotif] = useState(null);
-  const [initialUrl, setInitialUrl] = useState(null);
+  const initialUrl = Linking.useURL();
+  // const [initialUrl, setInitialUrl] = useState(null);
   const [loadStatus, setLoadStatus] = useState('Authenticating...');
   const notificationListener = useRef();
   const responseListener = useRef();
   const navigationRef = useNavigationContainerRef();
 
-  useEffect(() => {
-    // TODO: Make this not fail on IOS - Is it because I haven't linked a domain?
-    Linking.getInitialURL().then(initialUrl => setInitialUrl(initialUrl));
-    setLoadStatus(loadStatus + ' : Got URL');
-  }, []);
+  console.log('initialUrl', initialUrl);
+
+  // useEffect(() => {
+  //   // TODO: Make this not fail on IOS - Is it because I haven't linked a domain?
+  //   Linking.getInitialURL().then(initialUrl => setInitialUrl(initialUrl));
+  //   setLoadStatus(loadStatus + ' : Got URL');
+  // }, []);
 
   useEffect(() => {
     // console.log('initial setup');
