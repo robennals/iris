@@ -36,8 +36,8 @@ export function Help({id, title, children}){
                 backgroundColor: 'white'}}>
                 <Text style={{fontWeight: 'bold', marginBottom: 8}}>{title}</Text>
                 {children}
-                <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                    <WideButton onPress={() => setCollapsed(true)}>Got It</WideButton>
+                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8}}>
+                    <WideButton style={{margin: 0}} onPress={() => setCollapsed(true)}>Got It</WideButton>
                 </View>
             </View>
         )

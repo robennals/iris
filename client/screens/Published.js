@@ -11,6 +11,7 @@ import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
 import { Loading } from '../components/loading';
 import { useCustomNavigation } from '../components/shim';
+import { Help, HelpText } from '../components/help';
 
 export function PublishedHeader({navigation, route}) {
     const {community, topic} = route.params;
@@ -62,6 +63,23 @@ function rankScore(message) {
     return (upCount + 4) / (downCount + 4)
 }
 
+function HighlightsHelp() {
+    return (
+        <Help id='highlights' title='About Highlights'>
+            <HelpText>
+                Conversations in Iris are private, but participants can choose to 
+                write a public highlight, containing the key insights from their private conversation.
+            </HelpText>
+            <HelpText>
+                A highlight can itself be the subject of a conversation.
+                Select 'want to discuss' on the highlights you would like to talk about 
+                and we will assign you to a private conversation with others who want to talk
+                about the same highlights.            
+            </HelpText>                
+        </Help>
+    )
+}
+
 export function PublishedScreen({navigation, route}) {
     const {community, topic} = route.params;
     const published = useDatabase([community, topic], ['published', community, topic]);
@@ -83,12 +101,16 @@ export function PublishedScreen({navigation, route}) {
         <View style={{backgroundColor: 'white', flex: 1}}>
             <SortSelector mode={sortMode} onModeChanged={setSortMode} />
             <ScrollView style={{flex: 1, padding: 16}}>
+                <View style={{maxWidth: 400, marginBottom: 16, marginLeft: 48}}>
+                    <HighlightsHelp />
+                </View>
+
                 {sortedMessageKeys.map((k,idx) => 
                     <Catcher key={k}>
                         <PublishedMessage messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
                     </Catcher>
                 )}
-                <ExplainHighlights />
+                {/* <ExplainHighlights /> */}
             </ScrollView>
         </View>
     )
