@@ -280,27 +280,32 @@
             color: #666
         }
 
+        .partner-holder {
+            width: 100%;
+            overflow-x: scroll
+        }
 
-        #partner-holder {
+        /* #partner-holder {
             width: 100%;
             display: flex;
             flex-direction: row;
             justify-content: center;
-        }
+        } */
         #partners {
-            /* display: flex;
-            flex-direction: row; */
-            justify-content: center;
+            display: flex;
+            /* width: 100px; */
+            flex-direction: row;
+            /* justify-content: center; */
             margin-bottom: 64px;
         }
         .partner {
             display: inline-block;
-            margin: 32px;
+            margin: 24px;
         }
 
         .partner-logo {
             /* width: 64px; */
-            height: 64px;
+            height: 48px;
         }
         
         h3 {
@@ -320,6 +325,9 @@
             .sidebyside {
                 padding-left: 32px;
                 padding-right: 32px;
+            }
+            #partners {
+                justify-content: center;
             }
         }
         @media only screen and (max-width: 600px) {
@@ -441,8 +449,11 @@
 
         <h3>Used by</h3>
         <!-- <div class='scroll-holder'> -->
-        <div id='partner-holder'>
+        <div class='scroll-holder'>
             <div id='partners'>
+                <div class='partner'>
+                    <img class='partner-logo' src="partners/forward.png" />
+                </div>
                 <div class='partner'>
                     <img class='partner-logo' src="partners/braver_angels2.png" />
                 </div>
