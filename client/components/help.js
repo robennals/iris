@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
-import { FixedTouchable, WideButton } from './basics';
+import { FixedTouchable, shadowStyle, WideButton } from './basics';
 import { StyleSheet, Text, View } from 'react-native';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 
@@ -33,7 +33,7 @@ export function Help({id, title, children}){
         return (
             <View style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                 paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8,
-                backgroundColor: 'white'}}>
+                backgroundColor: 'white', ...shadowStyle}}>
                 <Text style={{fontWeight: 'bold', marginBottom: 8}}>{title}</Text>
                 {children}
                 <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8}}>

@@ -56,21 +56,16 @@ function FeedHelp({communityName}) {
     return (
         <Help id='feed' title='About the Topic Feed'>
             <HelpText>
-                The topic feed contains topics that can talk about with other members. 
-            </HelpText>
-            <HelpText>
-                Select 'Yes', 'No', or 'Maybe' for each topic to let us know which topics you'd 
-                like to discuss. We will match you into small private conversations about 
-                those topics.
-            </HelpText>
-            <HelpText>                
-                While each conversation is private, members can choose to publicly highlight the
-                best insights from their conversations. You can see such highlights attached 
-                to some of the topics in the feed.
-            </HelpText>
-            <HelpText>
-                You already chose an initial set of topics as part of the signup process. 
+                You chose an initial set of topics as part of the signup process. 
                 This feed contains a larger set of topics and is regularly updated.
+            </HelpText>
+            <HelpText>
+                Tell us which topics you want to talk about and we'll match you
+                into private group chats with other community members.
+            </HelpText>
+            <HelpText>
+                Group chats are private, but each participant can choose to 
+                write a public highlight, containing the points they felt were most important to share.
             </HelpText>
         </Help>
     )
@@ -163,7 +158,7 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
             {/* <View style={{height: 16}} /> */}
 
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <View style={{maxWidth: 450, flex: 1, marginVertical: 16}}>
+                <View style={{maxWidth: 450, flex: 1, marginVertical: 16, marginHorizontal: 16}}>
                     <FeedHelp communityName={communityInfo.name} />
                 </View>
             </View>

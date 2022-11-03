@@ -21,6 +21,12 @@ export function shallowEqual(a, b) {
   return true;
 }
 
+export const shadowStyle = {
+  shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+  // borderColor: '#ddd', borderWidth: 2,
+  shadowOpacity: 0.5, elevation: 4}
+
+
 export function parsePhotoDataUri(uri) {
   if (uri.startsWith('data:image/jpeg;base64,')) {
     return uri.slice(23)
