@@ -133,7 +133,7 @@ function navStateFromCurrentUrl(linking) {
     const parts = path.split('/');
     const screen = parts[1];
     const format = linking.config.screens[screen];
-    if (!screen) {
+    if (!screen || screen == 'home') {
         return [
             {screen: 'home', params: {}}
         ]
