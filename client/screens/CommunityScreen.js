@@ -1,7 +1,7 @@
 import { Entypo } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, SmallMinorButton, WideButton } from '../components/basics';
+import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
@@ -19,6 +19,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Catcher } from '../components/catcher';
 import { editTopicAsync } from '../data/servercall';
 import { Help, HelpText } from '../components/help';
+import { SearchBox } from '../components/searchbox';
 
 export function CommunityScreenHeader({navigation, route, children}) {
     const {community} = route.params;
@@ -153,31 +154,36 @@ function topicLastTime({topicKey, topics, topicStates}) {
 
 function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
     const navigation = useCustomNavigation();
+    const [search, setSearch] = useState('');
+    var filteredTopicKeys = sortedTopicKeys;
+    if (search) {
+        filteredTopicKeys = _.filter(sortedTopicKeys, t => searchMatches(topics[t].name, search))
+    } 
     return (
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}>
             {/* <View style={{height: 16}} /> */}
 
             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <View style={{maxWidth: 450, flex: 1, marginVertical: 16, marginHorizontal: 16}}>
-                    <FeedHelp communityName={communityInfo.name} />
+
+                <View style={{flexDirection: 'row', maxWidth: 450, marginTop: 16, flex: 1, alignItems: 'center'}}>
+                    <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
+                        style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                         marginHorizontal: 0, marginRight: 8}} />              
+                    {isMasterUser() || search ? null : 
+                        <WideButton alwaysActive
+                            onPress={() => navigation.navigate('newTopic', {community})} 
+                            // onPress={() => console.log('community', community)}
+                            style={{alignSelf: 'center', margin: 0}}>Suggest Topic
+                        </WideButton>
+                    }
                 </View>
             </View>
 
-            {isMasterUser() ? null :           
-                // <View style={{flexDirection: 'row', justifyContent: 'center'}}> 
-                //     <FixedTouchable style={{maxWidth: 450, flex: 1}} onPress={() => navigation.navigate('newTopic', {community})}>
-                //         <View style={{backgroundColor: '#f4f4f4', borderRadius: 8, borderWidth: StyleSheet.hairlineWidth,
-                //             borderColor: '#ddd', padding: 8, marginVertical: 8}}>
-                //             <Text style={{color: '#666'}}>Suggest a Topic</Text>
-                //         </View>
-                //     </FixedTouchable>
-                // </View>
-                <WideButton alwaysActive
-                    onPress={() => navigation.navigate('newTopic', {community})} 
-                    // onPress={() => console.log('community', community)}
-                    style={{alignSelf: 'center', margin: 8, marginTop: 16}}>Suggest Topic
-                </WideButton>
-            }
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <View style={{maxWidth: 450, flex: 1, marginTop: 8, marginBottom: 16, marginHorizontal: 16}}>
+                    <FeedHelp communityName={communityInfo.name} />
+                </View>
+            </View>
 
             {/* <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 <View style={{maxWidth: 450, flex: 1, marginVertical: 16}}>
@@ -185,7 +191,7 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
                 </View>
             </View> */}
 
-            {sortedTopicKeys.map(topicKey => 
+            {filteredTopicKeys.map(topicKey => 
                 <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
                     <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
                 </Catcher>        
