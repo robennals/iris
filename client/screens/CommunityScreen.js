@@ -100,7 +100,7 @@ export function CommunityScreen({navigation, route}) {
     useEffect(() => {
         // if (sortedTopicKeys) return;
         if (topics && topicStates && openTime !== renderTime) {
-            const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved);
+            const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);
             const newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse(); 
             setSortedTopicKeys(newSortedKeys);
             setRenderTime(openTime);
@@ -168,12 +168,12 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
                 <View style={{flexDirection: 'row', maxWidth: 450, marginTop: 16, flex: 1, alignItems: 'center'}}>
                     <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
                         style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                         marginHorizontal: 0, marginRight: 8}} />              
+                         marginHorizontal: 0}} />              
                     {isMasterUser() || search ? null : 
                         <WideButton alwaysActive
                             onPress={() => navigation.navigate('newTopic', {community})} 
                             // onPress={() => console.log('community', community)}
-                            style={{alignSelf: 'center', margin: 0}}>Suggest Topic
+                            style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>Suggest Topic
                         </WideButton>
                     }
                 </View>
