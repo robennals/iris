@@ -82,6 +82,7 @@ function NewMessageTracker({group}) {
     const unreadGroups = _.filter(groupKeys, 
         k => (groups[k].readTime < _.get(groups,[k, 'lastMessage', 'time']))
             && _.get(groups, [k, 'lastMessage', 'from']) != getCurrentUser()
+            && groups[k].name
     );
     const unreadCount = unreadGroups.length;
 
