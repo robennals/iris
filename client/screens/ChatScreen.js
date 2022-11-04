@@ -524,7 +524,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                         isPublic={message.proposePublic} members={members} memberHues={memberHues} />
                             </View>                            
                         : null}
-                        {message.proposePublic && !myMessage && !messageLikes ?  
+                        {message.proposePublic && !myMessage && !messageEndorsements ?  
                             <View style={{position: 'relative', marginTop: -12, bottom: message.published ? -20 : -18, right: 8, left: -4, alignSelf: 'stretch'}}> 
                                 <PublishEndorseButton onPress={onLikeClicked} />
                             </View>
