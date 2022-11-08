@@ -1,21 +1,102 @@
-<div style='font-family:Arial, Helvetica, sans-serif; max-width: 500; margin: 8px'>
-<p>
+<html>
+    <body style='background-color: #FBF8F3'>
+<div style='font-size: 15px; font-family:Arial, Helvetica, sans-serif; max-width: 500; margin: 8px; background-color: #FBF8F3;'>
+<p style='font-size: 20px'>
     New topics in <b>{{communityNameList}}</b>    
 </p>
 
-<p>
-    Select topics you want to talk about and we'll match you into small group conversations about them.
+<p style='color: #666; margin-bottom: 32px'>
+    Select topics you'd like to talk about and we'll match you into small group text conversations about them.
 </p>
 
 {{#community}}
-    <div>
-        <div>{{communityName}}</div>
+    <!-- <div style='border-top: 1px solid #ddd; margin: 32px 64px'></div> -->
+    <!-- <div style='margin: 32px 64px'> -->
+    <div style='border-top: 1px solid #ddd; margin: 32px 64px'></div>
+
+    <!-- <div style='margin-left: 16px; font-size: 24px; font-weight: bold; margin-bottom: 16px'>{{communityName}}</div> -->
 
         {{#topic}}
-        
+            <div style='font-size: 12px; color: #666; margin-left: 16px; margin-bottom: 1px; margin-top: 32px'>New topic posted {{time}}</div>
+            <a href="{{topicUrl}}" style='text-decoration: none; color: black;'>
+                <div style='border: 1px solid #ddd; border-radius: 8px; margin-left: 8px; background-color: white;'>
+                    <div style='font-weight: bold; margin: 8px'>{{topicName}}</div>
+                    <div style='color: rgb(34,34,34); margin: 8px'>{{topicSummary}}</div>
+                    <ul style='color: rgb(34,34,34); padding-left: 24px; margin: 8px 0px'>
+                        {{#question}}
+                            <li>{{questionText}}</li>
+                        {{/question}}
+                    </ul>
+                    <div style='border-top: 1px solid #ddd'>
+                        <div style='font-size: 13px; color: #666; margin: 8px; margin-bottom: 0px'>Do you want to talk about this?</div>
+                        <div style='display: flex; flex-direction: row; margin-left: 4px; margin-bottom: 4px'>
+                            <div style='font-size: 13px; background-color: hsl(0, 50%, 90%); border: 1px solid #ddd; padding: 4px 8px; border-radius: 16px; margin: 4px;'>Yes</div>
+                            <div style='font-size: 13px; background-color: hsl(120, 50%, 90%); border: 1px solid #ddd; padding: 4px 8px; border-radius: 16px; margin: 4px;'>Maybe</div>
+                            <div style='font-size: 13px; background-color: hsl(50, 50%, 90%); border: 1px solid #ddd; padding: 4px 8px; border-radius: 16px; margin: 4px;'>No</div>
+                        </div>
+                    </div>
+                    {{#topicHighlight}}
+                    <div style='border-top: 1px solid #ddd; padding: 16px 16px'>
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src='{{authorPhotoUrl}}' 
+                                </td>
+                                <td>
+                        <div style='color: rgb(34,34,34); background-color: #eee; border: 1px solid #999; border-radius: 16px; padding: 6px 10px;'>
+                            <div style='font-weight: bold; font-size: 13px; margin-bottom: 2px'>{{authorName}}</div>
+                            <div>{{highlightText}}</div>
+                            <div style='color: #0084ff; font-size: 13px; margin-top: 4px'>Read more...</div>
+                        </div>
+                                </td>
+                            </tr>
+                        </table>
+                        {{#extraCount}}
+                            <div style='color: #666; margin-top: 4px; margin-left: 8px; font-weight: bold; font-size: 14px;'>{{extraCount}}</div>
+                        {{/extraCount}}
+                    </div>
+                    {{/topicHighlight}}
+                </div>
+            </a>
         {{/topic}}
 
-
-    </div>
+        {{#highlight}}
+        <div style='font-size: 12px; color: #666; margin-left: 16px; margin-bottom: 1px; margin-top: 16px'>New highlight in {{topicName}}</div>
+        <a href="{{topicUrl}}" style='text-decoration: none; color: black'>
+            <div style='margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; padding: 8px; margin-left: 8px; background-color: white;'>
+                <div style='font-weight: bold; margin-bottom: 8px'>{{topicName}}</div>
+                <div style='color: rgb(34,34,34); background-color: #eee; border: 1px solid #999; border-radius: 16px; padding: 6px 10px;'>
+                    <div style='font-weight: bold; font-size: 13px; margin-bottom: 2px'>{{authorName}}</div>
+                    <div>{{highlightText}}</div>
+                    <div style='color: #0084ff; font-size: 13px; margin-top: 4px'>Read more...</div>
+                </div>
+                {{#extraCount}}
+                    <div style='color: #666; margin-top: 4px; margin-left: 8px; font-weight: bold; font-size: 14px;'>{{extraCount}}</div>
+                {{/extraCount}}
+            </div>
+        </a>
+        {{/highlight}}
 {{/community}}
+
+    {{#needsAppPromo}}
+        <div style='color: #666; border-top: 1px solid #ddd; margin-top: 32px; padding-top: 32px'>
+            Install the Iris app to get notified about new messages:
+            <div style='margin-top: 16px'>
+            <a href='https://apps.apple.com/us/app/iris-talk/id1640562508'>
+                <img src='https://iris-talk.com/ios_app_promo.png' width=153 height=45 /> 
+        </a>
+        <a href='https://play.google.com/store/apps/details?id=us.mix5'>
+            <img src='https://iris-talk.com/android_app_promo.png' width=153 height=45 /> 
+        </a>
+        </div>
+    {{/needsAppPromo}}
+
+
+    <div style='color: #666; border-top: 1px solid #ddd; margin-top: 32px;'>
+        <p>You can leave a community at any time using <a href='https://iris-talk.com/unsubscribe'>this link</a></p>
+        <p>Reply to this email if you need support.</p>
+    </div>
+
 </div>
+</body>
+</html>

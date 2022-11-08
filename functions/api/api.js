@@ -10,6 +10,7 @@ const Iris = require('./iris');
 const IrisMigrate = require('./irismigrate');
 const Analysis = require('./analysis');
 const { irisDigestAsync, wakeupMessageAsync, autoCloseAsync, wakeupGroupsAsync } = require('./irisemail');
+const { testTopicsEmailAsync } = require('./topicsemail');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -151,6 +152,9 @@ async function apiActionAsync({action, components, params}) {
         }
         case 'createDirectChat': {
             return Iris.createDirectChatAsync(params);
+        }
+        case 'testTopicEmail': {
+            return testTopicsEmailAsync(params);
         }
 
         default: {

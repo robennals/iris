@@ -40,6 +40,7 @@ exports.applyUpdates = applyUpdates;
 function emailAsKey(email) {
     return email.replace(/\./g, '%2E');
   }
+exports.emailAsKey = emailAsKey;
 
 function normStr(str) {
 	return str.toLowerCase().trim();
