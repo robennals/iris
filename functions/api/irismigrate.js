@@ -5,6 +5,7 @@ const FS = require('fs');
 const Mustache = require('mustache');
 const { importMixPanelEventsAsync } = require('../output/mixpanel');
 const { forEach } = require('lodash');
+const { normStr } = require('./basics');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -18,6 +19,57 @@ const email_label = 'Email Address';
 
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
+
+async function deleteUser({email}) {
+    const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
+    var user = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
+
+    console.log('deleting user with email', email);
+
+    if (!user) {
+        console.log('no such user:', email);
+        return {success: true}
+    }
+  
+    const pGroups = FBUtil.getDataAsync(['userPrivate', user, 'group']);
+    const comms = await FBUtil.getDataAsync(['userPrivate', user, 'comm']);
+    const groups = await pGroups;
+    var updates = {};
+    updates['special/userEmail/' + user] = null;
+    updates['special/emailUser/' + FBUtil.emailAsKey(email)] = null;
+    updates['userPrivate/' + user] = null;
+
+    _.forEach(_.keys(groups), g => {
+        updates['group/' + g + '/member/' + user] = null;
+        updates['adminGroup/' + g + '/member/' + user] = null;
+    })
+    _.forEach(_.keys(comms), c => {
+        updates['commMember/' + c + '/' + user] = null;
+    })
+
+    console.log('updates', updates);
+
+    return {success: true, updates};
+}
+
+
+
+async function checkDisconnectedGroups() {
+    const groups = await FBUtil.getDataAsync(['group']);
+    const users = await FBUtil.getDataAsync(['userPrivate']);
+    const communities = await FBUtil.getDataAsync(['community']);
+    _.forEach(_.keys(groups), g => {
+        const group = groups[g];
+        const members = group.member;
+        _.forEach(_.keys(members), m => {
+            if (m != 'zzz_irisbot' && !users[m]?.group[g]?.name) {
+                const community = communities[group.community];
+                console.log('Disconnected Group', m, g, users[m]?.name, group.name, community?.name);
+            }
+        })
+    })
+    return {success: true}
+}
 
 async function migrateLastHighlightAsync(){ 
     const highlights = await FBUtil.getDataAsync(['published']);
@@ -285,6 +337,10 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateHighlightsAsync();
         case 'migrateLastHighlight':
             return await migrateLastHighlightAsync();
+        case 'checkDisconnected':
+            return await checkDisconnectedGroups();
+        case 'deleteUser':
+            return await deleteUser({email: paramList[0]});
         default:
             return {success: false, message: 'Unknown admin command'}
     }
