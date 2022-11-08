@@ -266,7 +266,7 @@ function topicsDataForUserCommunity({userCommunity, communityTopics, communityKe
                 time: Basics.formatDate(topic.time),
                 question: _.map(questions, q => ({questionText:q})),
                 topicHighlight, 
-                topicUrl: 'https://iris-talk.com/community/' + communityKey
+                topicUrl: 'https://iris-talk.com/topic/' + communityKey + '/' + t
             })
         } else {
             console.log('old topic - skipping');

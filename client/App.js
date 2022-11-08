@@ -29,7 +29,7 @@ import { AdminCreateGroupScreen } from './screens/AdminCreateGroup';
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 import { MyProfileScreen } from './screens/MyProfileScreen';
 import { AdminCreateOrEditCommunityScreen } from './screens/AdminCreateOrEditCommunity';
-import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScreen';
+import { CommunityScreen, CommunityScreenHeader, TopicScreen } from './screens/CommunityScreen';
 import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
 import { CommunitySignupsScreen } from './screens/CommunitySignups';
@@ -42,6 +42,7 @@ import { setUserPropertiesAsync } from './data/metrics';
 import { AdminLoginScreen } from './screens/AdminLogin';
 import Constants from "expo-constants";
 import { PublishedHeader, PublishedScreen } from './screens/Published';
+import { MissingScreen } from './screens/MissingScreen';
 
 
 Sentry.init({
@@ -76,6 +77,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
     profile: 'profile/:community/:member',
+    topic: 'topic/:community/:topic',
     home: 'home/',
   }
 }}
@@ -247,7 +249,9 @@ const screens = {
   editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
-  highlights: {component: PublishedScreen, headerTitle: PublishedHeader}
+  highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
+  missing: {component: MissingScreen, title: 'Missing Page'},
+  topic: {component: TopicScreen, headerTitle: CommunityScreenHeader}
 }
 
 function parseUrl(url) {

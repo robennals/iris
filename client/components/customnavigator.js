@@ -128,7 +128,7 @@ function setUrlFromNavState(navState, linking) {
     historyPushState({state: navState, url})
 }
 
-function navStateFromCurrentUrl(linking) {
+function navStateFromCurrentUrl(linking, screens) {
     const path = window.location.pathname;
     const parts = path.split('/');
     const screen = parts[1];
@@ -138,7 +138,12 @@ function navStateFromCurrentUrl(linking) {
             {screen: 'home', params: {}}
         ]
     }
-    if (!format) {
+    if (!screens[screen]) {
+        return [
+            {screen: 'home'},
+            {screen: 'missing'}
+        ]
+    } else if (!format) {
         return [
             {screen: 'home'},
             {screen}
@@ -190,7 +195,7 @@ function basicReducer(state, action) {
 
 
 export function WebNavigator({screens, initialRouteName, linking}) {
-    const [navState, updateNavState] = useReducer(basicReducer, navStateFromCurrentUrl(linking));
+    const [navState, updateNavState] = useReducer(basicReducer, navStateFromCurrentUrl(linking, screens));
     const {width} = useWindowDimensions();
     const wide = width > minTwoPanelWidth;
     const padState = useMemo(() => 

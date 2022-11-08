@@ -85,8 +85,14 @@ function CommunityAdminActions({community}) {
     )
 }
 
+
+export function TopicScreen({navigation, route}) {
+    const {community, topic} = route.params;
+    return <CommunityScreen navigation={navigation} route={{params: {community, topic}}} />
+}
+
 export function CommunityScreen({navigation, route}) {
-    const {community, openTime} = route.params;
+    const {community, openTime, topic: boostedTopicKey} = route.params;
     const topics = useDatabase([community], ['topic', community]);
     const communityInfo = useDatabase([community], ['community', community]);
     const topicStates = useDatabase([community], ['commMember', community, getCurrentUser(), 'topic']);
@@ -97,11 +103,16 @@ export function CommunityScreen({navigation, route}) {
 
     const isMaster = isMasterUser();
 
+    console.log('boostedTopicKey', boostedTopicKey);
+
     useEffect(() => {
         // if (sortedTopicKeys) return;
         if (topics && topicStates && openTime !== renderTime) {
             const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);
-            const newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse(); 
+            var newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse();             
+            if (boostedTopicKey) {
+                newSortedKeys = [boostedTopicKey, ..._.filter(newSortedKeys, k => k != boostedTopicKey)]
+            }
             setSortedTopicKeys(newSortedKeys);
             setRenderTime(openTime);
         }
