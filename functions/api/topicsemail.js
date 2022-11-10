@@ -94,7 +94,9 @@ async function testTopicsEmailAsync() {
     // const randomUser = userKeys[randomIndex];
     console.log('random user', randomUser);
 
-    const result = await sendTopicsEmailForUser({userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
+    // const result = await sendTopicsEmailForUser({userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
+    const result = await sendTopicsEmailForAllUsers({count: 100, userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
+    
     // console.log('result', result);
     if (!result || result.emails.length == 0) {
         console.log('no emails');
@@ -113,11 +115,34 @@ async function testTopicsEmailAsync() {
 exports.testTopicsEmailAsync = testTopicsEmailAsync;
 
 
+async function sendTopicsEmailForAllUsers({topics, count, communities, userEmails, lastEmail, backoff, members}) {
+    var userKeys = _.keys(userEmails);
+    if (count) {
+        userKeys = userKeys.slice(0, count);
+    }
+
+    const pAllUsers = _.map(userKeys, u => () => 
+        sendTopicsEmailForUser({userId: u, topics, communities, userEmails, lastEmail, backoff, members}));
+    const allUserResults = await Basics.promiseSequentialAsync(pAllUsers);
+    const nonEmptyResults = _.filter(allUserResults, r => r);
+
+    var updates = {};
+    var emails = [];
+
+    _.forEach(nonEmptyResults, result => {
+        updates = {...updates, ...result.updates};
+        emails = [...emails, ...result.emails];
+    })
+
+    return {updates, emails};
+}
+
+
 async function sendTopicsEmailForUser({userId, forceSend=false, topics, communities, userEmails, lastEmail, backoff, members}) {
     const pName = FBUtil.getDataAsync(['userPrivate', userId, 'name']);
     const pComm = FBUtil.getDataAsync(['userPrivate', userId, 'comm']);
     const lastAction = await FBUtil.getDataAsync(['userPrivate', userId, 'lastAction'], 0);    
-    console.log('last Action', Basics.formatTime(lastAction));
+    // console.log('last Action', Basics.formatTime(lastAction));
 
     const comm = await pComm; const name = await pName;
     const emailAddresses = userEmails[userId];
@@ -198,20 +223,20 @@ function topicsDataForUser({userId, forceSend, topics, userCommunities, communit
         const communityTopics = topics[c];
         const community = communities[c];
         const userCommunity = userCommunities[c];
-        console.log('community', c, community.name);
+        // console.log('community', c, community.name);
         // console.log('comm topics', communityTopics);
         communityTopicsOutput = topicsDataForUserCommunity({userId, userCommunity, communityTopics, communityKey: c, lastTopicsEmail, members, topicSeenEmail});        
         // console.log('topics', communityTopicsOutput);
         if (_.keys(communityTopicsOutput).length > 3) {
-            console.log('adding community');
+            // console.log('adding community');
             communityOutput[c] = {
                 communityName: community.name,
                 topic: communityTopicsOutput
             }    
         } else if (_.keys(communityTopicsOutput).length > 0) {
-            console.log('community has too few topics: ' + _.keys(communityTopicsOutput).length);
+            // console.log('community has too few topics: ' + _.keys(communityTopicsOutput).length);
         } else {
-            console.log('community has no new topics');
+            // console.log('community has no new topics');
         }
     })
     const communityKeys = _.keys(communityOutput);
@@ -222,7 +247,7 @@ function topicsDataForUser({userId, forceSend, topics, userCommunities, communit
     const communityNames = _.map(sortedCommunityKeys, c => communities[c].name);
     const communityNameList = Basics.AndFormat.format(communityNames);
 
-    console.log('communityNames', communityNames);
+    // console.log('communityNames', communityNames);
 
     return {
         communityNameList, 
@@ -255,8 +280,8 @@ function topicsDataForUserCommunity({userId, userCommunity, communityTopics, com
     const lastRead = userCommunity?.lastRead || 0;
     const votedTopics = members?.[communityKey]?.[userId]?.topic || {};
     const intakeTime = members?.[communityKey]?.[userId]?.intakeTime || 0;
-    console.log('lastRead', Basics.formatTime(lastRead));
-    console.log('intakeTime', Basics.formatTime(intakeTime));
+    // console.log('lastRead', Basics.formatTime(lastRead));
+    // console.log('intakeTime', Basics.formatTime(intakeTime));
     if (!intakeTime) {
         return [];
     }
