@@ -5,6 +5,13 @@ const Email = require('../output/email');
 const _ = require('lodash');
 const Basics = require('./basics');
 
+const community_general = '-NAilGYooypt_utC2dJ3';
+const community_irisUsers = '-NCS3mSw7G2gm5Koihuc';
+
+const user_rob = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3';
+const user_lucie = '8Nkk25o9o6bipF81nvGgGE59cXG2';
+const user_think = '68ZDRSJECrPk2f8InWTuj2mkpHj2';
+
 async function OLD_testTopicsEmailAsync() {
     const templateData = {
         communityNameList: 'Autobots, The Illuminati, and Silly People',
@@ -58,56 +65,55 @@ async function testTopicsEmailAsync() {
     const pCommunities = FBUtil.getDataAsync(['community']);
     const pLastEmail = FBUtil.getDataAsync(['perUser', 'lastTopicEmail']);
     const pBackoff = FBUtil.getDataAsync(['perUser', 'topicEmailBackoff']);
+    const pMembers = FBUtil.getDataAsync(['commMember']);
     const userEmails = await FBUtil.getDataAsync(['special', 'userEmail']);
     const topics = await pTopics; const communities = await pCommunities;
     const lastEmail = await pLastEmail; const backoff = await pBackoff;
+    const members = await pMembers; 
 
     const userKeys = _.keys(userEmails);
+
+    // const pAllUsers = _.map(userKeys, u => () => 
+    //     sendTopicsEmailForUser({userId: u, topics, communities, userEmails, lastEmail, backoff, members}));
+    // const allUserResults = await Basics.promiseSequentialAsync(pAllUsers);
+    // const nonEmptyResults = _.filter(allUserResults, r => r);
+
+    // const randomIndex = Math.floor(Math.random() * nonEmptyResults.length);
+    // const randomResult = nonEmptyResults[randomIndex];
+
+    // const html = randomResult.emails[0].HtmlBody;
+    // return {success: true, html};
+
+
     const randomIndex = Math.floor(Math.random() * userKeys.length);
-    const randomUser = 'VBZsqQlAfUXWIxVz1heH8ytmp6f1';
+    // const randomUser = '7RMzBgJwdbaEvVP3l7NbRM7zbiz2';
+    // const randomUser = user_lucie;
+    const randomUser = user_rob;
+    // const randomUser = user_think;
+    const forceSend = true;
     // const randomUser = userKeys[randomIndex];
     console.log('random user', randomUser);
 
-    const result = await sendTopicsEmailForUser({userId: randomUser, topics, communities, userEmails, lastEmail, backoff});
+    const result = await sendTopicsEmailForUser({userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
     // console.log('result', result);
-
+    if (!result || result.emails.length == 0) {
+        console.log('no emails');
+        return {success: true};
+    }
+    
     const html = result.emails[0].HtmlBody;
-    console.log('email', {...result.emails[0], HtmlBody: null})
+    // console.log('email', {...result.emails[0], HtmlBody: null})
 
-    return {success: true, html};
+    console.log('updates', result.updates);
 
-
-    // const pName = FBUtil.getDataAsync(['userPrivate', randomUser, 'name']);
-    // const pComm = FBUtil.getDataAsync(['userPrivate', randomUser, 'comm']);
-    // const lastAction = await FBUtil.getDataAsync(['userPrivate', randomUser, 'lastAction'], 0);    
-    // console.log('last Action', Basics.formatTime(lastAction));
-
-    // const comm = await pComm; const name = await pName;
-    // console.log('user name', name);
-    // const user = {comm, lastAction};
-    // const dataForUser = await topicsDataForUser({topics, userCommunities: comm, communities, lastAction, 
-    //     lastTopicsEmail: lastEmail[randomUser] || 0, backoff: backoff[randomUser] || 1});
-
-
-    // console.log('dataForUser', dataForUser);
-    // console.log('first community', dataForUser.community[0]);
-
-    // // const dataForUsers = await generateTopicsEmailDataForAllUsers();
-
-
-    // // const templateData = dataForUsers[randomUser];
-    // const templateData = dataForUser;
-    // if (dataForUser) {
-    //     const htmlTemplate = FS.readFileSync('template/newtopics.html').toString();
-    //     const html = Mustache.render(htmlTemplate, templateData);
-    //     return {success: true, html};
-    // } else {
-    //     return {success: true}
-    // }
+    // return {success: true, html};
+    // return {success: true, emails: result.emails, html};
+    return {success: true, html, emails: result.emails, updates: result.updates};
 }
 exports.testTopicsEmailAsync = testTopicsEmailAsync;
 
-async function sendTopicsEmailForUser({userId, topics, communities, userEmails, lastEmail, backoff}) {
+
+async function sendTopicsEmailForUser({userId, forceSend=false, topics, communities, userEmails, lastEmail, backoff, members}) {
     const pName = FBUtil.getDataAsync(['userPrivate', userId, 'name']);
     const pComm = FBUtil.getDataAsync(['userPrivate', userId, 'comm']);
     const lastAction = await FBUtil.getDataAsync(['userPrivate', userId, 'lastAction'], 0);    
@@ -116,17 +122,19 @@ async function sendTopicsEmailForUser({userId, topics, communities, userEmails, 
     const comm = await pComm; const name = await pName;
     const emailAddresses = userEmails[userId];
     console.log('user name', name);
-    const dataForUser = await topicsDataForUser({topics, userCommunities: comm, communities, lastAction, 
-        lastTopicsEmail: lastEmail[userId] || 0, backoff: backoff[userId] || 1});
-
-    // console.log('dataForUser', dataForUser);
-    // console.log('first community', dataForUser.community[0]);
-
-    // const dataForUsers = await generateTopicsEmailDataForAllUsers();
+    const dataForUser = await topicsDataForUser({userId, forceSend, topics, userCommunities: comm, communities, lastAction, 
+        lastTopicsEmail: lastEmail[userId] || 0, backoff: backoff[userId] || 1, members});
 
     if (!dataForUser) {
-        return {success: true}
+        return null;
+        // return {success: true}
     }
+
+    var updates = {};
+    const now = Date.now();
+    updates['/perUser/lastTopicEmail/' + userId] = now;
+    updates['/perUser/topicEmailBackoff/' + userId] = 
+        (lastAction[userId] > lastEmail[userId]) ? 1 : (backoff[userId] || 1) + 1
 
     var emails = [];
     _.forEach(dataForUser.community, communityData => {
@@ -142,16 +150,16 @@ async function sendTopicsEmailForUser({userId, topics, communities, userEmails, 
     
         const email = {
             To: name + ' <' + emailAddresses + '>',
-            From: communityName + ' at Iris <topics@iris-talk.com>',
+            From: communityName + ' on Iris <topics@iris-talk.com>',
             Subject: 'New Topics: ' + firstTopicName + ', ' + secondTopicName + ', ' + thirdTopicName + ', and ' + topicCount + ' more',
             MessageStream: 'topic-digest',
             HtmlBody: html
         }
+        console.log('email', {...email, HtmlBody: null});
         emails.push(email);
     })
 
-
-    return {success: true, emails};
+    return {success: true, emails, updates};
 }
 
 
@@ -175,13 +183,13 @@ async function generateTopicsEmailDataForAllUsers(){
     return userOutput;
 }
 
-function topicsDataForUser({topics, userCommunities, communities, lastAction, lastTopicsEmail, backoff}) {
+function topicsDataForUser({userId, forceSend, topics, userCommunities, communities, lastAction, lastTopicsEmail, backoff, members, topicSeenEmail}) {
     const now = Date.now();
-    if (lastTopicsEmail > now - (backoff * Basics.dayMillis)) {
+    if (!forceSend && (lastTopicsEmail > lastAction) && lastTopicsEmail > now - (backoff * Basics.weekMillis)) {
         console.log('last wakeup email too recent');
         return null; // last wakeup email too recent
     }
-    if (lastAction > now - Basics.dayMillis) {
+    if (!forceSend && lastAction > now - Basics.weekMillis) {
         console.log('active in the last week');
         return null; // active in the last week - doesn't need a topic digest
     }
@@ -192,7 +200,7 @@ function topicsDataForUser({topics, userCommunities, communities, lastAction, la
         const userCommunity = userCommunities[c];
         console.log('community', c, community.name);
         // console.log('comm topics', communityTopics);
-        communityTopicsOutput = topicsDataForUserCommunity({userCommunity, communityTopics, communityKey: c, lastTopicsEmail});        
+        communityTopicsOutput = topicsDataForUserCommunity({userId, userCommunity, communityTopics, communityKey: c, lastTopicsEmail, members, topicSeenEmail});        
         // console.log('topics', communityTopicsOutput);
         if (_.keys(communityTopicsOutput).length > 3) {
             console.log('adding community');
@@ -200,6 +208,8 @@ function topicsDataForUser({topics, userCommunities, communities, lastAction, la
                 communityName: community.name,
                 topic: communityTopicsOutput
             }    
+        } else if (_.keys(communityTopicsOutput).length > 0) {
+            console.log('community has too few topics: ' + _.keys(communityTopicsOutput).length);
         } else {
             console.log('community has no new topics');
         }
@@ -236,21 +246,31 @@ function getHighlightExtraCountText(topic) {
     }
 }
 
-function topicsDataForUserCommunity({userCommunity, communityTopics, communityKey, lastTopicsEmail}) {
+function topicsDataForUserCommunity({userId, userCommunity, communityTopics, communityKey, lastTopicsEmail, members}) {
     var outTopics = [];
+    if (communityKey == community_general || communityKey == community_irisUsers) {
+        return [];
+    }
+ 
     const lastRead = userCommunity?.lastRead || 0;
+    const votedTopics = members?.[communityKey]?.[userId]?.topic || {};
+    const intakeTime = members?.[communityKey]?.[userId]?.intakeTime || 0;
     console.log('lastRead', Basics.formatTime(lastRead));
+    console.log('intakeTime', Basics.formatTime(intakeTime));
+    if (!intakeTime) {
+        return [];
+    }
     
     const sortedTopicKeys = _.sortBy(_.keys(communityTopics || {}), t => communityTopics[t].time).reverse(); 
     // console.log('topics', communityTopics);
-    console.log(_.keys(communityTopics));
+    // console.log(_.keys(communityTopics));
     // console.log('sortedTopicKeys', sortedTopicKeys);
 
     _.forEach(sortedTopicKeys, t => {
         const topic = communityTopics[t];
-        console.log('topic', Basics.formatTime(topic.time), topic.name);
-        if (topic.time > lastRead && topic.time > lastTopicsEmail) {
-            console.log('New topic - adding');
+        // console.log('topic', Basics.formatTime(topic.time), topic.name);
+        if (!votedTopics[t] && topic.time > lastTopicsEmail && topic.time > intakeTime && topic.approved !== false) {
+            // console.log('New topic - adding');
             const questions = JSON.parse(topic.questions);
             var topicHighlight = null;
             if (topic.lastMessage) {
@@ -262,6 +282,7 @@ function topicsDataForUserCommunity({userCommunity, communityTopics, communityKe
             }
             outTopics.push({                
                 topicName: topic.name,
+                topicKey: t,
                 topicSummary: _.truncate(topic.summary, 100),
                 time: Basics.formatDate(topic.time),
                 question: _.map(questions, q => ({questionText:q})),
@@ -269,7 +290,7 @@ function topicsDataForUserCommunity({userCommunity, communityTopics, communityKe
                 topicUrl: 'https://iris-talk.com/topic/' + communityKey + '/' + t
             })
         } else {
-            console.log('old topic - skipping');
+            // console.log('old topic - skipping');
         }
     });
 

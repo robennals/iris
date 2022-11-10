@@ -4,10 +4,12 @@ const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
 const hourMillis = 60 * minuteMillis;
 const dayMillis = 24 * hourMillis;
+const weekMillis = 7 * dayMillis;
 
 exports.minuteMillis = minuteMillis;
 exports.hourMillis = hourMillis;
 exports.dayMillis = dayMillis;
+exports.weekMillis = weekMillis;
 
 
 
@@ -27,6 +29,19 @@ exports.firstName = firstName;
 
 const AndFormat = new Intl.ListFormat('en', {style: 'long', type: 'conjunction'});
 exports.AndFormat = AndFormat;
+
+
+async function promiseSequentialAsync(seq) {
+    console.log('promiseSequential', seq.length);
+    if (seq.length == 0) {
+        return [];
+    } else {
+        const head = await seq[0]();
+        const tail = await promiseSequentialAsync(seq.slice(1));
+        return [head, ...tail];
+    }
+}
+exports.promiseSequentialAsync = promiseSequentialAsync;
 
 
 function formatTime(time) {
