@@ -95,7 +95,7 @@ async function testTopicsEmailAsync() {
     console.log('random user', randomUser);
 
     // const result = await sendTopicsEmailForUser({userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
-    const result = await sendTopicsEmailForAllUsers({count: 100, userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
+    const result = await sendTopicsEmailForAllUsers({userId: randomUser, forceSend, topics, communities, userEmails, lastEmail, backoff, members});
     
     // console.log('result', result);
     if (!result || result.emails.length == 0) {
@@ -308,7 +308,7 @@ function topicsDataForUserCommunity({userId, userCommunity, communityTopics, com
             outTopics.push({                
                 topicName: topic.name,
                 topicKey: t,
-                topicSummary: _.truncate(topic.summary, 100),
+                topicSummary: _.truncate(topic.summary, {length: 100}),
                 time: Basics.formatDate(topic.time),
                 question: _.map(questions, q => ({questionText:q})),
                 topicHighlight, 
