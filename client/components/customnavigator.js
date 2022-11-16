@@ -117,14 +117,17 @@ function urlForScreen(topScreen, linking) {
     if (format) {
         const partKeys = format.split('/:').slice(1);
         const parts = partKeys.map(k => topScreen.params[k]);
+        console.log('parts', {partKeys, parts});
         path = '/' + _.join(parts, '/');
     }
+    console.log('urlForScreen', {topScreen, format, path});
     return '/' + topScreen.screen + path;
 }
 
 
 function setUrlFromNavState(navState, linking) {
     const url = urlForNavState(navState, linking);
+    console.log('setUrlFromNavState', navState, url);
     historyPushState({state: navState, url})
 }
 
@@ -203,7 +206,10 @@ export function WebNavigator({screens, initialRouteName, linking}) {
     , [navState, wide]); 
 
     const navFunc = useCallback(index => ({
-        navigate: (screen, params) => updateNavState(state => [...state.slice(0,index+1), {screen, params}]),
+        navigate: (screen, params) => {
+            console.log('navigate', screen, params);
+            updateNavState(state => [...state.slice(0,index+1), {screen, params}])
+        },
         replace: (screen, params) => updateNavState(state => [...state.slice(0, index), {screen, params}]),
         goBack: () => updateNavState(state => state.slice(0, index)),
         setOptions: (newOptions) => updateNavState(state => {

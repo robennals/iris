@@ -43,6 +43,7 @@ import { AdminLoginScreen } from './screens/AdminLogin';
 import Constants from "expo-constants";
 import { PublishedHeader, PublishedScreen } from './screens/Published';
 import { MissingScreen } from './screens/MissingScreen';
+import { EditViewpointScreen, EditViewpointScreenHeader } from './screens/EditViewpointScreen';
 
 
 Sentry.init({
@@ -79,6 +80,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     profile: 'profile/:community/:member',
     topic: 'topic/:community/:topic',
     home: 'home/',
+    viewpoint: 'viewpoint/:community/:topic'
   }
 }}
 
@@ -251,7 +253,8 @@ const screens = {
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
   missing: {component: MissingScreen, title: 'Missing Page'},
-  topic: {component: TopicScreen, headerTitle: CommunityScreenHeader}
+  topic: {component: TopicScreen, headerTitle: CommunityScreenHeader},
+  viewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
 }
 
 function parseUrl(url) {

@@ -4,7 +4,7 @@ import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-n
 import { getCurrentUser, getFirebaseServerTimestamp, newKey, setDataAsync, useDatabase } from '../data/fbutil';
 import { logErrorAsync, sendMessageAsync } from '../data/servercall';
 import { FixedTouchable, MinorButton, OneLineText, ToggleCheck, WideButton } from './basics';
-import { track } from './shim';
+import { track, useCustomNavigation } from './shim';
 
 var global_saveDrafts = {};
 
@@ -23,6 +23,7 @@ export const ChatEntryBox = memo(forwardRef(
     const [textKey, setTextKey] = useState(0);
     const [proposePublic, setProposePublic] = useState(false);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
+    const navigation = useCustomNavigation();
 
 
     useImperativeHandle(ref, () => ({
@@ -189,12 +190,21 @@ export const ChatEntryBox = memo(forwardRef(
                 </View>
                 {!expanded && topic ? 
                     <FixedTouchable onPress={() => {setProposePublic(true); chatInputRef.current.focus()}}>
+                    {/* <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, topic})}> */}
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='star' color='#FABC05' size={16} />
                             <Text style={{marginLeft: 2, color: '#999'}}>Highlight</Text>
                         </View>
                     </FixedTouchable>                
                 : null}
+                {/* {!expanded && topic ? 
+                    <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, topic})}>
+                        <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
+                            <Entypo name='megaphone' color='#FABC05' size={16} />
+                            <Text style={{marginLeft: 2, color: '#999'}}>Viewpoint</Text>
+                        </View>
+                    </FixedTouchable>                
+                : null} */}
                 {textLength > 0 && !textTooLong ?
                     (edit ? null
                     :                         

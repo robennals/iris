@@ -222,6 +222,9 @@ export async function createDirectChatAsync({community, user}) {
     return await callServerApiAsync('createDirectChat', {community, user});
 }
 
+export async function saveViewpointAsync({community, topic, anonymous, text}) {
+    return await callServerApiAsync('saveViewpoint', {community, topic, text, anonymous});
+}
 
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
