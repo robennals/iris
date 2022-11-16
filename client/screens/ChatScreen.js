@@ -13,7 +13,7 @@ import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, is
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
-import { formatMessageTime, formatTime, minuteMillis } from '../components/time';
+import { formatMessageTime, formatShortDate, formatTime, minuteMillis } from '../components/time';
 import { adminJoinGroupAsync, endorseMessageAsync, likeMessageAsync, publishMessageAsync, sendMessageAsync } from '../data/servercall';
 import { ModalMenu } from '../components/shimui';
 import { Catcher } from '../components/catcher';
@@ -128,6 +128,15 @@ function ArchivedBanner(){
 var global_chatInputRef = null;
 var global_chatEntryRef = null;
 
+function TimeOut({time}) {
+    return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontWeight: 'bold'}}>You are in time out until {formatShortDate(time)}.</Text>
+            <Text>You cannot take part in chats until your time out is over.</Text>
+        </View>
+    )
+}
+
 export function ChatScreen({navigation, route}) {
     const {group} = route.params;
 
@@ -135,6 +144,7 @@ export function ChatScreen({navigation, route}) {
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const groupName = useDatabase([group], ['group', group, 'name']);
     const community = useDatabase([group], ['group', group, 'community'], null);
+    const timeOut = useDatabase([], ['userPrivate', getCurrentUser(), 'timeOut'], 0);
     const [reply, setReply] = useState(null);
     const chatInputRef = React.createRef();
     const chatEntryRef = useRef();
@@ -158,6 +168,10 @@ export function ChatScreen({navigation, route}) {
 
     if (!members) {
         return <Loading />
+    }
+
+    if (timeOut > Date.now()) {
+        return <TimeOut time={timeOut} />
     }
 
     // console.log('render chatscreen');
