@@ -9,6 +9,7 @@ const Export = require('./export');
 const Iris = require('./iris');
 const IrisMigrate = require('./irismigrate');
 const Analysis = require('./analysis');
+const Viewpoint = require('./viewpoint');
 const { irisDigestAsync, wakeupMessageAsync, autoCloseAsync, wakeupGroupsAsync } = require('./irisemail');
 const { testTopicsEmailAsync } = require('./topicsemail');
 
@@ -155,6 +156,9 @@ async function apiActionAsync({action, components, params}) {
         }
         case 'testTopicEmail': {
             return testTopicsEmailAsync(params);
+        }
+        case 'saveViewpoint': {
+            return Viewpoint.saveViewpointAsync(params);
         }
 
         default: {

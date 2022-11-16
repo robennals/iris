@@ -26,7 +26,7 @@ export function PublishedHeader({navigation, route}) {
             <Entypo name='star' color='#FABC05' size={32} style={{marginRight: 4}} />
             <View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>Public Highlights</Text>
+                    <Text>Public Viewpoints</Text>
                 </View>
                 <Text style={{fontSize: 12}} numberOfLines={1}>about <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text> in <Text style={{fontWeight: 'bold'}}>{communityInfo.name}</Text></Text>
             </View>
@@ -65,16 +65,17 @@ function rankScore(message) {
 
 function HighlightsHelp() {
     return (
-        <Help id='highlights' title='About Highlights'>
+        <Help id='viewpoints' title='About Viewpoints'>
             <HelpText>
-                Conversations in Iris are private, but participants can choose to 
-                write a public highlight, containing the key insights from their private conversation.
+                Each person can write a public viewpoint, giving their personal view of the topic.
             </HelpText>
             <HelpText>
-                A highlight can itself be the subject of a conversation.
-                Select 'want to discuss' on the highlights you would like to talk about 
-                and we will assign you to a private conversation with others who want to talk
-                about the same highlights.            
+                If you think someone's viewpoint is interesting (including disagreeing with it) 
+                you can say "want to discuss" and we'll match you into a private Conversationw
+                with other people who wish to discuss the same viewpoints.
+            </HelpText>
+            <HelpText>
+                People can change their viewpoints as a result of these private conversations.
             </HelpText>                
         </Help>
     )

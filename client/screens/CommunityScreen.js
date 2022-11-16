@@ -1,4 +1,4 @@
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
@@ -350,7 +350,7 @@ function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
 
 function stateToPhrase(state) {
     switch(state) {
-        case 'yes': return 'You want to talk about this';
+        case 'yes': return 'We will add you to a chat about this';
         case 'no': return 'You do not want to talk about this';
         case 'maybe': return 'You could talk about this, but prefer other topics';
     }
@@ -396,7 +396,7 @@ function PublishedPreview({community, topicKey, topic, lastRead}) {
                         }
                     </View>
                     {topic.publishCount > 1 ?
-                        <Text style={{marginTop: unread ? 8 : 4, marginLeft: 32, color: '#666', fontSize: unread ? 14 : 12, marginBottom: 4, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'highlight' : 'highlights'}</Text>
+                        <Text style={{marginTop: unread ? 8 : 4, marginLeft: 32, color: '#666', fontSize: unread ? 14 : 12, marginBottom: 4, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
                     : null}
                 </View>
             </FixedTouchable>
