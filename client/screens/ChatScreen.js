@@ -551,7 +551,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                     {message.text}
                                 </Text>
                                 <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from})}>
-                                <Text style={{marginTop: 4, color: message.from == getCurrentUser() ? 'white' : baseColor}}>Read more...</Text>
+                                    <Text style={{marginTop: 4, color: message.from == getCurrentUser() ? 'white' : baseColor}}>Read more...</Text>
                                 </FixedTouchable>
                             </View>
                         : 

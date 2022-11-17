@@ -1,9 +1,11 @@
 import React from 'react';
-import { Text, View } from 'react-native';
-import { formatDate } from '../../functions/api/basics';
-import { OneLineText, ScreenContentScroll } from '../components/basics';
+import { StyleSheet, Text, View } from 'react-native';
+import { FixedTouchable, OneLineText, ScreenContentScroll, ViewpointActions } from '../components/basics';
+import { LinkText } from '../components/linktext';
 import { Loading } from '../components/loading';
 import { MemberPhotoIcon } from '../components/photo';
+import { useCustomNavigation } from '../components/shim';
+import { formatMessageTime, formatShortDate } from '../components/time';
 import { getCurrentUser, useDatabase } from '../data/fbutil';
 import { EditViewpointScreen } from './EditViewpointScreen';
 
@@ -26,9 +28,12 @@ export function ViewpointScreenHeader({route}) {
 
 export function ViewpointScreen({route}) {
     const {community, topic, user} = route.params;
+    const navigation = useCustomNavigation();
 
     const viewpoint = useDatabase([community,topic,user], ['viewpoint', community, topic, user]);
     const topicName = useDatabase([community, topic], ['topic', community, topic, 'name']);
+    const myVote = viewpoint?.vote?.[getCurrentUser()];
+    const meChat = viewpoint?.chat?.[getCurrentUser()];
 
     if (user == getCurrentUser()) {
         return <EditViewpointScreen route={route} />
@@ -42,13 +47,18 @@ export function ViewpointScreen({route}) {
         <ScreenContentScroll>
             <View style={{maxWidth: 450, alignSelf: 'center', marginTop: 8}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
-                    <MemberPhotoIcon photoKey={viewpoint.authorPhoto} name={viewpoint.authorName} user={viewpoint.from} />
+                    <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: viewpoint.from})}>
+                        <MemberPhotoIcon photoKey={viewpoint.authorPhoto} name={viewpoint.authorName} user={viewpoint.from} />
+                    </FixedTouchable>
                     <View style={{marginLeft: 4}}>
                         <Text style={{fontWeight: 'bold'}}>{viewpoint.authorName}</Text>                   
-                        <Text style={{fontSize: 13, color: '#666'}}>{formatDate(viewpoint.time)}</Text>
+                        <Text style={{fontSize: 13, color: '#666'}}>{formatMessageTime(viewpoint.time)}</Text>
                     </View> 
                 </View>
-                <Text>{viewpoint.text}</Text>
+                <LinkText text={viewpoint.text} />
+                <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingVertical: 8}}>
+                    <ViewpointActions community={community} topic={topic} viewpoint={viewpoint} messageKey={viewpoint.key} />
+                </View>
             </View>
         </ScreenContentScroll>
     )

@@ -47,9 +47,14 @@ export function GroupProfileScreen({navigation, route}) {
     const [questions, setQuestions] = useState('');
     const [community, setCommunity] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
+    const topic = useDatabase([group], ['group', group, 'topic'], null);
+    const published = useDatabase([community, topic], ['published', community, topic]);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
 
+    const publishedCount = _.keys(published || {}).length || '';
+
     console.log('archived', archived);
+    console.log('published', published);
 
     useEffect(() => {
         var x = {};
@@ -95,7 +100,7 @@ export function GroupProfileScreen({navigation, route}) {
     return (
         <ScreenContentScroll>
             <View style={{marginHorizontal: 16}}>
-                <View style={{marginVertical: 16}}>
+                <View style={{marginTop: 16}}>
                 {communityInfo ?
                     <FixedTouchable onPress={() => navigation.navigate('community', {community})} > 
                         <View style={{alignItems: 'center', flexDirection: 'row'}}>
@@ -104,8 +109,12 @@ export function GroupProfileScreen({navigation, route}) {
                         </View>
                     </FixedTouchable>
                 : null}
-                <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 8}}>{name}</Text>
+                <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 4}}>{name}</Text>
             </View>
+
+            <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
+                <Text style={{color: '#666'}}>View {publishedCount} {publishedCount && publishedCount > 1 ? 'viewpoints' : 'viewpoint'}</Text>
+            </FixedTouchable>
 
             <View>
                 {filteredQuestions ? 

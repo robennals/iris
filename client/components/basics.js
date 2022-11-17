@@ -3,8 +3,8 @@ import { Image, Linking, Platform, SafeAreaView, ScrollView, StyleSheet, Text, T
 import { appIcon, appName, appSlogan, baseBackgroundColor, baseColor } from '../data/config';
 import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
-import { Entypo, FontAwesome } from '@expo/vector-icons';
-import { getCurrentUser } from '../data/fbutil';
+import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
+import { getCurrentUser, setDataAsync } from '../data/fbutil';
 import _ from 'lodash';
 
 export function shallowEqual(a, b) {
@@ -19,6 +19,46 @@ export function shallowEqual(a, b) {
     }
   })
   return true;
+}
+
+export function Action({icon, name, pad=1, onPress}) {
+  return (
+      <FixedTouchable onPress={onPress} style={{marginLeft: 8}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 4}}>
+              <Ionicons name={icon} color='#666' />
+              <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
+          </View>
+      </FixedTouchable>
+  )
+}
+
+export function ViewpointActions({community, topic, messageKey, viewpoint}) {
+  const myVote = viewpoint?.vote?.[getCurrentUser()];
+  const meChat = viewpoint?.chat?.[getCurrentUser()];
+
+  async function onVote(vote) {
+    const newVote = (vote == myVote) ? null : vote;
+    setDataAsync(['published', community, topic, messageKey, 'vote', getCurrentUser()], newVote)
+  }
+
+  async function onChat() {
+      setDataAsync(['published', community, topic, messageKey, 'chat', getCurrentUser()], meChat ? null : true)
+  }
+
+  const upCount = _.filter(_.keys(viewpoint.vote), k => viewpoint.vote[k] == 'up').length;
+  const upCountStr = upCount == 0 ? '' : ' (' + upCount + ')'
+
+  return (
+    <View style={{flexDirection: 'row'}}>
+      <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
+          name={(myVote == 'up' ? 'Upvoted' : 'Upvote') + upCountStr} 
+          onPress={() => onVote('up')}/>                
+      <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
+          name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
+      <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
+          name='Want to discuss' onPress={onChat} />
+  </View>
+  )
 }
 
 export const shadowStyle = {

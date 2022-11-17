@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { andFormatStrings, FixedTouchable, memberKeysToHues, ScreenContentScroll } from '../components/basics';
+import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, ScreenContentScroll, ViewpointActions } from '../components/basics';
 import { MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -117,16 +117,6 @@ export function PublishedScreen({navigation, route}) {
     )
 }
 
-function Action({icon, name, pad=1, onPress}) {
-    return (
-        <FixedTouchable onPress={onPress} style={{marginLeft: 8}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 4}}>
-                <Ionicons name={icon} color='#666' />
-                <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
-            </View>
-        </FixedTouchable>
-    )
-}
 
 function ExplainHighlights() {
     return (
@@ -189,18 +179,26 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                                 <Text style={{color: '#666', fontSize: 12}}>Replying to a private message</Text>
                             </View>
                         :null} */}
-                        <LinkText color='#222' text={message.text} />
+                        <Text numberOfLines={10}>
+                            {message.text}
+                        </Text>
+                        <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from})}>
+                            <Text style={{marginTop: 4, color: baseColor}}>
+                                {message.from == getCurrentUser() ? 'Edit' : 'Read more...'}</Text>
+                        </FixedTouchable>    
+                    {/* <LinkText color='#222' text={message.text} /> */}
                     </View>
                     {message.from != getCurrentUser() ?
-                        <View style={{flexDirection: 'row'}}>
-                            <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
-                                name={(myVote == 'up' ? 'Upvoted' : 'Upvote') + upCountStr} 
-                                onPress={() => onVote('up')}/>                
-                            <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
-                                name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
-                            <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
-                                name='Want to discuss' onPress={onChat} />
-                        </View>
+                        <ViewpointActions community={community} topic={topic} messageKey={messageKey} viewpoint={message} />
+                        // <View style={{flexDirection: 'row'}}>
+                        //     <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
+                        //         name={(myVote == 'up' ? 'Upvoted' : 'Upvote') + upCountStr} 
+                        //         onPress={() => onVote('up')}/>                
+                        //     <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
+                        //         name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
+                        //     <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
+                        //         name='Want to discuss' onPress={onChat} />
+                        // </View>
                     : null}
                 </View>
             </View>

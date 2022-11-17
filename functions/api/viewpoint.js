@@ -32,6 +32,7 @@ async function saveViewpointAsync({community, topic, text, anonymous, ip, userId
         from: anonymous ? null : userId,
         anonymous,
         vote: oldViewpoint?.vote ? oldViewpoint.vote : null,
+        chat: oldViewpoint?.chat ? oldViewpoint.chat : null,
         publishTime: oldViewpoint?.time ?? time,
         viewPoint: true,
         key
