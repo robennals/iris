@@ -39,7 +39,7 @@ async function saveViewpointAsync({community, topic, text, anonymous, ip, userId
     }
 
     updates['viewpoint/' + community + '/' + topic + '/' + userId] = pubMessage;
-
+    updates['commMember/' + community + '/' + userId + '/topic/' + topic] = 'yes';
 
     updates['memberViewpoint/' + community + '/' + userId + '/' + topic] = pubMessage;
     updates['published/' + community + '/' + topic + '/' + key] = pubMessage;

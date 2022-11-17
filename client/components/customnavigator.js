@@ -117,10 +117,10 @@ function urlForScreen(topScreen, linking) {
     if (format) {
         const partKeys = format.split('/:').slice(1);
         const parts = partKeys.map(k => topScreen.params[k]);
-        console.log('parts', {partKeys, parts});
+        // console.log('parts', {partKeys, parts});
         path = '/' + _.join(parts, '/');
     }
-    console.log('urlForScreen', {topScreen, format, path});
+    // console.log('urlForScreen', {topScreen, format, path});
     return '/' + topScreen.screen + path;
 }
 

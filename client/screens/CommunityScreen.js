@@ -101,10 +101,11 @@ export function CommunityScreen({navigation, route}) {
     const myViewpoints = useDatabase([community], ['memberViewpoint', community, getCurrentUser()], {});
     const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
     const [renderTime, setRenderTime] = useState(null);
-
+    
     const isMaster = isMasterUser();
 
-    console.log('boostedTopicKey', boostedTopicKey);
+    // console.log('boostedTopicKey', boostedTopicKey);
+    console.log('myViewpoints', myViewpoints);
 
     useEffect(() => {
         // if (sortedTopicKeys) return;
@@ -147,7 +148,7 @@ export function CommunityScreen({navigation, route}) {
                                 style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
                         </View>
                     :null} */}
-                    <TopicList topics={topics} myViepwoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
+                    <TopicList topics={topics} myViewpoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -341,7 +342,7 @@ function Topic({community, communityInfo, myViewpoint, topic, topicKey, state, l
                     
                         : null}
                         
-                        <PublishedPreview topic={topic} community={community} topicKey={topicKey} lastRead={lastRead} />
+                        <PublishedPreview topic={topic} myViewpoint={myViewpoint} community={community} topicKey={topicKey} lastRead={lastRead} />
                     </View>
                 </View>
             </View>
@@ -366,19 +367,46 @@ function colorForState(state) {
 }
 
 
-function PublishedPreview({community, topicKey, topic, lastRead}) {
+function MyViewpointPreview({community, topicKey, myViewpoint}) {
+    const navigation = useCustomNavigation();
+    if (!myViewpoint) {
+        return (
+            <FixedTouchable onPress={() => navigation.navigate('myViewpoint', {community, topic:topicKey})}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Entypo name='megaphone' color='#FABC05' size={16} />
+                    <View style={{
+                            flex: 1, marginLeft: 8,
+                            backgroundColor: '#f4f4f4',
+                            borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
+                        <Text style={{color: '#666'}}>Write your view on this topic</Text>
+                    </View>
+                </View>
+            </FixedTouchable>
+        )
+    } else {
+        return null;
+    }
+}
+
+function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
     const navigation = useCustomNavigation();
     const extraCount = topic.publishCount -1;
     function onClickHighlight(){ 
         setDataAsync(['userPrivate', getCurrentUser(), 'topicRead', community, topicKey], getFirebaseServerTimestamp());
         navigation.navigate('highlights', {community, topic: topicKey});
     }
+
+    console.log('myViewpoint', topic.name, myViewpoint);
+
     if (topic.publishCount && topic.lastMessage) {
         const unread = lastRead < topic.lastMessage.time;
         return (
             <FixedTouchable onPress={onClickHighlight}>
                 <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8,
                     backgroundColor: unread ? 'white' : null, borderBottomLeftRadius: 8, borderBottomRightRadius: 8}}>
+                    {topic.publishCount > 1 ?
+                        <Text style={{marginBottom: 8, marginLeft: 0, color: '#666', fontSize: unread ? 14 : 12, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
+                    : null}
                     <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                         <MemberPhotoIcon size={24} style={{marginTop: unread ? 4 : 3}} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
                         {unread ?
@@ -393,15 +421,22 @@ function PublishedPreview({community, topicKey, topic, lastRead}) {
                                     <Text numberOfLines={1} style={{color: '#666'}}>{topic.lastMessage.text}</Text>
                                 </Text>
                             </View>
-
                         }
                     </View>
-                    {topic.publishCount > 1 ?
-                        <Text style={{marginTop: unread ? 8 : 4, marginLeft: 32, color: '#666', fontSize: unread ? 14 : 12, marginBottom: 4, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
-                    : null}
                 </View>
+                {!myViewpoint ? 
+                    <View style={{paddingHorizontal: 8, paddingBottom: 8, marginLeft: 4}}>               
+                        <MyViewpointPreview community={community} topicKey={topicKey} />
+                    </View>
+                : null}
             </FixedTouchable>
         )    
+    } else if (!myViewpoint) {
+        return (
+            <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
+                <MyViewpointPreview community={community} topicKey={topicKey} />
+            </View>
+        )
     } else {
         return null;
     }
