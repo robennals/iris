@@ -154,9 +154,9 @@ export const ChatEntryBox = memo(forwardRef(
                     </FixedTouchable>
                 </View>
             : null}
-            {!replyTo && expanded && topic ?
+            {/* {!replyTo && expanded && topic ?
                 <ToggleCheck value={proposePublic} onValueChange={setProposePublic} label='Public Highlight' style={{marginTop: 4}} textStyle={{color: 'black'}} />
-            : null }
+            : null } */}
             {!replyTo && expanded && proposePublic && mySummary ?
                 <Text style={{color: '#666', fontSize: 12, marginBottom: 8, marginTop: 4, marginLeft: 8}}>This will replace your previous highlight</Text>
             : null}
@@ -189,10 +189,11 @@ export const ChatEntryBox = memo(forwardRef(
                     />
                 </View>
                 {!expanded && topic ? 
-                    <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, topic})}>
-                        <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, alignItems: 'center', marginLeft: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
+                    <FixedTouchable onPress={() => navigation.navigate('myViewpoint', {community, topic})}>
+                        <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, 
+                            alignItems: 'center', marginLeft: 8, borderColor: '#999', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='megaphone' color='#FABC05' size={16} />
-                            <Text style={{marginLeft: 2, color: '#999'}}>Viewpoint</Text>
+                            <Text style={{marginLeft: 4, color: '#222'}}>Viewpoint</Text>
                         </View>
                     </FixedTouchable>                
                 : null}

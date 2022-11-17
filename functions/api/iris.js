@@ -349,7 +349,7 @@ function getPublishedTime({oldMessage, likes, proposePublic}) {
 }
 
 // TODO: Send notification to other group members on mobile
-async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, editTime=null, group, text, replyTo, userId, ip}) {
+async function sendMessageAsync({messageKey, viewpoint=null, firstViewpoint=null, silent=false, isEdit=null, proposePublic=null, editTime=null, group, text, replyTo, userId, ip}) {
     console.log('sendMessageAsync', group, text, userId);
     const pMembers = FBUtil.getDataAsync(['group', group, 'member']);
     const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
@@ -381,6 +381,7 @@ async function sendMessageAsync({messageKey, isEdit=null, proposePublic=null, ed
         text: text || null,
         editTime: isEdit ? Date.now() : null,
         proposePublic, published,
+        viewpoint, firstViewpoint,
         from: userId
     }
 

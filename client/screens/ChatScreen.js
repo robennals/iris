@@ -22,6 +22,7 @@ import { Feedback } from '../components/feedback';
 import { Loading } from '../components/loading';
 import { StatusBar } from 'expo-status-bar';
 import { BottomFlatScroller } from '../components/bottomscroller';
+import { baseColor } from '../data/config';
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -387,6 +388,7 @@ function thingsAreEqual(thing, prev, next) {
 }
 
 
+
 // const MemoMessage = React.memo(Message, (prev, next) => thingsAreEqual('message', prev, next));
 const MemoMessage = React.memo(Message); 
 
@@ -504,6 +506,20 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                         <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Previous highlight</Text>
                     </View>            
                 : null}
+                {message.viewpoint && !message.firstViewpoint? 
+                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
+                        {/* <Entypo name='star' color='#FABC05' size={16} /> */}
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Updated their viewpoint</Text>
+                    </View>            
+                : null}
+                {message.viewpoint && message.firstViewpoint ? 
+                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
+                        {/* <Entypo name='star' color='#FABC05' size={16} /> */}
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Wrote a viewpoint</Text>
+                    </View>            
+                : null}
+
+
 
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>
@@ -513,7 +529,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
-                            message.published || message.proposePublic ? {borderColor: '#222', borderWidth: 4, marginTop: 1, marginBottom: 8, ...shadowStyle} : {},
+                            message.published || message.proposePublic || message.viewpoint ? {borderColor: '#222', borderWidth: 4, marginTop: 1, marginBottom: 8, ...shadowStyle} : {},
                             message.prevPublic && (!message.proposePublic) ? {marginTop: 1} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
@@ -529,7 +545,18 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                 <RepliedMessage message={message} replyMessage={replyMessage} members={members} />
                             </Catcher> 
                         : null}
-                        <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
+                        {message.viewpoint ?
+                            <View>
+                                <Text numberOfLines={4} style={myMessage ? styles.myMessageText : styles.theirMessageText}>
+                                    {message.text}
+                                </Text>
+                                <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from})}>
+                                <Text style={{marginTop: 4, color: message.from == getCurrentUser() ? 'white' : baseColor}}>Read more...</Text>
+                                </FixedTouchable>
+                            </View>
+                        : 
+                            <LinkText linkColor={myMessage ? 'white' : 'black'} colorLinks={!myMessage} style={myMessage ? styles.myMessageText : styles.theirMessageText} text={message.text?.trim()}/>
+                        }
                         {message.editTime ? 
                             <Text style={{fontSize: 12, marginTop: 2, color: myMessage ? 'white' : '#666'}}>edited {formatMessageTime(message.editTime)}</Text>
                         : null}

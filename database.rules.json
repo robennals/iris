@@ -64,9 +64,17 @@
       "$community":{
         "$topic": {
           "$user": {
-            ".read": "$user == auth.uid",
+            ".read": "true",
             ".write": "$user == auth.uid"
           }
+        }
+      }
+    },
+    "memberViewpoint": {
+      "$community": {
+        "$user": {
+          ".read": true,
+          ".write": "$user == auth.uid"
         }
       }
     },

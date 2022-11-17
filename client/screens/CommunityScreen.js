@@ -98,6 +98,7 @@ export function CommunityScreen({navigation, route}) {
     const topicStates = useDatabase([community], ['commMember', community, getCurrentUser(), 'topic']);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
     const topicRead = useDatabase([community], ['userPrivate', getCurrentUser(), 'topicRead', community]);
+    const myViewpoints = useDatabase([community], ['memberViewpoint', community, getCurrentUser()], {});
     const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
     const [renderTime, setRenderTime] = useState(null);
 
@@ -146,7 +147,7 @@ export function CommunityScreen({navigation, route}) {
                                 style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
                         </View>
                     :null} */}
-                    <TopicList topics={topics} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
+                    <TopicList topics={topics} myViepwoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -163,7 +164,7 @@ function topicLastTime({topicKey, topics, topicStates}) {
     }
 }
 
-function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
+function TopicList({community, myViewpoints, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
     const navigation = useCustomNavigation();
     const [search, setSearch] = useState('');
     var filteredTopicKeys = sortedTopicKeys;
@@ -204,7 +205,7 @@ function TopicList({community, topics, sortedTopicKeys, communityInfo, topicStat
 
             {filteredTopicKeys.map(topicKey => 
                 <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
-                    <MemoTopic community={community} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+                    <MemoTopic community={community} myViewpoint={myViewpoints?.[topicKey]} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
                 </Catcher>        
             )}
             <View style={{height: 16}} />
@@ -238,7 +239,7 @@ const yellow = 'hsl(60, 50%, 90%)';
 
 const MemoTopic = React.memo(Topic);
 
-function Topic({community, communityInfo, topic, topicKey, state, lastRead}) {
+function Topic({community, communityInfo, myViewpoint, topic, topicKey, state, lastRead}) {
     const navgation = useCustomNavigation();
     // const topic = topics[topicKey]
     const questions = JSON.parse(topic.questions)
