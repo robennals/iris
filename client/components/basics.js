@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { getCurrentUser, setDataAsync } from '../data/fbutil';
 import _ from 'lodash';
+import { useCustomNavigation } from './shim';
 
 export function shallowEqual(a, b) {
   const aKeys = _.keys(a);
@@ -43,6 +44,7 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
 
   async function onChat() {
       setDataAsync(['published', community, topic, messageKey, 'chat', getCurrentUser()], meChat ? null : true)
+      setDataAsync(['commMember', community, getCurrentUser(), 'topic', topic], 'yes');   
   }
 
   const upCount = _.filter(_.keys(viewpoint.vote), k => viewpoint.vote[k] == 'up').length;
@@ -60,6 +62,29 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
   </View>
   )
 }
+
+export function MyViewpointPreview({community, topicKey, myViewpoint}) {
+  const navigation = useCustomNavigation();
+  if (!myViewpoint) {
+      return (
+          <FixedTouchable onPress={() => navigation.navigate('myViewpoint', {community, topic:topicKey})}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Entypo name='megaphone' color='#FABC05' size={16} />
+                  <View style={{
+                          flex: 1, marginLeft: 8,
+                          backgroundColor: '#f4f4f4',
+                          borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
+                      <Text style={{color: '#666'}}>Write your view on this topic</Text>
+                  </View>
+              </View>
+          </FixedTouchable>
+      )
+  } else {
+      return null;
+  }
+}
+
+
 
 export const shadowStyle = {
   shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},

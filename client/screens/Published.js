@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, ScreenContentScroll, ViewpointActions } from '../components/basics';
+import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, MyViewpointPreview, ScreenContentScroll, ViewpointActions } from '../components/basics';
 import { MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -85,6 +85,7 @@ export function PublishedScreen({navigation, route}) {
     const {community, topic} = route.params;
     const published = useDatabase([community, topic], ['published', community, topic]);
     const [sortMode, setSortMode] = useState('new');
+    const myViewpoint = useDatabase([community], ['memberViewpoint', community, getCurrentUser(), topic], null);
 
     var sortedMessageKeys = [];
     if (sortMode == 'new') {
@@ -105,6 +106,12 @@ export function PublishedScreen({navigation, route}) {
                 <View style={{maxWidth: 400, marginBottom: 16, marginLeft: 48}}>
                     <HighlightsHelp />
                 </View>
+
+                {!myViewpoint ? 
+                    <View style={{marginVertical: 16, marginLeft: 24, maxWidth: 450-24}}>
+                        <MyViewpointPreview community={community} topicKey={topic} myViewpoint={myViewpoint} />
+                    </View>
+                : null}
 
                 {sortedMessageKeys.map((k,idx) => 
                     <Catcher key={k}>

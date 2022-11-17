@@ -1,7 +1,7 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { FixedTouchable, HeaderSpaceView, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
+import { FixedTouchable, HeaderSpaceView, MyViewpointPreview, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
@@ -367,26 +367,7 @@ function colorForState(state) {
 }
 
 
-function MyViewpointPreview({community, topicKey, myViewpoint}) {
-    const navigation = useCustomNavigation();
-    if (!myViewpoint) {
-        return (
-            <FixedTouchable onPress={() => navigation.navigate('myViewpoint', {community, topic:topicKey})}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Entypo name='megaphone' color='#FABC05' size={16} />
-                    <View style={{
-                            flex: 1, marginLeft: 8,
-                            backgroundColor: '#f4f4f4',
-                            borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
-                        <Text style={{color: '#666'}}>Write your view on this topic</Text>
-                    </View>
-                </View>
-            </FixedTouchable>
-        )
-    } else {
-        return null;
-    }
-}
+
 
 function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
     const navigation = useCustomNavigation();
