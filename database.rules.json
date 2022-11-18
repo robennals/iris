@@ -63,8 +63,8 @@
     "viewpoint": {
       "$community":{
         "$topic": {
+          ".read": "true",
           "$user": {
-            ".read": "true",
             ".write": "$user == auth.uid"
           }
         }

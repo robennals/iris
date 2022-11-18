@@ -196,7 +196,7 @@ function PeopleToChat({viewpoint, members}) {
     }
     return (
         <View style={{marginVertical: 4, marginLeft: 16, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,  borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2}}>                
-            <Text style={{fontSize: 12}}>{chatStr} {chatterNames.lenth == 1 ? 'wants' : 'want'} to chat</Text>
+            <Text style={{fontSize: 12}}>{chatStr} {chatterNames.lenth == 1 ? 'wants' : 'want'} to discuss</Text>
         </View>
     )
 }
