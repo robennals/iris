@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { MinorButton, OneLineText, ScreenContentNoScroll, ToggleCheck, WideButton } from '../components/basics';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { useCustomNavigation } from '../components/shim';
@@ -50,33 +51,32 @@ export function EditViewpointScreen({route}) {
     const shownText = text == null ? (global_saveViewpointDrafts[topic] || oldViewPoint?.text) : text;
 
     return (
+        // <KeyboardSafeView style={{flex: 1}} behavior='height'>
         <KeyboardSafeView>
-            <ScreenContentNoScroll>
-            <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
-                    borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
-                {/* <ToggleCheck value={anonymous} onValueChange={setAnonymous} label='Anonymous' style={{marginBottom: 4}} /> */}
-                <View />
-                <View style={{flexDirection: 'row'}}>                    
-                    {oldViewPoint && global_saveViewpointDrafts[topic] && global_saveViewpointDrafts[topic] != oldViewPoint.text ?
-                        <MinorButton onPress={onRevert}
-                            style={{margin: 2, paddingHorizontal: 4, paddingVertical: 1}}>
-                            Revert
-                        </MinorButton>
-                    : null}
-                    <WideButton alwaysActive disabled={inProgress} onPress={onPost} 
-                        progressText={oldViewPoint ? 'Updating...' : 'Posting...'}
-                        style={{margin: 4, paddingHorizontal: 4, paddingVertical: 2}}>{oldViewPoint ? 'Update' : 'Post'}</WideButton>            
+            <View style={{backgroundColor: 'white', flex: 1}}>
+                <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
+                        borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
+                    <View />
+                    <View style={{flexDirection: 'row'}}>                    
+                        {oldViewPoint && global_saveViewpointDrafts[topic] && global_saveViewpointDrafts[topic] != oldViewPoint.text ?
+                            <MinorButton onPress={onRevert}
+                                style={{margin: 4, paddingHorizontal: 4, paddingVertical: 1}}>
+                                Revert
+                            </MinorButton>
+                        : null}
+                        <WideButton alwaysActive disabled={inProgress} onPress={onPost} 
+                            progressText={oldViewPoint ? 'Updating...' : 'Posting...'}
+                            style={{margin: 4, paddingHorizontal: 4, paddingVertical: 2}}>{oldViewPoint ? 'Update' : 'Post'}</WideButton>            
+                    </View>
                 </View>
+                <TextInput multiline placeholder='What is your view on this topic?' 
+                    style={{flex: 1, padding: 8}}
+                    value={shownText}
+                    textAlignVertical='top'
+                    onChangeText={onChangeText}
+                />
+                {/* <View style={{backgroundColor: 'blue', flex: 1}}/> */}
             </View>
-            <TextInput multiline placeholder='What is your view on this topic?' 
-                style={{flex: 1, padding: 8}}
-                value={shownText}
-                autoFocus
-                onChangeText={onChangeText}
-            />
-            </ScreenContentNoScroll>
         </KeyboardSafeView>
     )
-    
-
 }
