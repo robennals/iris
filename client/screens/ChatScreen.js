@@ -465,16 +465,20 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
         }  
     }
     function onLikeClicked() {
-        if (message.proposePublic) {
-            setDataAsync(['group', group, 'endorse', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
-            console.log('endorse', {group, messageKey, likedByMe, messageLikes, messageEndorsements});
-            endorseMessageAsync({group, messageKey, endorse: !likedByMe});
-        } else {
-            setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
-            if (!likedByMe) {
-                console.log('like', group, messageKey);
-                likeMessageAsync({group, messageKey});
-            }
+        // if (message.proposePublic) {
+        //     setDataAsync(['group', group, 'endorse', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+        //     console.log('endorse', {group, messageKey, likedByMe, messageLikes, messageEndorsements});
+        //     endorseMessageAsync({group, messageKey, endorse: !likedByMe});
+        // } else {
+        console.log('like', message, likedByMe);
+        if (message.viewpoint) {   
+            console.log('like viewpoint', message, {community, topic, messageKey});
+            setDataAsync(['published', community, topic, message.viewpoint, 'vote', getCurrentUser()], likedByMe ? null : 'up')
+        }
+        setDataAsync(['group', group, 'like', messageKey, getCurrentUser()], likedByMe ? null : getFirebaseServerTimestamp());
+        if (!likedByMe) {
+            console.log('like', group, messageKey);
+            likeMessageAsync({group, messageKey});
         }
     }
 
@@ -571,7 +575,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                 <Text numberOfLines={4} style={myMessage ? styles.myMessageText : styles.theirMessageText}>
                                     {message.text}
                                 </Text>
-                                <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from, group})}>
+                                <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from, group, messageKey})}>
                                     <Text style={{marginTop: 4, color: message.from == getCurrentUser() ? 'white' : baseColor}}>Read more...</Text>
                                 </FixedTouchable>
                             </View>

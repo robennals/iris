@@ -31,6 +31,7 @@ export function ViewpointScreen({route}) {
     const navigation = useCustomNavigation();
 
     const viewpoint = useDatabase([community,topic,user], ['viewpoint', community, topic, user]);
+    const published = useDatabase([community, topic, viewpoint?.key], ['published', community, topic, viewpoint?.key || null]);
 
     if (user == getCurrentUser()) {
         return <EditViewpointScreen route={route} />
@@ -54,7 +55,7 @@ export function ViewpointScreen({route}) {
                 </View>
                 <LinkText text={viewpoint.text} />
                 <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingVertical: 8}}>
-                    <ViewpointActions group={group} community={community} topic={topic} viewpoint={viewpoint} messageKey={viewpoint.key} />
+                    <ViewpointActions group={group} community={community} topic={topic} viewpoint={viewpoint} published={published} messageKey={viewpoint.key} />
                 </View>
             </View>
         </ScreenContentScroll>

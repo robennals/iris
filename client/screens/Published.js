@@ -86,7 +86,6 @@ export function PublishedScreen({navigation, route}) {
     const published = useDatabase([community, topic], ['published', community, topic]);
     const [sortMode, setSortMode] = useState('new');
     const myViewpoint = useDatabase([community], ['memberViewpoint', community, getCurrentUser(), topic], null);
-    const members = useDatabase([community], ['commMember', community]);
 
     var sortedMessageKeys = [];
     if (sortMode == 'new') {
@@ -98,7 +97,7 @@ export function PublishedScreen({navigation, route}) {
     const authorKeys = _.uniq(_.map(sortedMessageKeys, k => published[k].from));
     const memberHues = memberKeysToHues(authorKeys);
 
-    if (!published || !members) return <Loading/>
+    if (!published) return <Loading/>
 
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
@@ -116,7 +115,7 @@ export function PublishedScreen({navigation, route}) {
 
                 {sortedMessageKeys.map((k,idx) => 
                     <Catcher key={k}>
-                        <PublishedMessage members={members} messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
+                        <PublishedMessage messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
                     </Catcher>
                 )}
                 {/* <ExplainHighlights /> */}
@@ -126,7 +125,7 @@ export function PublishedScreen({navigation, route}) {
 }
 
 
-function PublishedMessage({messageKey, members, community, topic, message, memberHues}){
+function PublishedMessage({messageKey, community, topic, message, memberHues}){
     const hue = memberHues[message.from];
     const backgroundColor = message.from == getCurrentUser() ? '#eee' : 'hsl(' + hue + ',40%, 90%)';
     const myVote = message?.vote?.[getCurrentUser()];
@@ -176,10 +175,10 @@ function PublishedMessage({messageKey, members, community, topic, message, membe
                         </FixedTouchable>    
                     </View>
                     {message.from != getCurrentUser() ?
-                        <ViewpointActions community={community} topic={topic} messageKey={messageKey} viewpoint={message} />
+                        <ViewpointActions community={community} topic={topic} messageKey={messageKey} published={message} viewpoint={message} />
                     : null}
                     {isMasterUser() ? 
-                        <PeopleToChat viewpoint={message} members={members} />
+                        <PeopleToChat viewpoint={message} community={community} />
                     : null}
                 </View>
             </View>
@@ -187,7 +186,8 @@ function PublishedMessage({messageKey, members, community, topic, message, membe
     )
 }
 
-function PeopleToChat({viewpoint, members}) {    
+function PeopleToChat({viewpoint, community}) {    
+    const members = useDatabase([community], ['commMember', community]);
     const chatterNames = _.map(_.keys(viewpoint.chat || {}), m => members[m]?.answer[name_label]);
     const chatStr = andFormatStrings(chatterNames);
     console.log('members', members);

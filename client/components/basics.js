@@ -37,13 +37,16 @@ export function Action({icon, name, pad=1, onPress, entypo=false}) {
   )
 }
 
-export function ViewpointActions({community, topic, messageKey, group, viewpoint}) {
-  const myVote = viewpoint?.vote?.[getCurrentUser()];
-  const meChat = viewpoint?.chat?.[getCurrentUser()];
+export function ViewpointActions({community, topic, messageKey, group, viewpoint, published}) {
+  const myVote = published?.vote?.[getCurrentUser()];
+  const meChat = published?.chat?.[getCurrentUser()];
   const navigation = useCustomNavigation();
+
+  console.log('Viewpointactions', published, myVote, meChat);
 
   async function onVote(vote) {
     const newVote = (vote == myVote) ? null : vote;
+    console.log('onVote', {vote, newVote, community, topic, messageKey});
     setDataAsync(['published', community, topic, messageKey, 'vote', getCurrentUser()], newVote)
   }
 
