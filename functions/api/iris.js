@@ -5,6 +5,7 @@ const FS = require('fs');
 const Mustache = require('mustache');
 const { mixpanel } = require('../output/mixpanel');
 const IrisEmail = require('./irisemail');
+const { user } = require('firebase-functions/v1/auth');
 
 const secondMillis = 1000;
 const minuteMillis = 60 * secondMillis;
@@ -136,7 +137,7 @@ function stripHiddenSymbolFromQuestion(q) {
 }
 
 
-async function writeIntroMessagesAsync({community, group, topic, members, updates, chatExtra}) {
+async function writeIntroMessagesAsync({viewpoints, community, group, topic, members, updates, chatExtra}) {
     const memberNames = members.map(m => m.name);
     const memberAnds = AndFormat.format(memberNames);
     const time = Date.now();
@@ -149,30 +150,6 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
         + '.\nHere are some questions to get you started:';
     botMessageAsync({group, text: firstMessageText, time, updates});
 
-    // timeIncrement++;
-    // botMessageAsync({group, text: 'Here are some questions to get you started:', time, updates});
-
-
-    // console.log('firstMessage', firstMessageText);
-    
-    // const topicsTxt = await FBUtil.getDataAsync(['community', community, 'topics']);
-    // console.log('topicsTxt', community, topicsTxt);
-    // const topics = parseTopics(topicsTxt);
-    // const selectedTopic = _.find(topics, t => t.title == topic);
-
-    // if (selectedTopic && selectedTopic.questions) {
-    //     const questions = selectedTopic?.questions?.map(q => stripHiddenSymbolFromQuestion(q));
-    //     const firstQuestion = questions[0];
-    //     const otherQuestions = questions.slice(1);
-
-    //     // botMessageAsync({group, text:'Here is a question to get you started:', time: time + 1, updates});
-    //     botMessageAsync({group, text:firstQuestion, time: time + 2, updates});
-
-    //     updates['special/irisBotGroup/' + group + '/pending'] = JSON.stringify(otherQuestions);
-    //     updates['special/irisBotGroup/' + group + '/lastMessageTime'] = time;
-    // }
-
-    // var questions = [];
     if (topic.questions) {
         const parsedQuestions = JSON.parse(topic.questions);
         parsedQuestions.forEach(question => {
@@ -182,7 +159,6 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
         })
     }
 
-
     var extraMessage = "Please also introduce yourself, and say why you are personally interested in this topic.";
     if (chatExtra) {
         extraMessage = chatExtra;
@@ -191,9 +167,23 @@ async function writeIntroMessagesAsync({community, group, topic, members, update
     timeIncrement++;
     botMessageAsync({group, 
         text: extraMessage, 
-        time: time + timeIncrement + 1, updates
+        time: time + timeIncrement, updates
     })
 
+    _.forEach(members, member => {
+        console.log('member', member);
+        if (viewpoints[member.user]) {
+            timeIncrement++;
+            const message = {
+                text: viewpoints[member.user].text,
+                time: time + timeIncrement,
+                from: member.user,
+                viewpoint: viewpoints[member.user].key,
+                prevViewpoint: viewpoints[member.user].time
+            };
+            updates['/group/' + group + '/message/' + FBUtil.newKey()] = message;
+        }
+    });
 }
 
 async function adminArchiveGroupAsync({group, archive = true, userId}) {
@@ -263,9 +253,10 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
     const pAllMembers = FBUtil.getDataAsync(['commMember', community]);
     const pTopic = FBUtil.getDataAsync(['topic', community, topicKey]);
     const pChatExtra = FBUtil.getDataAsync(['community', community, 'chatExtra'], null);
+    const pViewpoints = FBUtil.getDataAsync(['viewpoint', community, topicKey]);
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     const allMembers = await pAllMembers; const topic = await pTopic;
-    const chatExtra = await pChatExtra;
+    const chatExtra = await pChatExtra; const viewpoints = await pViewpoints;
     const group = FBUtil.newKey();
 
     const pickedMembers = memberKeys.map(k => {
@@ -299,7 +290,7 @@ async function adminCreateGroupAsync({community, topicKey, privateName, tsvMembe
     updates['adminCommunity/' + community + '/group/' + group + '/privateName'] = privateName;
     updates['adminCommunity/' + community + '/group/' + group + '/lastMessage'] = lastMessage;
 
-    await writeIntroMessagesAsync({community, group, members, topic, updates, chatExtra});
+    await writeIntroMessagesAsync({viewpoints, community, group, members, topic, updates, chatExtra});
 
     var notifs = []
     const notifBase = {

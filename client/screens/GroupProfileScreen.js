@@ -113,7 +113,7 @@ export function GroupProfileScreen({navigation, route}) {
             </View>
 
             <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
-                <Text style={{color: '#666'}}>View {publishedCount} {publishedCount && publishedCount > 1 ? 'viewpoints' : 'viewpoint'}</Text>
+                <Text style={{color: '#666'}}>View {publishedCount}{publishedCount ? ' ' : ''}{publishedCount && publishedCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
             </FixedTouchable>
 
             <View>

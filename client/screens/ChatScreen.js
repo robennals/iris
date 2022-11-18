@@ -387,6 +387,15 @@ function thingsAreEqual(thing, prev, next) {
     return equal;
 }
 
+function getViewpontText({message}) {
+    if (message.firstViewpoint) {
+        return 'Wrote a viewpoint';
+    } else if (message.prevViewpoint) {
+        return 'Previously wrote a viewpoint';
+    } else {
+        return 'Updated their viewpoint';
+    }
+}
 
 
 // const MemoMessage = React.memo(Message, (prev, next) => thingsAreEqual('message', prev, next));
@@ -506,20 +515,11 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                         <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Previous highlight</Text>
                     </View>            
                 : null}
-                {message.viewpoint && !message.firstViewpoint? 
+                {message.viewpoint? 
                     <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
-                        {/* <Entypo name='star' color='#FABC05' size={16} /> */}
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Updated their viewpoint</Text>
+                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>{getViewpontText({message})}</Text>
                     </View>            
                 : null}
-                {message.viewpoint && message.firstViewpoint ? 
-                    <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
-                        {/* <Entypo name='star' color='#FABC05' size={16} /> */}
-                        <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Wrote a viewpoint</Text>
-                    </View>            
-                : null}
-
-
 
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>

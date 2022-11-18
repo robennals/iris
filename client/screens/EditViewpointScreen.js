@@ -53,7 +53,8 @@ export function EditViewpointScreen({route}) {
         <KeyboardSafeView>
             <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
                     borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
-                <ToggleCheck value={anonymous} onValueChange={setAnonymous} label='Anonymous' style={{marginBottom: 4}} />
+                {/* <ToggleCheck value={anonymous} onValueChange={setAnonymous} label='Anonymous' style={{marginBottom: 4}} /> */}
+                <View />
                 <View style={{flexDirection: 'row'}}>                    
                     {oldViewPoint && global_saveViewpointDrafts[topic] && global_saveViewpointDrafts[topic] != oldViewPoint.text ?
                         <MinorButton onPress={onRevert}
