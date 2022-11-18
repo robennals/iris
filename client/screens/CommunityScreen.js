@@ -101,7 +101,7 @@ function NewViewpointsPromo({topics, topicRead, viewpointRead, onPress}) {
         return (
             <FixedTouchable onPress={onPress} style={{flex: 1, flexShrink: 1, alignSelf: 'stretch'}}>
                 <View style={promoStyle.promo}>
-                    <OneLineText numberOfLines={1} style={promoStyle.promoText}>New Viewpoints in <Text style={{fontWeight: 'bold'}}>{topicNameString}</Text></OneLineText>
+                    <OneLineText style={promoStyle.promoText}>New Viewpoints in <Text style={{fontWeight: 'bold'}}>{topicNameString}</Text></OneLineText>
                 </View>
             </FixedTouchable>
         )
@@ -110,7 +110,7 @@ function NewViewpointsPromo({topics, topicRead, viewpointRead, onPress}) {
         return (
             <FixedTouchable onPress={onPress} style={{flex: 1}}>
                 <View style={promoStyle.promo}>
-                    <OneLineText numberOfLines={1} style={promoStyle.promoText}>New Viewpoint in <Text style={{fontWeight: 'bold'}}>{topicName}</Text></OneLineText>
+                    <Text numberOfLines={1} style={promoStyle.promoText}>New Viewpoint in <Text style={{fontWeight: 'bold'}}>{topicName}</Text></Text>
                 </View>
             </FixedTouchable>
         )
@@ -133,8 +133,8 @@ const promoStyle = StyleSheet.create({
         // marginBottom: 8,
         // maxWidth: 450,        
         // alignSelf: 'center',
-        flex: 1,
-        flexShrink: 1,
+        // flex: 1,
+        // flexShrink: 1,
         // shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
         // shadowOpacity: 0.5, elevation: 4,    
         borderBottomWidth: StyleSheet.hairlineWidth,
@@ -278,7 +278,7 @@ function TopicList({mode, community, myViewpoints, topics, sortedTopicKeys, comm
 
             {mode == 'topics' ? 
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <View style={{flexDirection: 'row', maxWidth: 450, marginTop: 16, flex: 1, alignItems: 'center'}}>
+                    <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
                         <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
                             style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                             marginHorizontal: 0}} />              
@@ -368,7 +368,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
 
     const condendedSummary = (topic.summary ?? '') + _.join(shownQuestions, ' ');
 
-    if (!topic.lastMessage || topic.approved === false) {
+    if ((mode == 'viewpoints' && !topic.lastMessage) || topic.approved === false) {
         return null;
     }
 
