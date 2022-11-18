@@ -20,6 +20,30 @@ const email_label = 'Email Address';
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
 
+async function migrateViewpointsAsync() {
+    const published = await FBUtil.getDataAsync(['published']);
+
+    var updates = {};
+    _.forEach(_.keys(published), c => {
+        _.forEach(_.keys(published[c]), t => {
+            const messages = published[c][t];
+            const sortedMessageKeys = _.sortBy(_.keys(messages), m => messages[m].time);
+            _.forEach(sortedMessageKeys, m => {
+                const message = messages[m];
+                const pubMessage = {
+                    ...message, viewPoint: true, key: m   
+                }
+                updates['published/' + c + '/' + t + '/' + m] = pubMessage;
+                updates['viewpoint/' + c + '/' + t + '/' + message.from] = pubMessage;
+                updates['memberViewpoint/' + c + '/' + message.from + '/' + t] = pubMessage;
+            })
+        })
+    }) 
+    console.log('updates', updates);
+    return {success: true, updates};
+}
+
+
 async function deleteUser({email}) {
     const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
     var user = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
@@ -339,6 +363,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateLastHighlightAsync();
         case 'checkDisconnected':
             return await checkDisconnectedGroups();
+        case 'migrateViewpoints':
+            return await migrateViewpointsAsync();
         case 'deleteUser':
             return await deleteUser({email: paramList[0]});
         default:
