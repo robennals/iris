@@ -1,7 +1,7 @@
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { FixedTouchable, HeaderSpaceView, MyViewpointPreview, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
+import { andFormatStrings, FixedTouchable, HeaderSpaceView, MyViewpointPreview, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, WideButton } from '../components/basics';
 import { GroupContext } from '../components/context';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { LinkText } from '../components/linktext';
@@ -91,6 +91,80 @@ export function TopicScreen({navigation, route}) {
     return <CommunityScreen navigation={navigation} route={{params: {community, topic}}} />
 }
 
+function NewViewpointsPromo({topics, topicRead, viewpointRead, onPress}) {
+    const unreadViewpointTopicKeys = _.filter(_.keys(topics), t => 
+        topics[t]?.approved !== false &&
+        (topics[t]?.lastMessage?.time > Math.max(topicRead[t] || 0, viewpointRead)));
+    const unreadCount = unreadViewpointTopicKeys.length;
+    const topicNameString = andFormatStrings(_.map(unreadViewpointTopicKeys, t => topics[t].name));
+    if (unreadCount > 1) {
+        return (
+            <FixedTouchable onPress={onPress} style={{flex: 1, flexShrink: 1, alignSelf: 'stretch'}}>
+                <View style={promoStyle.promo}>
+                    <OneLineText numberOfLines={1} style={promoStyle.promoText}>New Viewpoints in <Text style={{fontWeight: 'bold'}}>{topicNameString}</Text></OneLineText>
+                </View>
+            </FixedTouchable>
+        )
+    } else if (unreadCount == 1) {
+        const topicName = topics[unreadViewpointTopicKeys[0]]?.name;
+        return (
+            <FixedTouchable onPress={onPress} style={{flex: 1}}>
+                <View style={promoStyle.promo}>
+                    <OneLineText numberOfLines={1} style={promoStyle.promoText}>New Viewpoint in <Text style={{fontWeight: 'bold'}}>{topicName}</Text></OneLineText>
+                </View>
+            </FixedTouchable>
+        )
+    } else {
+        return null;
+    }
+}
+const promoStyle = StyleSheet.create({
+    promoText: {
+        flexShrink: 1
+        // fontWeight: 'bold',
+    },
+    promo: {
+        borderBottomColor: '#ddd',
+        backgroundColor: '#e5f3ff',
+        // borderRadius: 8,
+        // width: 400,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        // marginBottom: 8,
+        // maxWidth: 450,        
+        // alignSelf: 'center',
+        flex: 1,
+        flexShrink: 1,
+        // shadowRadius: 4, shadowColor: '#555', shadowOffset: {width: 0, height: 2},
+        // shadowOpacity: 0.5, elevation: 4,    
+        borderBottomWidth: StyleSheet.hairlineWidth,
+    }
+})
+
+
+function SortOption({selected, children, onPress}) {
+    return (
+        <FixedTouchable onPress={onPress} style={{marginHorizontal: 16, marginTop: 8}}>
+            <View style={{borderBottomColor: baseColor, paddingVertical: 4, borderBottomWidth: selected ? 3 : null}}>
+                <Text style={{fontWeight: 'bold', color: selected ? baseColor : '#666'}}>{children}</Text>
+            </View>
+        </FixedTouchable>
+    )
+}
+
+function SortSelector({mode, onModeChanged}) {
+    return (
+        <View style={{flexDirection: 'row', paddingHorizontal: 16, borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
+            <SortOption selected={mode != 'viewpoints'} onPress={() => onModeChanged('topics')}>
+                Topics
+            </SortOption>
+            <SortOption selected={mode == 'viewpoints'} onPress={() => onModeChanged('viewpoints')}>
+                Viewpoints
+            </SortOption>
+        </View>
+    )
+}
+
 export function CommunityScreen({navigation, route}) {
     const {community, openTime, topic: boostedTopicKey} = route.params;
     const topics = useDatabase([community], ['topic', community]);
@@ -99,27 +173,40 @@ export function CommunityScreen({navigation, route}) {
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
     const topicRead = useDatabase([community], ['userPrivate', getCurrentUser(), 'topicRead', community]);
     const myViewpoints = useDatabase([community], ['memberViewpoint', community, getCurrentUser()], {});
-    const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
-    const [renderTime, setRenderTime] = useState(null);
+    const viewpointReadTime = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community, 'readViewpointsTime'], 0);
+
+    const [mode, setMode] = useState('topics');
+    // const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
+    // const [renderTime, setRenderTime] = useState(null);
     
     const isMaster = isMasterUser();
 
     // console.log('boostedTopicKey', boostedTopicKey);
-    console.log('myViewpoints', myViewpoints);
+    // console.log('myViewpoints', myViewpoints);
 
-    useEffect(() => {
-        // if (sortedTopicKeys) return;
-        if (topics && topicStates && openTime !== renderTime) {
-            const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);
-            var newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse();             
-            if (boostedTopicKey) {
-                newSortedKeys = [boostedTopicKey, ..._.filter(newSortedKeys, k => k != boostedTopicKey)]
-            }
-            setSortedTopicKeys(newSortedKeys);
-            setRenderTime(openTime);
-        }
-    }, [topics, topicStates, openTime])
+    // useEffect(() => {
+    //     // if (sortedTopicKeys) return;
+    //     if (topics && topicStates && openTime !== renderTime) {
+    //         const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);
+    //         var newSortedKeys = _.sortBy(filteredTopicKeys, topicKey => topicLastTime({topicKey, topics, topicStates})).reverse();             
+    //         if (boostedTopicKey) {
+    //             newSortedKeys = [boostedTopicKey, ..._.filter(newSortedKeys, k => k != boostedTopicKey)]
+    //         }
+    //         setSortedTopicKeys(newSortedKeys);
+    //         setRenderTime(openTime);
+    //     }
+    // }, [topics, topicStates, openTime])
 
+    const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);    
+    var sortedTopicKeys;
+    if (mode == 'viewpoints') {
+        sortedTopicKeys = _.sortBy(filteredTopicKeys, t => topics[t]?.lastMessage?.time || topics[t].time).reverse();             
+    } else {
+        sortedTopicKeys = _.sortBy(filteredTopicKeys, t => topics[t].time).reverse();             
+    }
+    if (boostedTopicKey) {
+        sortedTopicKeys = [boostedTopicKey, ..._.filter(sortedTopicKeys, k => k != boostedTopicKey)]
+    }
 
     if (getCurrentUser() == null || (!isMaster && !localComm?.name)) {
         return (
@@ -129,6 +216,12 @@ export function CommunityScreen({navigation, route}) {
 
     if (!topicStates || !topics || !sortedTopicKeys || !topicRead) return <Loading />;
 
+    function onModeChanged(newMode) {
+        if (mode == 'viewpoints') {
+            setDataAsync(['userPrivate', getCurrentUser(), 'comm', community, 'readViewpointsTime'], Date.now());
+        }
+        setMode(newMode);
+    }
 
     return (
         <KeyboardSafeView style={{flex: 1}}>
@@ -137,7 +230,14 @@ export function CommunityScreen({navigation, route}) {
                 <ConnectedBanner />
                 <PhotoPromo />
                 <View style={{backgroundColor: 'white', flex: 1}}>
-                    {isMasterUser() ? 
+                    <SortSelector onModeChanged={onModeChanged} mode={mode} />
+                    {mode == 'topics' ? 
+                        <View style={{flexDirection: 'row'}}>
+                            <NewViewpointsPromo topics={topics} topicRead={topicRead} viewpointRead={viewpointReadTime} onPress={() => onModeChanged('viewpoints')}/>
+                        </View>
+                    : null}
+
+                    {isMasterUser() && mode == 'topics' ? 
                         <CommunityAdminActions community={community} />
                     : null
                     } 
@@ -148,7 +248,7 @@ export function CommunityScreen({navigation, route}) {
                                 style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
                         </View>
                     :null} */}
-                    <TopicList topics={topics} myViewpoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
+                    <TopicList mode={mode} topics={topics} myViewpoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -165,7 +265,7 @@ function topicLastTime({topicKey, topics, topicStates}) {
     }
 }
 
-function TopicList({community, myViewpoints, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
+function TopicList({mode, community, myViewpoints, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
     const navigation = useCustomNavigation();
     const [search, setSearch] = useState('');
     var filteredTopicKeys = sortedTopicKeys;
@@ -176,27 +276,30 @@ function TopicList({community, myViewpoints, topics, sortedTopicKeys, communityI
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#FCF8F4'}}>
             {/* <View style={{height: 16}} /> */}
 
-            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-
-                <View style={{flexDirection: 'row', maxWidth: 450, marginTop: 16, flex: 1, alignItems: 'center'}}>
-                    <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
-                        style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                         marginHorizontal: 0}} />              
-                    {isMasterUser() || search ? null : 
-                        <WideButton alwaysActive
-                            onPress={() => navigation.navigate('newTopic', {community})} 
-                            // onPress={() => console.log('community', community)}
-                            style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>Suggest Topic
-                        </WideButton>
-                    }
+            {mode == 'topics' ? 
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <View style={{flexDirection: 'row', maxWidth: 450, marginTop: 16, flex: 1, alignItems: 'center'}}>
+                        <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
+                            style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                            marginHorizontal: 0}} />              
+                        {isMasterUser() || search ? null : 
+                            <WideButton alwaysActive
+                                onPress={() => navigation.navigate('newTopic', {community})} 
+                                // onPress={() => console.log('community', community)}
+                                style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>Suggest Topic
+                            </WideButton>
+                        }
+                    </View>
                 </View>
-            </View>
+            : null}
 
-            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <View style={{maxWidth: 450, flex: 1, marginTop: 8, marginBottom: 16, marginHorizontal: 16}}>
-                    <FeedHelp communityName={communityInfo.name} />
+            {mode == 'topics' ? 
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <View style={{maxWidth: 450, flex: 1, marginTop: 8, marginBottom: 16, marginHorizontal: 16}}>
+                        <FeedHelp communityName={communityInfo.name} />
+                    </View>
                 </View>
-            </View>
+            :null}
 
             {/* <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 <View style={{maxWidth: 450, flex: 1, marginVertical: 16}}>
@@ -206,7 +309,7 @@ function TopicList({community, myViewpoints, topics, sortedTopicKeys, communityI
 
             {filteredTopicKeys.map(topicKey => 
                 <Catcher key={topicKey} style={{alignSelf: 'stretch'}}>
-                    <MemoTopic community={community} myViewpoint={myViewpoints?.[topicKey]} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
+                    <MemoTopic mode={mode} community={community} myViewpoint={myViewpoints?.[topicKey]} topicKey={topicKey} lastRead={topicRead[topicKey] || 0} topic={topics[topicKey]} state={topicStates[topicKey]} communityInfo={communityInfo} />
                 </Catcher>        
             )}
             <View style={{height: 16}} />
@@ -240,7 +343,7 @@ const yellow = 'hsl(60, 50%, 90%)';
 
 const MemoTopic = React.memo(Topic);
 
-function Topic({community, communityInfo, myViewpoint, topic, topicKey, state, lastRead}) {
+function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, state, lastRead}) {
     const navgation = useCustomNavigation();
     // const topic = topics[topicKey]
     const questions = JSON.parse(topic.questions)
@@ -265,13 +368,17 @@ function Topic({community, communityInfo, myViewpoint, topic, topicKey, state, l
 
     const condendedSummary = (topic.summary ?? '') + _.join(shownQuestions, ' ');
 
+    if (!topic.lastMessage || topic.approved === false) {
+        return null;
+    }
+
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                 <View style={{marginLeft: 4, marginVertical: 2}}>               
                     {topic.approved !== false ? 
-                        (topic.lastMessage ? 
-                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New highlight published {formatTime(topic.lastMessage.publishTime)}</Text>
+                        (mode == 'viewpoints' ?
+                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New viewpoint published {formatTime(topic.lastMessage.publishTime)}</Text>
                         : 
                             <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
                         )
@@ -376,8 +483,6 @@ function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
         setDataAsync(['userPrivate', getCurrentUser(), 'topicRead', community, topicKey], getFirebaseServerTimestamp());
         navigation.navigate('highlights', {community, topic: topicKey});
     }
-
-    console.log('myViewpoint', topic.name, myViewpoint);
 
     if (topic.publishCount && topic.lastMessage) {
         const unread = lastRead < topic.lastMessage.time;
