@@ -50,6 +50,10 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
   const upCount = _.filter(_.keys(viewpoint.vote), k => viewpoint.vote[k] == 'up').length;
   const upCountStr = upCount == 0 ? '' : ' (' + upCount + ')'
 
+  const chatCount = _.keys(viewpoint.chat).length;
+  const chatCountStr = chatCount == 0 ? '' : ' (' + chatCount + ')'
+
+
   return (
     <View style={{flexDirection: 'row'}}>
       <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
@@ -58,7 +62,7 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
       <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
           name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
       <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
-          name='Want to discuss' onPress={onChat} />
+          name={'Want to discuss' + chatCountStr} onPress={onChat} />
   </View>
   )
 }
@@ -73,8 +77,8 @@ export function MyViewpointPreview({community, topicKey, myViewpoint}) {
                   <View style={{
                           flex: 1, marginLeft: 8,
                           backgroundColor: '#f4f4f4',
-                          borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
-                      <Text style={{color: '#666'}}>Write your view on this topic</Text>
+                          borderColor: '#999', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
+                      <Text style={{color: '#666'}}>Share your view on this topic</Text>
                   </View>
               </View>
           </FixedTouchable>

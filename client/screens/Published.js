@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
+import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, MyViewpointPreview, ScreenContentScroll, ViewpointActions } from '../components/basics';
+import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, MyViewpointPreview, name_label, ScreenContentScroll, ViewpointActions } from '../components/basics';
 import { MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -86,6 +86,7 @@ export function PublishedScreen({navigation, route}) {
     const published = useDatabase([community, topic], ['published', community, topic]);
     const [sortMode, setSortMode] = useState('new');
     const myViewpoint = useDatabase([community], ['memberViewpoint', community, getCurrentUser(), topic], null);
+    const members = useDatabase([community], ['commMember', community]);
 
     var sortedMessageKeys = [];
     if (sortMode == 'new') {
@@ -97,7 +98,7 @@ export function PublishedScreen({navigation, route}) {
     const authorKeys = _.uniq(_.map(sortedMessageKeys, k => published[k].from));
     const memberHues = memberKeysToHues(authorKeys);
 
-    if (!published) return <Loading/>
+    if (!published || !members) return <Loading/>
 
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
@@ -115,7 +116,7 @@ export function PublishedScreen({navigation, route}) {
 
                 {sortedMessageKeys.map((k,idx) => 
                     <Catcher key={k}>
-                        <PublishedMessage messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
+                        <PublishedMessage members={members} messageKey={k} community={community} topic={topic} message={published[k]} memberHues={memberHues} />
                     </Catcher>
                 )}
                 {/* <ExplainHighlights /> */}
@@ -125,22 +126,7 @@ export function PublishedScreen({navigation, route}) {
 }
 
 
-function ExplainHighlights() {
-    return (
-        <View style={{margin: 16, paddingHorizontal: 16, maxWidth: 450, paddingVertical: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: '#ddd', borderRadius: 16}}>
-            <Text style={{color: '#666', marginBottom: 4}}>
-                A public highlight is what one person thought was the most 
-                important insight that came out of their private conversation.
-            </Text>
-            {/* <Text style={{color: '#666'}}>
-                At least one other person must support a summary
-                in order for it to be published to the wider community.
-            </Text> */}
-        </View>
-    )
-}
-
-function PublishedMessage({messageKey, community, topic, message, memberHues}){
+function PublishedMessage({messageKey, members, community, topic, message, memberHues}){
     const hue = memberHues[message.from];
     const backgroundColor = message.from == getCurrentUser() ? '#eee' : 'hsl(' + hue + ',40%, 90%)';
     const myVote = message?.vote?.[getCurrentUser()];
@@ -181,11 +167,6 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                             </Text>
                             <Text style={{color: '#666', fontSize: 10, marginLeft: 16, flexShrink: 0}}>{formatSummaryTime(message.publishTime)}</Text>
                         </View>
-                        {/* {message.replyToAuthorName ?
-                            <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: '#999', borderLeftWidth: StyleSheet.hairlineWidth}}>
-                                <Text style={{color: '#666', fontSize: 12}}>Replying to a private message</Text>
-                            </View>
-                        :null} */}
                         <Text numberOfLines={10}>
                             {message.text}
                         </Text>
@@ -193,23 +174,29 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                             <Text style={{marginTop: 4, color: baseColor}}>
                                 {message.from == getCurrentUser() ? 'Edit' : 'Read more...'}</Text>
                         </FixedTouchable>    
-                    {/* <LinkText color='#222' text={message.text} /> */}
                     </View>
                     {message.from != getCurrentUser() ?
                         <ViewpointActions community={community} topic={topic} messageKey={messageKey} viewpoint={message} />
-                        // <View style={{flexDirection: 'row'}}>
-                        //     <Action icon={myVote == 'up' ? 'arrow-up-circle' : 'arrow-up'} 
-                        //         name={(myVote == 'up' ? 'Upvoted' : 'Upvote') + upCountStr} 
-                        //         onPress={() => onVote('up')}/>                
-                        //     <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
-                        //         name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
-                        //     <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
-                        //         name='Want to discuss' onPress={onChat} />
-                        // </View>
+                    : null}
+                    {isMasterUser() ? 
+                        <PeopleToChat viewpoint={message} members={members} />
                     : null}
                 </View>
             </View>
+        </View>    
+    )
+}
+
+function PeopleToChat({viewpoint, members}) {    
+    const chatterNames = _.map(_.keys(viewpoint.chat || {}), m => members[m]?.answer[name_label]);
+    const chatStr = andFormatStrings(chatterNames);
+    console.log('members', members);
+    if (!viewpoint.chat) {
+        return null;
+    }
+    return (
+        <View style={{marginVertical: 4, marginLeft: 16, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,  borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2}}>                
+            <Text style={{fontSize: 12}}>{chatStr} {chatterNames.lenth == 1 ? 'wants' : 'want'} to chat</Text>
         </View>
-    
     )
 }
