@@ -22,20 +22,25 @@ export function shallowEqual(a, b) {
   return true;
 }
 
-export function Action({icon, name, pad=1, onPress}) {
+export function Action({icon, name, pad=1, onPress, entypo=false}) {
   return (
       <FixedTouchable onPress={onPress} style={{marginLeft: 8}}>
           <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 4}}>
+            {entypo ? 
+              <Entypo name={icon} color='#666' />
+            : 
               <Ionicons name={icon} color='#666' />
+            }
               <Text style={{fontSize: 12, color: '#666', marginLeft: pad}}>{name}</Text>
           </View>
       </FixedTouchable>
   )
 }
 
-export function ViewpointActions({community, topic, messageKey, viewpoint}) {
+export function ViewpointActions({community, topic, messageKey, group, viewpoint}) {
   const myVote = viewpoint?.vote?.[getCurrentUser()];
   const meChat = viewpoint?.chat?.[getCurrentUser()];
+  const navigation = useCustomNavigation();
 
   async function onVote(vote) {
     const newVote = (vote == myVote) ? null : vote;
@@ -45,6 +50,10 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
   async function onChat() {
       setDataAsync(['published', community, topic, messageKey, 'chat', getCurrentUser()], meChat ? null : true)
       setDataAsync(['commMember', community, getCurrentUser(), 'topic', topic], 'yes');   
+  }
+
+  async function onReply() {
+      navigation.reset({index: 1, routes: [{name: 'home'}, {name: 'group', params: {group, replyViewpoint: viewpoint.from, updateTime: Date.now()}}]});
   }
 
   const upCount = _.filter(_.keys(viewpoint.vote), k => viewpoint.vote[k] == 'up').length;
@@ -61,8 +70,15 @@ export function ViewpointActions({community, topic, messageKey, viewpoint}) {
           onPress={() => onVote('up')}/>                
       <Action icon={myVote == 'down' ? 'arrow-down-circle' : 'arrow-down'} 
           name={myVote == 'down' ? 'Downvoted' : 'Downvote'} onPress={() => onVote('down')}/>                
-      <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
+      {group ?
+          <Action icon='reply' pad={2} entypo
+              name='Reply' onPress={onReply} />
+    
+      : 
+        <Action icon={meChat ? 'chatbox' : 'chatbox-outline'} pad={2}
           name={'Want to discuss' + chatCountStr} onPress={onChat} />
+      }
+
   </View>
   )
 }

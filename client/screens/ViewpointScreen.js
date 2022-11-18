@@ -27,13 +27,10 @@ export function ViewpointScreenHeader({route}) {
 }
 
 export function ViewpointScreen({route}) {
-    const {community, topic, user} = route.params;
+    const {community, topic, user, group} = route.params;
     const navigation = useCustomNavigation();
 
     const viewpoint = useDatabase([community,topic,user], ['viewpoint', community, topic, user]);
-    const topicName = useDatabase([community, topic], ['topic', community, topic, 'name']);
-    const myVote = viewpoint?.vote?.[getCurrentUser()];
-    const meChat = viewpoint?.chat?.[getCurrentUser()];
 
     if (user == getCurrentUser()) {
         return <EditViewpointScreen route={route} />
@@ -57,7 +54,7 @@ export function ViewpointScreen({route}) {
                 </View>
                 <LinkText text={viewpoint.text} />
                 <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingVertical: 8}}>
-                    <ViewpointActions community={community} topic={topic} viewpoint={viewpoint} messageKey={viewpoint.key} />
+                    <ViewpointActions group={group} community={community} topic={topic} viewpoint={viewpoint} messageKey={viewpoint.key} />
                 </View>
             </View>
         </ScreenContentScroll>

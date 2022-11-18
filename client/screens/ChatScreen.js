@@ -9,7 +9,7 @@ import { MessageEntryBox } from '../components/messageentrybox';
 import { EnableNotifsBanner } from '../components/notifpermission';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, GroupSideBySideIcon, MemberPhotoIcon } from '../components/photo';
 import { setTitle, addFocusListener, removeFocusListener, TitleBlinker, vibrate, useCustomNavigation } from '../components/shim';
-import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, useListDatabase, watchData } from '../data/fbutil';
+import { getCurrentUser, getDataAsync, getFirebaseServerTimestamp, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, useListDatabase, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { PhotoPromo } from '../components/profilephoto';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -139,7 +139,7 @@ function TimeOut({time}) {
 }
 
 export function ChatScreen({navigation, route}) {
-    const {group} = route.params;
+    const {group, replyViewpoint, updateTime} = route.params;
 
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
@@ -151,6 +151,23 @@ export function ChatScreen({navigation, route}) {
     const chatEntryRef = useRef();
     global_chatEntryRef = chatEntryRef;
     global_chatInputRef = chatInputRef;
+
+    async function replyToViewpointAsync() {
+        const pMemberName = getDataAsync(['group', group, 'member', replyViewpoint, 'name']);
+        const messages = await getDataAsync(['group', group, 'message']);
+        const memberName = await pMemberName;
+        const viewpointKeys = _.filter(_.keys(messages || {}), m => messages[m].viewpoint && messages[m].from == replyViewpoint);
+        const sortedViewPoints = _.sortBy(viewpointKeys, k => messages[k].time).reverse();
+        const lastViewpointKey = sortedViewPoints[0];
+        if (lastViewpointKey) {
+            setReply({key: lastViewpointKey, text: messages[lastViewpointKey].text, name: memberName});
+            // global_chatInputRef?.current?.focus();
+        }
+    }
+
+    useEffect(() => {
+        replyToViewpointAsync();
+    }, [replyViewpoint, updateTime])
 
     const onReply = useCallback(reply => {
         setReply(reply);
@@ -437,11 +454,15 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
     }
 
     function onEditClicked() {
-        var reply = null;        
-        if (message.replyTo) {
-            reply = {key: message.replyTo, text: replyMessage?.text, name: members[replyMessage.from]?.name};
-        }        
-        onEdit({key: messageKey, proposePublic: message.proposePublic, text: message.text, time: message.time}, reply);
+        var reply = null;     
+        if (message.viewpoint) {
+            navigation.navigate('myViewpoint', {community, group, messageKey, topic});
+        } else {
+            if (message.replyTo) {
+                reply = {key: message.replyTo, text: replyMessage?.text, name: members[replyMessage.from]?.name};
+            }        
+            onEdit({key: messageKey, proposePublic: message.proposePublic, text: message.text, time: message.time}, reply);
+        }  
     }
     function onLikeClicked() {
         if (message.proposePublic) {
@@ -550,7 +571,7 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                                 <Text numberOfLines={4} style={myMessage ? styles.myMessageText : styles.theirMessageText}>
                                     {message.text}
                                 </Text>
-                                <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from})}>
+                                <FixedTouchable onPress={() => navigation.navigate(message.from == getCurrentUser() ? 'myViewpoint' : 'viewpoint', {community, topic, user: message.from, group})}>
                                     <Text style={{marginTop: 4, color: message.from == getCurrentUser() ? 'white' : baseColor}}>Read more...</Text>
                                 </FixedTouchable>
                             </View>
@@ -690,7 +711,7 @@ function RepliedMessage({message, replyMessage, members}) {
         return (
             <View style={{paddingLeft: 8, marginVertical: 4, borderLeftColor: myMessage ? 'white' : '#666', borderLeftWidth: StyleSheet.hairlineWidth}}>
                 <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666', fontWeight: 'bold', marginBottom: 4}}>{members[replyMessage.from]?.name}</Text>
-                <Text style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{replyMessage.text}</Text>
+                <Text numberOfLines={4} style={{fontSize: 12, color: myMessage ? 'white' : '#666'}}>{replyMessage.text}</Text>
             </View>
         )
     } else {

@@ -20,7 +20,7 @@ function BioAnswers({answers, bioQuestions}) {
     return <Text style={{color: '#666'}} numberOfLines={1}>{joinedAnswers}</Text>
 }
 
-function MemberPreview({community, topic, viewpoint, members, hue, userId, bioQuestions}) {
+function MemberPreview({community, group, topic, viewpoint, members, hue, userId, bioQuestions}) {
     const member=members[userId];
     const navigation = useCustomNavigation();
     return (
@@ -40,7 +40,7 @@ function MemberPreview({community, topic, viewpoint, members, hue, userId, bioQu
                     }
                 </FixedTouchable>
                 {viewpoint ? 
-                    <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, topic, user:userId})}>
+                    <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, group, topic, user:userId})}>
                         <View style={{marginTop: 4, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Text numberOfLines={2}>{viewpoint.text}</Text>
                             <Text style={{marginTop: 4, color: baseColor, fontSize: 12}}>Read Viewpoint...</Text>
@@ -144,7 +144,7 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
-                <MemberPreview key={m} topic={topic} viewpoint={viewpoints[m]} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
+                <MemberPreview key={m} topic={topic} group={group} viewpoint={viewpoints[m]} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
 

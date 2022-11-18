@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { MinorButton, OneLineText, ToggleCheck, WideButton } from '../components/basics';
+import { MinorButton, OneLineText, ScreenContentNoScroll, ToggleCheck, WideButton } from '../components/basics';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { useCustomNavigation } from '../components/shim';
 import { getCurrentUser, useDatabase } from '../data/fbutil';
@@ -51,6 +51,7 @@ export function EditViewpointScreen({route}) {
 
     return (
         <KeyboardSafeView>
+            <ScreenContentNoScroll>
             <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
                     borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
                 {/* <ToggleCheck value={anonymous} onValueChange={setAnonymous} label='Anonymous' style={{marginBottom: 4}} /> */}
@@ -64,7 +65,7 @@ export function EditViewpointScreen({route}) {
                     : null}
                     <WideButton alwaysActive disabled={inProgress} onPress={onPost} 
                         progressText={oldViewPoint ? 'Updating...' : 'Posting...'}
-                        style={{margin: 2, paddingHorizontal: 4, paddingVertical: 2}}>{oldViewPoint ? 'Update' : 'Post'}</WideButton>            
+                        style={{margin: 4, paddingHorizontal: 4, paddingVertical: 2}}>{oldViewPoint ? 'Update' : 'Post'}</WideButton>            
                 </View>
             </View>
             <TextInput multiline placeholder='What is your view on this topic?' 
@@ -73,6 +74,7 @@ export function EditViewpointScreen({route}) {
                 autoFocus
                 onChangeText={onChangeText}
             />
+            </ScreenContentNoScroll>
         </KeyboardSafeView>
     )
     
