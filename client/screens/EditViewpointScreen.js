@@ -64,8 +64,8 @@ export function EditViewpointScreen({route}) {
                                 Revert
                             </MinorButton>
                         : null}
-                        <WideButton alwaysActive disabled={inProgress} onPress={onPost} 
-                            progressText={oldViewPoint ? 'Updating...' : 'Posting...'}
+                        <WideButton alwaysActive disabled={inProgress || !text} onPress={onPost} 
+                            progressText={!text ? null : (oldViewPoint ? 'Updating...' : 'Posting...')}
                             style={{margin: 4, paddingHorizontal: 4, paddingVertical: 2}}>{oldViewPoint ? 'Update' : 'Post'}</WideButton>            
                     </View>
                 </View>

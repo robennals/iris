@@ -178,7 +178,9 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
                         <ViewpointActions community={community} topic={topic} messageKey={messageKey} published={message} viewpoint={message} />
                     : null}
                     {isMasterUser() ? 
-                        <PeopleToChat viewpoint={message} community={community} />
+                        <Catcher>
+                            <PeopleToChat viewpoint={message} community={community} />
+                        </Catcher>
                     : null}
                 </View>
             </View>
@@ -188,7 +190,8 @@ function PublishedMessage({messageKey, community, topic, message, memberHues}){
 
 function PeopleToChat({viewpoint, community}) {    
     const members = useDatabase([community], ['commMember', community]);
-    const chatterNames = _.map(_.keys(viewpoint.chat || {}), m => members[m]?.answer[name_label]);
+    if (!members) return null;
+    const chatterNames = _.map(_.keys(viewpoint.chat || {}), m => members[m]?.answer?.[name_label]);
     const chatStr = andFormatStrings(chatterNames);
     console.log('members', members);
     if (!viewpoint.chat) {
@@ -196,7 +199,7 @@ function PeopleToChat({viewpoint, community}) {
     }
     return (
         <View style={{marginVertical: 4, marginLeft: 16, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,  borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2}}>                
-            <Text style={{fontSize: 12}}>{chatStr} {chatterNames.lenth == 1 ? 'wants' : 'want'} to discuss</Text>
+            <Text style={{fontSize: 12}}>{chatStr} {chatterNames.length == 1 ? 'wants' : 'want'} to discuss</Text>
         </View>
     )
 }
