@@ -517,13 +517,11 @@ function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
                 : null}
             </FixedTouchable>
         )    
-    } else if (!myViewpoint) {
+    } else {
         return (
             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
                 <MyViewpointPreview community={community} topicKey={topicKey} />
             </View>
         )
-    } else {
-        return null;
     }
 }

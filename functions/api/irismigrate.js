@@ -103,17 +103,25 @@ async function migrateLastHighlightAsync(){
     _.forEach(_.keys(highlights), c => {
         console.log('== ' + communities[c]?.name + '(' + c + ') ==');
         _.forEach(_.keys(highlights[c]), t => {
-            console.log('* ' + topics[c][t].name);
+            const topic = topics[c][t];
+            // console.log('* ' + topic.name);
             const topicHighlights = highlights[c][t];
             const sortedKeys = _.sortBy(_.keys(topicHighlights), h => topicHighlights[h].time).reverse();
             const latestMessageKey = sortedKeys[0];
             const latestMessage = topicHighlights[latestMessageKey];
-            console.log('latestMessage', topics[c][t].name, latestMessage.text.slice(0, 40));
-            updates['topic/' + c + '/' + t + '/lastMessage'] = latestMessage;
+            // console.log('latestMessage', topics[c][t].name, latestMessage.text.slice(0, 40));
+            if (!topic.lastMessage || !topic.publishCount) {
+                console.log('missing lastMessage', topic.name);
+                updates['topic/' + c + '/' + t + '/lastMessage'] = latestMessage;
+                updates['topic/' + c + '/' + t + '/publishCount'] = sortedKeys.length;
+            } else {
+                // console.log('all is good', topic.name);
+            }
         })
     })
-    // console.log('updates', updates);
+    console.log('updates', updates);
     return {success: true, updates};
+    // return {success: true}
 }
 
 
