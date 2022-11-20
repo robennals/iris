@@ -71,7 +71,7 @@ function HighlightsHelp() {
             </HelpText>
             <HelpText>
                 If you think someone's viewpoint is interesting (including disagreeing with it) 
-                you can say "want to discuss" and we'll match you into a private Conversationw
+                you can say "want to discuss" and we'll match you into a private conversation
                 with other people who wish to discuss the same viewpoints.
             </HelpText>
             <HelpText>
