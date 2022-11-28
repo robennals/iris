@@ -45,6 +45,7 @@ import { PublishedHeader, PublishedScreen } from './screens/Published';
 import { MissingScreen } from './screens/MissingScreen';
 import { EditViewpointScreen, EditViewpointScreenHeader } from './screens/EditViewpointScreen';
 import { ViewpointScreen, ViewpointScreenHeader } from './screens/ViewpointScreen';
+import { WaitingScreen } from './screens/WaitingScreen';
 
 
 Sentry.init({
@@ -257,7 +258,8 @@ const screens = {
   missing: {component: MissingScreen, title: 'Missing Page'},
   topic: {component: TopicScreen, headerTitle: CommunityScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
-  viewpoint: {component: ViewpointScreen, headerTitle: ViewpointScreenHeader}
+  viewpoint: {component: ViewpointScreen, headerTitle: ViewpointScreenHeader},
+  waiting: {component: WaitingScreen, title: 'Waiting for Matches'}
 }
 
 function parseUrl(url) {

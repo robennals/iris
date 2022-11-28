@@ -1,10 +1,8 @@
 import React from 'react';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { FixedTouchable, FormInput, FormTitle, MemberIcon, ScreenContentScroll, WideButton } from '../components/basics';
-import { getCurrentUser, watchData } from '../data/fbutil';
 import _ from 'lodash';
 import { appName, baseColor } from '../data/config';
-import { useCustomNavigation } from '../components/shim';
 
 function Head({children}){
     return (
@@ -23,7 +21,6 @@ function Para({children}) {
 }
 
 export function AboutScreen() {
-    const navigation = useCustomNavigation();
     return (
         <ScreenContentScroll>
             <View style={{marginHorizontal: 32}}>
@@ -31,16 +28,20 @@ export function AboutScreen() {
                     {appName}
                 </Text>
                 <Para>
-                    {appName} lets you take part in small group conversations with other members of your organization.
+                    {appName} lets you take part in private small group conversations with other members of your organization.
                 </Para>
                 <Para>
-                    The organization suggests questions that members might want to discuss. Members choose which questions they are 
-                    interested in talking about. {appName} matches organization members into small groups to discuss that question.
+                    The organization suggests topics that members might want to discuss. 
+                    Members choose which questions they are 
+                    interested in talking about. 
+                    {appName} matches organization members into small groups to discuss that question.
+                </Para>
+                <Para>
+                    You can also write a public viewpoint about a topic, and say which other people's viewpoints
+                    you would like to discuss. 
                 </Para>
 
-                <Para>
-                    To use {appName} you need to have been invited to a small-group conversations by the organization you are part of.
-                </Para>
+
 
                 {/* <Para>
                     Let {appName} know what questions you want to talk about, and {appName} will assign you to discussion groups with people you might enjoy talking to.

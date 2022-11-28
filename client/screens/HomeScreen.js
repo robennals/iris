@@ -6,7 +6,7 @@ import { getCurrentUser, getFirebaseServerTimestamp, internalReleaseWatchers, is
 import _ from 'lodash';
 import { NotifIcon } from '../components/notificon';
 import { SearchBox } from '../components/searchbox';
-import { Ionicons } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { CommunityPhotoIcon, GroupMultiIcon, GroupPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Catcher } from '../components/catcher';
 import { AppPromo } from '../components/apppromo';
@@ -55,6 +55,19 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
     )
 }
 
+function WaitingForMatchesPreview({highlight}) {
+    return (
+        <View style={[styles.groupPreview, 
+            highlight ? {backgroundColor: '#eee'} : null]}>
+            <Entypo name='clock' size={54} />
+            <View style={styles.groupPreviewRight}>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>Waiting for Matches</Text>
+            </View>
+        </View>
+    )
+
+}
+
 
 function mergeObjectSets(a, b) {
     if (!b) return a;
@@ -88,6 +101,27 @@ const defaultCommunitySet = {
         photoKey: '-NCS3mRqT0n2Whhumf9R',
         photoUser: 'N8D5FfWwTxaJK65p8wkq9rJbPCB3',
         lastMessage: {text: 'Community you can join', time: 1663715183992}
+    }
+}
+
+function ThingPreview({k, communitySet, groupSet, allCommunities, selected, showSelected}) {
+    if (k == 'waiting') {
+        return <WaitingForMatchesPreview />
+    } else if (communitySet[k]) {
+        return (
+            <CommunityPreview community={k} name={communitySet[k].name}
+                highlight={selected == k && showSelected}
+                communityInfo={communitySet[k]} 
+            />
+        )
+    } else {
+        return (
+            <GroupPreview group={k} name={groupSet[k].name}
+                allCommunities={allCommunities}
+                highlight={selected == k && showSelected}
+                groupInfo={groupSet[k]} shrink={shrink}
+            />
+        )
     }
 }
 
@@ -220,21 +254,17 @@ export class GroupList extends React.PureComponent {
                 <SearchBox value={search} onChangeText={search => this.setState({search})} 
                     style={{marginHorizontal: 16, marginBottom: 8}}
                 />
+                {groupKeys.length == 0 ? 
+                    <Catcher>
+                        <FixedTouchable onPress={() => navigation.navigate('waiting')}>
+                            <WaitingForMatchesPreview highlight={selected=='waiting'} />
+                        </FixedTouchable>
+                    </Catcher>
+                : null}
                 {shownKeys.map(k => 
                     <Catcher key={k}>
                         <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
-                            {!communitySet[k] ?
-                                <GroupPreview group={k} name={groupSet[k].name}
-                                    allCommunities={allCommunities}
-                                    highlight={selected == k && showSelected}
-                                    groupInfo={groupSet[k]} shrink={shrink}
-                                />
-                            : 
-                                <CommunityPreview community={k} name={communitySet[k].name}
-                                    highlight={selected == k && showSelected}
-                                    communityInfo={communitySet[k]} 
-                                />
-                            }
+                            <ThingPreview k={k} communitySet={communitySet} groupSet={groupSet} allCommunities={allCommunities} selected={selected} showSelected={showSelected} />
                         </FixedTouchable>
                     </Catcher>
                 )}
@@ -262,18 +292,7 @@ export class GroupList extends React.PureComponent {
                     archivedKeys.map(k => 
                         <Catcher key={k}>
                             <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
-                                {!communitySet[k] ?
-                                    <GroupPreview group={k} name={groupSet[k].name}
-                                        allCommunities={allCommunities}
-                                        highlight={selected == k && showSelected}
-                                        groupInfo={groupSet[k]} shrink={shrink}
-                                    />
-                                : 
-                                    <CommunityPreview community={k} name={communitySet[k].name}
-                                        highlight={selected == k && showSelected}
-                                        communityInfo={communitySet[k]} 
-                                    />
-                                }
+                                <ThingPreview k={k} communitySet={communitySet} groupSet={groupSet} allCommunities={allCommunities} selected={selected} showSelected={showSelected} />
                             </FixedTouchable>
                         </Catcher>
                     )
