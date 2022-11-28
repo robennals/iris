@@ -747,8 +747,8 @@ async function editTopicAsync({community, topic=null, name, questions, pinned, s
     updates['topic/' + community + '/' + topicKey] = {
         name, questions, summary, time: oldTopic?.time || time,
         pinned: pinned || null,
-        approved: isMaster, from: userId,
-        fromName: members[userId]?.answer?.['Full Name'] || null
+        approved: isMaster, from: oldTopic?.from || userId,
+        fromName: oldTopic?.fromName || members[userId]?.answer?.['Full Name'] || null
     }
     var notifs = [];
     const summaryText = summary ? (' - ' + summary) : '';

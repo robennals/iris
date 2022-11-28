@@ -344,7 +344,7 @@ const yellow = 'hsl(60, 50%, 90%)';
 const MemoTopic = React.memo(Topic);
 
 function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, state, lastRead}) {
-    const navgation = useCustomNavigation();
+    const navigation = useCustomNavigation();
     // const topic = topics[topicKey]
     const questions = JSON.parse(topic.questions)
     const shownQuestions = questions.filter(q => q[0] != '>');
@@ -376,15 +376,19 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                 <View style={{marginLeft: 4, marginVertical: 2}}>               
-                    {topic.approved !== false ? 
-                        (mode == 'viewpoints' ?
+                        {mode == 'viewpoints' ?
                             <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New viewpoint published {formatTime(topic.lastMessage.publishTime)}</Text>
                         : 
-                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic posted in {communityInfo.name} {formatTime(topic.time)}</Text>
-                        )
-                    : 
-                        <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>Topic suggested by {topic.fromName} {formatTime(topic.time)}</Text>
-                    }
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4, marginRight: 4}}>Topic {topic.approved === false ? 'suggested' : 'posted'} by</Text> 
+                                <FixedTouchable onPress={()=>navigation.navigate('profile', {community, member: topic.from})}>
+                                    <Text style={{fontSize: 12, color: '#666', textDecorationLine: 'underline'}}>
+                                        {topic.fromName}
+                                    </Text>
+                                </FixedTouchable>
+                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>{formatTime(topic.time)}</Text>
+                            </View>
+                        }
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
