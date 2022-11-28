@@ -119,7 +119,7 @@ function ThingPreview({k, communitySet, groupSet, allCommunities, selected, show
             <GroupPreview group={k} name={groupSet[k].name}
                 allCommunities={allCommunities}
                 highlight={selected == k && showSelected}
-                groupInfo={groupSet[k]} shrink={shrink}
+                groupInfo={groupSet[k]} shrink={false}
             />
         )
     }
