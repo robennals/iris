@@ -368,7 +368,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
 
     const condendedSummary = (topic.summary ?? '') + _.join(shownQuestions, ' ');
 
-    if ((mode == 'viewpoints' && !topic.lastMessage) || topic.approved === false) {
+    if (mode == 'viewpoints' && !topic.lastMessage) {
         return null;
     }
 
