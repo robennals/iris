@@ -21,7 +21,7 @@ function normStr(str) {
 
 const accessDeniedResult = {success: false, message: 'access denied'};
 
-const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2'];
+const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2', 'K1IzX5mm1hPfqIaKgba7bhyYig73'];
 
 function isMasterUser(user) {
     for (var i = 0; i < masterUsers.length; i++) {
