@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MinorButton, OneLineText, ScreenContentNoScroll, ToggleCheck, WideButton } from '../components/basics';
+import { FixedTouchable, MinorButton, OneLineText, ScreenContentNoScroll, ToggleCheck, WideButton } from '../components/basics';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { useCustomNavigation } from '../components/shim';
 import { getCurrentUser, useDatabase } from '../data/fbutil';
@@ -21,6 +21,25 @@ export function EditViewpointScreenHeader({route}) {
         </View>
     )
 }
+
+// function ViewpointTopicSummary({community, topicKey}) {
+//     const topic = useDatabase([community, topicKey], ['topic', community, topicKey]);
+//     const [expanded, setExpanded] = useState(false);
+//     if (!topic) return null;
+//     if (expanded) {
+//         return (
+//             <FixedTouchable onPress={() => setExpanded(false)}>
+//                 <Text>Expanded</Text>
+//             </FixedTouchable>
+//         )
+//     } else {
+//         return (
+//             <FixedTouchable onPress={() => setExpanded(true)}>
+//                 <Text>Collapsed</Text>
+//             </FixedTouchable>
+//         )
+//     }
+// }
 
 export function EditViewpointScreen({route}) {
     const {community, topic} = route.params;
@@ -54,6 +73,7 @@ export function EditViewpointScreen({route}) {
         // <KeyboardSafeView style={{flex: 1}} behavior='height'>
         <KeyboardSafeView>
             <View style={{backgroundColor: 'white', flex: 1}}>
+                {/* <ViewpointTopicSummary community={community} topicKey={topic} /> */}
                 <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
                         borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
                     <View />
