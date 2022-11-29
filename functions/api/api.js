@@ -12,6 +12,7 @@ const Analysis = require('./analysis');
 const Viewpoint = require('./viewpoint');
 const { irisDigestAsync, wakeupMessageAsync, autoCloseAsync, wakeupGroupsAsync } = require('./irisemail');
 const { testTopicsEmailAsync } = require('./topicsemail');
+const { sendFeedbackAsync } = require('./feedback');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -159,6 +160,9 @@ async function apiActionAsync({action, components, params}) {
         }
         case 'saveViewpoint': {
             return Viewpoint.saveViewpointAsync(params);
+        }
+        case 'sendFeedback': {
+            return sendFeedbackAsync(params);
         }
 
         default: {

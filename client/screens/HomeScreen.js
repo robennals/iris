@@ -308,6 +308,10 @@ export class GroupList extends React.PureComponent {
                 <FixedTouchable onPress={() => navigation.navigate('about')}>
                     <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>{shrink ? 'About' : ('About ' + appName)}</Text>
                 </FixedTouchable>
+                <FixedTouchable onPress={() => navigation.navigate('feedback')}>
+                    <Text style={{alignSelf: 'center', color: baseColor, marginVertical: 16}}>Send Feedback</Text>
+                </FixedTouchable>
+
 
                 {/* {isMasterUser() ? 
                     <FixedTouchable onPress={() => navigation.navigate('adminCreateGroup')}>

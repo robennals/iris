@@ -43,7 +43,7 @@ export function ViewpointScreen({route}) {
 
     return (
         <ScreenContentScroll>
-            <View style={{maxWidth: 450, alignSelf: 'center', marginTop: 8}}>
+            <View style={{maxWidth: 450, alignSelf: 'center', margin: 16}}>
                 <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
                     <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: viewpoint.from})}>
                         <MemberPhotoIcon photoKey={viewpoint.authorPhoto} name={viewpoint.authorName} user={viewpoint.from} />

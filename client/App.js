@@ -46,6 +46,7 @@ import { MissingScreen } from './screens/MissingScreen';
 import { EditViewpointScreen, EditViewpointScreenHeader } from './screens/EditViewpointScreen';
 import { ViewpointScreen, ViewpointScreenHeader } from './screens/ViewpointScreen';
 import { WaitingScreen } from './screens/WaitingScreen';
+import { FeedbackScreen } from './screens/FeedbackScreen';
 
 
 Sentry.init({
@@ -82,6 +83,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     profile: 'profile/:community/:member',
     topic: 'topic/:community/:topic',
     home: 'home/',
+    feedback: 'feedback/',
     myViewpoint: 'myViewpoint/:community/:topic',
     viewpoint: 'viewpoint/:community/:topic/:user'
   }
@@ -259,7 +261,8 @@ const screens = {
   topic: {component: TopicScreen, headerTitle: CommunityScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
   viewpoint: {component: ViewpointScreen, headerTitle: ViewpointScreenHeader},
-  waiting: {component: WaitingScreen, title: 'Waiting for Matches'}
+  waiting: {component: WaitingScreen, title: 'Waiting for Matches'},
+  feedback: {component: FeedbackScreen, title: 'Send Feedback'}
 }
 
 function parseUrl(url) {

@@ -226,6 +226,10 @@ export async function saveViewpointAsync({community, topic, anonymous, text}) {
     return await callServerApiAsync('saveViewpoint', {community, topic, text, anonymous});
 }
 
+export async function sendFeedbackAsync({text}) {
+    return await callServerApiAsync('sendFeedback', {text});
+}
+
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
         return await callServerApiAsync('logError', {error, stack, context});
@@ -233,4 +237,5 @@ export async function logErrorAsync({error, stack=null, context=null}) {
         console.error('Error logging an error', e);
     }
 }
+
 
