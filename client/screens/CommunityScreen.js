@@ -375,12 +375,12 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
-                <View style={{marginLeft: 4, marginVertical: 2}}>               
+                {/* <View style={{marginLeft: 4, marginVertical: 2}}>               
                         {mode == 'viewpoints' ?
                             <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New viewpoint published {formatTime(topic.lastMessage.publishTime)}</Text>
                         : 
                             <View style={{flexDirection: 'row'}}>
-                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4, marginRight: 4}}>Topic {topic.approved === false ? 'suggested' : 'posted'} by</Text> 
+                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4, marginRight: 4}}>Topic {topic.approvedB === false ? 'suggested' : 'posted'} by</Text> 
                                 <FixedTouchable onPress={()=>navigation.navigate('profile', {community, member: topic.from})}>
                                     <Text style={{fontSize: 12, color: '#666', textDecorationLine: 'underline'}}>
                                         {topic.fromName}
@@ -389,7 +389,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                 <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>{formatTime(topic.time)}</Text>
                             </View>
                         }
-                </View>
+                </View> */}
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
                     <View style={[{
@@ -400,8 +400,17 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                         // marginHorizontal: 8,
                             }, state ? null : shadowStyle]}>
                         <View style={{padding: 8}}>
+                            <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: topic.from})}>
+                                <View style={{flexDirection: 'row', marginBottom: 4}}>
+                                    <MemberPhotoIcon photoKey={topic.fromPhoto} user={topic.from} name={topic.fromName} size={16} />
+                                    <View style={{marginLeft: 4, flexDirection: 'row', alignItems: 'baseline'}}>
+                                        <Text style={{fontSize: 12}}>{topic.fromName}</Text>
+                                        <Text style={{fontSize: 12, color: '#666'}}> - {formatTime(topic.time)}</Text>
+                                    </View>
+                                </View>
+                            </FixedTouchable>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                <Text style={{fontWeight: 'bold', fontSize: 15, color: state ? '#666' : 'black'}}>{topic.name}</Text>
+                                <Text style={{fontWeight: 'bold', fontSize: 18, color: state ? '#666' : 'black'}}>{topic.name}</Text>
                                 {canEdit ? 
                                     <FixedTouchable onPress={() => navgation.navigate('editTopic', {community, topic: topicKey})}>
                                         <Entypo name='edit' color='#999' size={12}/>

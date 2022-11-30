@@ -20,6 +20,35 @@ const email_label = 'Email Address';
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
 
 
+async function migrateTopicAuthorPhotosAsync() {
+    const members = await FBUtil.getDataAsync(['commMember']);
+    const topics = await FBUtil.getDataAsync(['topic']);
+    var updates = {};
+    _.forEach(_.keys(topics), c => {
+        _.forEach(_.keys(topics[c]), t => {
+            const topic = topics[c][t];
+            if (topic.from == '8Nkk25o9o6bipF81nvGgGE59cXG2') {
+                updates['/topic/' + c + '/' + t + '/fromPhoto'] = '-N9qUSbTPkmZXZXYKONN';
+                updates['/topic/' + c + '/' + t + '/fromName'] = 'Lucie Repova';
+
+            } else if (topic.from) {
+                const photoKey = members[c][topic.from].photoKey;
+                const name = members[c][topic.from].answer['Full Name'];
+                updates['/topic/' + c + '/' + t + '/fromPhoto'] = photoKey || null;
+                updates['/topic/' + c + '/' + t + '/fromName'] = topic.fromName || name || null;
+
+            } else {
+                updates['/topic/' + c + '/' + t + '/from'] = '8Nkk25o9o6bipF81nvGgGE59cXG2';
+                updates['/topic/' + c + '/' + t + '/fromName'] = 'Lucie Repova';
+                updates['/topic/' + c + '/' + t + '/fromPhoto'] = '-N9qUSbTPkmZXZXYKONN';
+            }
+        })
+    })
+    console.log('updates', updates);
+    return {success: true, updates};
+}
+
+
 async function migrateViewpointsAsync() {
     const published = await FBUtil.getDataAsync(['published']);
 
@@ -375,6 +404,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await migrateViewpointsAsync();
         case 'deleteUser':
             return await deleteUser({email: paramList[0]});
+        case 'migrateTopicAuthorPhotos':
+            return await migrateTopicAuthorPhotosAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }
