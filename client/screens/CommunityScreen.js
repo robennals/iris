@@ -323,6 +323,12 @@ const shadowStyle = {
     // borderColor: '#ddd', borderWidth: 2,
     shadowOpacity: 0.5, elevation: 4}
 
+const lightShadowStyle = {
+    shadowRadius: 2, shadowColor: '#555', shadowOffset: {width: 0, height: 1},
+        // borderColor: '#ddd', borderWidth: 2,
+    shadowOpacity: 0.5, elevation: 2}
+    
+
 
 function PillButton({selected, children, color = 'white', onPress}){
     return (
@@ -372,33 +378,21 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
         return null;
     }
 
+    console.log('shownQuestions', shownQuestions);
+
     return (
+        <FixedTouchable onPress={() => navigation.navigate('post', {community, topic: topicKey})}>
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
-                {/* <View style={{marginLeft: 4, marginVertical: 2}}>               
-                        {mode == 'viewpoints' ?
-                            <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>New viewpoint published {formatTime(topic.lastMessage.publishTime)}</Text>
-                        : 
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4, marginRight: 4}}>Topic {topic.approvedB === false ? 'suggested' : 'posted'} by</Text> 
-                                <FixedTouchable onPress={()=>navigation.navigate('profile', {community, member: topic.from})}>
-                                    <Text style={{fontSize: 12, color: '#666', textDecorationLine: 'underline'}}>
-                                        {topic.fromName}
-                                    </Text>
-                                </FixedTouchable>
-                                <Text style={{fontSize: 12, color: '#666', marginLeft: 4}}>{formatTime(topic.time)}</Text>
-                            </View>
-                        }
-                </View> */}
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     {/* <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={40} /> */}
-                    <View style={[{
+                    <View style={{
                             backgroundColor: 'white',
                             // backgroundColor: state ? 'hsl(216, 63%, 99%)' : 'white', 
                             borderColor: !state ? '#ccc' : '#ddd', borderWidth: StyleSheet.hairlineWidth,
                             borderRadius: 8, maxWidth: 450, flexShrink: 1, flexGrow: 1, flex: 1,
                                         // marginHorizontal: 8,
-                            }, state ? null : shadowStyle]}>
+                            ...lightShadowStyle}}>
                         <View style={{padding: 8}}>
                             <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: topic.from})}>
                                 <View style={{flexDirection: 'row', marginBottom: 4}}>
@@ -417,21 +411,25 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                     </FixedTouchable>
                                 :null}
                             </View>
-                            {expanded || !state ? 
-                                <View style={{flexShrink: 1, marginTop: 4, marginRight: 8}}>
-                                    <LinkText linkColor={baseColor} style={{color: '#222', marginBottom: 4}} text={topic.summary} />
-                                    {shownQuestions.map(question =>
-                                        <View key={question} style={{flexDirection: 'row', flexShrink: 1}}>
-                                            <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
-                                            <LinkText linkColor={baseColor} key={question} style={{color: '#222', marginBottom: 2}} text={question} />
-                                        </View>
-                                    )}                        
+                            <View style={{flexShrink: 1, marginTop: 4, marginRight: 8}}>
+                                {/* <LinkText linkColor={baseColor} style={{color: '#222', marginBottom: 4}} text={topic.summary} /> */}
+                                {topic.summary ? 
+                                    <Text numberOfLines={2} style={{color: '#666', marginBottom: 4}}>{topic.summary}</Text>
+                                : null}
+                                <View style={{flexDirection: 'row', flexShrink: 1}}>
+                                    <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
+                                    <Text numberOfLines={2} linkColor={baseColor} style={{color: '#666', marginBottom: 2}}>{shownQuestions[0]}</Text>
                                 </View>
-                            : 
-                                <FixedTouchable onPress={() => setExpanded(true)}>
-                                    <OneLineText style={{color: '#666', marginTop: 4}}>{condendedSummary}</OneLineText>
-                                </FixedTouchable>
-                            }
+                                {!topic.summary && shownQuestions.length > 1? 
+                                    <View style={{flexDirection: 'row', flexShrink: 1}}>
+                                        <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
+                                        <Text numberOfLines={2} linkColor={baseColor} style={{color: '#666', marginBottom: 2}}>{shownQuestions[1]}</Text>
+                                    </View>
+                                : null}
+                                <View style={{flexDirection: 'row', flexShrink: 1}}>
+                                    <Text linkColor={baseColor} style={{color: '#666', marginBottom: 2}}>...</Text>
+                                </View>
+                            </View>
                             {state && topic.approved !== false ? 
                                 <FixedTouchable onPress={() => setTopicState(null)}>
                                 <View style={{marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>                                    
@@ -441,7 +439,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                 </FixedTouchable>
                             : null}
                         </View>
-                        {!state && topic.approved !== false ? 
+                        {/* {!state && topic.approved !== false ? 
                             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
                                 <Text style={{fontSize: 12, color: "#666"}}>Do you want to talk about this?</Text>
                                 <View style={{flexDirection: 'row', marginTop: 4}}>
@@ -450,7 +448,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                     <PillButton selected={state=='no'} color={red} onPress={() => setTopicState('no')}>No</PillButton>
                                 </View>                        
                             </View>
-                        : null}
+                        : null} */}
 
                         {topic.approved === false && isMasterUser() ? 
                             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
@@ -467,6 +465,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                 </View>
             </View>
         </View>
+        </FixedTouchable>
     )
 }
 
@@ -491,7 +490,7 @@ function colorForState(state) {
 
 function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
     const navigation = useCustomNavigation();
-    const extraCount = topic.publishCount -1;
+    const extraCount = topic.publishCount;
     function onClickHighlight(){ 
         setDataAsync(['userPrivate', getCurrentUser(), 'topicRead', community, topicKey], getFirebaseServerTimestamp());
         navigation.navigate('highlights', {community, topic: topicKey});
@@ -503,10 +502,10 @@ function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
             <FixedTouchable onPress={onClickHighlight}>
                 <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8,
                     backgroundColor: unread ? 'white' : null, borderBottomLeftRadius: 8, borderBottomRightRadius: 8}}>
-                    {topic.publishCount > 1 ?
-                        <Text style={{marginBottom: 8, marginLeft: 0, color: '#666', fontSize: unread ? 14 : 12, fontWeight: unread ? 'bold' : null}}>View {extraCount} more {extraCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
+                    {topic.publishCount > 0 ?
+                        <Text style={{marginBottom: 0, marginLeft: 0, color: '#666', fontSize: unread ? 14 : 12, fontWeight: unread ? 'bold' : null}}>View {extraCount} {extraCount == 1 ? 'response' : 'responses'}</Text>
                     : null}
-                    <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                    {/* <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                         <MemberPhotoIcon size={24} style={{marginTop: unread ? 4 : 3}} user={topic.lastMessage.from} photoKey={topic.lastMessage.authorPhoto} name={topic.lastMessage.authorName} />
                         {unread ?
                             <View style={{marginLeft: 4, flexShrink: 1, backgroundColor: '#eee', borderColor: '#ccc', borderWidth: 2, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, ...shadowStyle}}>
@@ -521,7 +520,7 @@ function PublishedPreview({community, myViewpoint, topicKey, topic, lastRead}) {
                                 </Text>
                             </View>
                         }
-                    </View>
+                    </View> */}
                 </View>
                 {!myViewpoint ? 
                     <View style={{paddingHorizontal: 8, paddingBottom: 8, marginLeft: 4}}>               

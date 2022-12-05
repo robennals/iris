@@ -97,7 +97,7 @@ export function MyViewpointPreview({community, topicKey, myViewpoint}) {
                           flex: 1, marginLeft: 8,
                           backgroundColor: '#f4f4f4',
                           borderColor: '#999', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 8, paddingVertical: 4}}>
-                      <Text style={{color: '#666'}}>Share your view on this topic</Text>
+                      <Text style={{color: '#666'}}>Write a response</Text>
                   </View>
               </View>
           </FixedTouchable>

@@ -85,7 +85,8 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     home: 'home/',
     feedback: 'feedback/',
     myViewpoint: 'myViewpoint/:community/:topic',
-    viewpoint: 'viewpoint/:community/:topic/:user'
+    viewpoint: 'viewpoint/:community/:topic/:user',
+    post: 'post/:community/:topic',
   }
 }}
 
@@ -257,6 +258,7 @@ const screens = {
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
+  post: {component: PublishedScreen, headerTitle: PublishedHeader},
   missing: {component: MissingScreen, title: 'Missing Page'},
   topic: {component: TopicScreen, headerTitle: CommunityScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
