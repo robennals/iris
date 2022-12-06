@@ -57,10 +57,6 @@ function FeedHelp({communityName}) {
     return (
         <Help id='feed' title='About the Topic Feed'>
             <HelpText>
-                You chose an initial set of topics as part of the signup process. 
-                This feed contains a larger set of topics and is regularly updated.
-            </HelpText>
-            <HelpText>
                 Tell us which topics you want to talk about and we'll match you
                 into private group chats with other community members.
             </HelpText>
