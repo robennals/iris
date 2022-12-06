@@ -257,6 +257,10 @@ export async function sendFeedbackAsync({text}) {
     return await callServerApiAsync('sendFeedback', {text});
 }
 
+export async function saveTopicGroupAsync({community, topic, text}) {
+    return await callServerApiAsync('saveTopicGroup', {community, topic, text});
+}
+
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
         return await callServerApiAsync('logError', {error, stack, context});

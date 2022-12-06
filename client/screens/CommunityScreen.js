@@ -82,10 +82,10 @@ function CommunityAdminActions({community}) {
 }
 
 
-export function TopicScreen({navigation, route}) {
-    const {community, topic} = route.params;
-    return <CommunityScreen navigation={navigation} route={{params: {community, topic}}} />
-}
+// export function TopicScreen({navigation, route}) {
+//     const {community, topic} = route.params;
+//     return <CommunityScreen navigation={navigation} route={{params: {community, topic}}} />
+// }
 
 function NewViewpointsPromo({topics, topicRead, viewpointRead, onPress}) {
     const unreadViewpointTopicKeys = _.filter(_.keys(topics), t => 
@@ -226,12 +226,12 @@ export function CommunityScreen({navigation, route}) {
                 <ConnectedBanner />
                 <PhotoPromo />
                 <View style={{backgroundColor: 'white', flex: 1}}>
-                    <SortSelector onModeChanged={onModeChanged} mode={mode} />
+                    {/* <SortSelector onModeChanged={onModeChanged} mode={mode} />
                     {mode == 'topics' ? 
                         <View style={{flexDirection: 'row'}}>
                             <NewViewpointsPromo topics={topics} topicRead={topicRead} viewpointRead={viewpointReadTime} onPress={() => onModeChanged('viewpoints')}/>
                         </View>
-                    : null}
+                    : null} */}
 
                     {isMasterUser() && mode == 'topics' ? 
                         <CommunityAdminActions community={community} />
@@ -377,7 +377,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
     console.log('shownQuestions', shownQuestions);
 
     return (
-        <FixedTouchable onPress={() => navigation.navigate('post', {community, topic: topicKey})}>
+        <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic: topicKey})}>
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
@@ -426,14 +426,14 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                                     <Text linkColor={baseColor} style={{color: '#666', marginBottom: 2}}>...</Text>
                                 </View>
                             </View>
-                            {state && topic.approved !== false ? 
+                            {/* {state && topic.approved !== false ? 
                                 <FixedTouchable onPress={() => setTopicState(null)}>
                                 <View style={{marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>                                    
                                     <View style={{backgroundColor: colorForState(state), width: 12, height: 12, borderRadius: 6}} />
                                     <Text style={{marginLeft: 4, color: '#666', fontSize: 12}}>{stateToPhrase(state)}</Text>
                                 </View>
                                 </FixedTouchable>
-                            : null}
+                            : null} */}
                         </View>
                         {/* {!state && topic.approved !== false ? 
                             <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, padding: 8}}>
@@ -456,7 +456,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                     
                         : null}
                         
-                        <PublishedPreview topic={topic} myViewpoint={myViewpoint} community={community} topicKey={topicKey} lastRead={lastRead} />
+                        {/* <PublishedPreview topic={topic} myViewpoint={myViewpoint} community={community} topicKey={topicKey} lastRead={lastRead} /> */}
                     </View>
                 </View>
             </View>

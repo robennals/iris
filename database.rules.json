@@ -60,6 +60,16 @@
         }
       }
     },
+    "topicGroup": {
+      "$community": {
+        "$topic": {
+          ".read": "root.child('commMember').child($community).child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",         
+          "$user": {
+            ".write": "$user == auth.uid || root.child('special').child('master').child(auth.uid).exists()"
+          }
+        }
+      }
+    },
     "viewpoint": {
       "$community":{
         "$topic": {

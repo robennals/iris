@@ -29,7 +29,7 @@ import { AdminCreateGroupScreen } from './screens/AdminCreateGroup';
 import { ChatScreen, ChatScreenHeader } from './screens/ChatScreen';
 import { MyProfileScreen } from './screens/MyProfileScreen';
 import { AdminCreateOrEditCommunityScreen } from './screens/AdminCreateOrEditCommunity';
-import { CommunityScreen, CommunityScreenHeader, TopicScreen } from './screens/CommunityScreen';
+import { CommunityScreen, CommunityScreenHeader } from './screens/CommunityScreen';
 import { CommunityProfileScreen } from './screens/CommunityProfile';
 import { IntakeScreen } from './screens/IntakeScreen';
 import { CommunitySignupsScreen } from './screens/CommunitySignups';
@@ -47,6 +47,8 @@ import { EditViewpointScreen, EditViewpointScreenHeader } from './screens/EditVi
 import { ViewpointScreen, ViewpointScreenHeader } from './screens/ViewpointScreen';
 import { WaitingScreen } from './screens/WaitingScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
+import { TopicScreen, TopicScreenHeader } from './screens/TopicScreen';
+import { EditTopicGroupScreen, EditTopicGroupScreenHeader } from './screens/EditTopicGroupScreen';
 
 
 Sentry.init({
@@ -87,6 +89,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     myViewpoint: 'myViewpoint/:community/:topic',
     viewpoint: 'viewpoint/:community/:topic/:user',
     post: 'post/:community/:topic',
+    myTopicGroup: 'myTopicGroup/:community/:topic'
   }
 }}
 
@@ -260,11 +263,12 @@ const screens = {
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
   post: {component: PublishedScreen, headerTitle: PublishedHeader},
   missing: {component: MissingScreen, title: 'Missing Page'},
-  topic: {component: TopicScreen, headerTitle: CommunityScreenHeader},
+  topic: {component: TopicScreen , headerTitle: TopicScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
   viewpoint: {component: ViewpointScreen, headerTitle: ViewpointScreenHeader},
   waiting: {component: WaitingScreen, title: 'Waiting for Matches'},
-  feedback: {component: FeedbackScreen, title: 'Send Feedback'}
+  feedback: {component: FeedbackScreen, title: 'Send Feedback'},
+  myTopicGroup: {component: EditTopicGroupScreen, headerTitle: EditTopicGroupScreenHeader}
 }
 
 function parseUrl(url) {
