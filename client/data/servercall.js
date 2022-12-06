@@ -1,6 +1,6 @@
 import { getCurrentDomain, track } from "../components/shim";
 import { firebaseApp } from "./config";
-import { internalReleaseWatchers, onFirebaseAuthStatechanged, releaseWatcher, signInWithTokenAsync, watchData } from "./fbutil";
+import { getDataAsync, internalReleaseWatchers, onFirebaseAuthStatechanged, releaseWatcher, signInWithTokenAsync, watchData } from "./fbutil";
 import _ from 'lodash';
 
 var global_accessKey = null;
@@ -30,6 +30,19 @@ export function releaseServerTokenWatch(){
     global_userId = null;
 }
 
+export async function initServerAccessKeyAsync(userId){
+    console.log('initServerAccessKey', userId);
+    const accessKey = await getDataAsync(['userPrivate', userId, 'accessKey']);
+    console.log('got access key', accessKey);
+    global_accessKey = accessKey;
+}
+
+export function setInitialAccessKey(userId, accessKey) {
+    console.log('setInitialAccessKey', userId, accessKey);
+    global_userId = userId;
+    global_accessKey = accessKey;
+}
+
 function getApiPrefix() {
     return getCurrentDomain() + '/api/v1/';
 }
@@ -48,6 +61,10 @@ function makeFullParams(params) {
 
 async function callServerApiAsync(action, params) {
     const actionUrl = getApiPrefix() + action;
+    if (global_userId && !global_accessKey) {
+        console.log('access key missing - fetching it');
+        await initServerAccessKeyAsync(global_userId);
+    }
     const fullParams = makeFullParams(params);
     // const fetchUrl = makeQueryUrl(action, params);
     console.log('calling API', action);
@@ -81,17 +98,23 @@ export async function signinWithLoginCode({email, code, onError}) {
     console.log('signinWithLoginCode', email, code, getCurrentDomain());
   
     const fetchUrl = getApiPrefix() + 'getLoginTokenForCode?email=' + encodeURIComponent(email.toLowerCase()) + '&code=' + code;
+    console.log('siginUrl', fetchUrl);
     const response = await fetch(fetchUrl);
     const data = await response.json();
+    console.log('login response', data);
     if (data.success == true) {
         try {
             await signInWithTokenAsync(data.token);
+            setInitialAccessKey(data.userId, data.accessKey);
+            setupServerTokenWatch(data.userId);
         } catch (error) {
-            onError(error.message);
+            onError && onError(error.message);
+            return {success: false, message: error.message};
         }
     } else {
-      onError(data.message);
+      onError && onError(data.message);
     }
+    return data;
 }
 
 export async function createGroupAsync({groupName, adminName}) {
@@ -166,9 +189,9 @@ export async function createOrUpdateCommunityAsync({community, photoData, thumbD
         community, photoData, thumbData, photoKey, photoUser, name, info, chatExtra, questions, topics});
 }
 
-export async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, topics}) {
+export async function submitCommunityFormAsync({sendEmail, community, logKey, photoData, thumbData, name, email, answers, topics}) {
     return await callServerApiAsync('submitCommunityForm', {
-        community, logKey, photoData, thumbData, name, email, answers, topics});
+        sendEmail, community, logKey, photoData, thumbData, name, email, answers, topics});
 }
 
 export async function adminCommandAsync({command, params}) {
@@ -224,6 +247,10 @@ export async function createDirectChatAsync({community, user}) {
 
 export async function saveViewpointAsync({community, topic, anonymous, text}) {
     return await callServerApiAsync('saveViewpoint', {community, topic, text, anonymous});
+}
+
+export async function confirmSignupAsync({community, intake, noHtml}) {
+    return await callServerApiAsync('confirmSignup', {community, intake, noHtml});
 }
 
 export async function sendFeedbackAsync({text}) {

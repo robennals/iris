@@ -7,8 +7,9 @@ import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/p
 import { PopupSelector } from '../components/shimui';
 import { baseColor, highlightColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, newKey, useDatabase, watchData } from '../data/fbutil';
-import { logIntakeAsync, submitCommunityFormAsync } from '../data/servercall';
+import { confirmCommunitySignup, confirmSignupAsync, logIntakeAsync, requestLoginCode, signinWithLoginCode, submitCommunityFormAsync } from '../data/servercall';
 import _ from 'lodash';
+import { removeFocusListener, useCustomNavigation } from '../components/shim';
 
 
 function ValidationWarning({children}) {
@@ -137,6 +138,70 @@ function Topic({topic, selected, onChangeSelected}) {
 
 }
 
+function ConfirmEmailScreen({community, intake, email, onBack}) {
+    const [inProgress, setInProgress] = useState(false);
+    const [code, setCode] = useState('');
+    const [error, setError] = useState(null);
+    const navigation = useCustomNavigation();
+    async function onConfirm() {
+        setInProgress(true);
+        // console.log('onConfirm', getCurrentUser());
+        const result = await signinWithLoginCode({email: email.toLowerCase().trim(), code, onError: error => setError(error)}); 
+        // console.log('signin result', result);
+        if (result.success) {
+            // console.log('confirm', community, intake);
+            await confirmSignupAsync({community, intake, noHtml: true});
+            // console.log('confirmed');
+            navigation.reset({index: 1, routes: [{name: 'home'}, {name: 'community', params: {community}}]});        
+        } else {
+            setInProgress(false);
+            setError(result.message);
+        }
+    }
+
+    return (
+        <ScreenContentScroll>
+            <View style={styles.hbox}>
+                <View style={[styles.contentCard,{marginTop: 32, marginHorizontal: 8, opacity: inProgress ? 0.5 : null}]}>
+                    {error ? 
+                        <ValidationWarning>{error}</ValidationWarning>
+                    : null}
+                    <View style={{paddingVertical: 10, borderBottomColor: '#ddd', borderBottomWidth: 1}}>
+                        <Text style={{fontWeight: '500', fontSize: 16, textAlign: 'center'}}>Enter your 6-digit security code</Text>
+                    </View>
+                    <View style={{paddingVertical: 10, paddingHorizontal: 16}}>
+                        <Text style={{color: '#666', textAlign: 'center'}}>
+                            We just sent a 6-digit security code to {email}. Please enter it below to confirm that you
+                            are the owner of this email address.
+                        </Text>
+                    </View>
+                    <View style={styles.horizBox}>
+                        <FormInput part='code' 
+                            placeholder='- - - - - -' style={styles.codeBox}
+                            keyboardType='number-pad'
+                            value={code}
+                            textAlign = 'center'
+                            onChangeText={setCode}/>
+                    </View>
+                    <WideButton part='submit' progressText='Signing In...' 
+                    onPress={onConfirm} disabled={inProgress}>
+                        Confirm Sign Up
+                    </WideButton>
+                </View>
+            </View>
+            <FixedTouchable part='goback' onPress={onBack}>
+                <View style={styles.hbox}>
+                    <View style={{backgroundColor:'white', padding: 16, marginTop: 32, flex: 1, maxWidth: 400}}>
+                        <Text>{"Didn't"} get an email or entered the wrong email?
+                            <Text style={{fontWeight:'bold', color: baseColor}}> Go back</Text>
+                        </Text>
+                    </View>
+                </View>
+            </FixedTouchable>
+        </ScreenContentScroll>
+    )
+}
+
 
 function ConfirmScreen({community, email}) {
     const [info, setInfo] = useState(null);
@@ -245,9 +310,19 @@ export function IntakeScreen({community:paramCommunity, route}) {
     const [photoData, setPhotoData] = useState(null);
     const [thumbData, setThumbData] = useState(null);
     const [inProgress, setInProgress] = useState(false);
-    const [confirmed, setConfirmed] = useState(false);
+    const [confirmEmail, setConfirmEmail] = useState(false);
     const [logKey, setLogKey] = useState(null);
+    const [error, setError] = useState(null);
+    const [intake, setIntake] = useState(null);
     const photoKey = useDatabase([getCurrentUser()], ['userPrivate', getCurrentUser(), 'photo']);
+    const navigation = useCustomNavigation();
+    const confirmed = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community, 'confirmed'], null);
+
+    useEffect(() => {
+        if (confirmed) {
+            navigation.replace('community', {community});
+        }
+    }, [confirmed])
 
     useEffect(() => {
         var x = {};
@@ -304,21 +379,34 @@ export function IntakeScreen({community:paramCommunity, route}) {
 
     async function onSubmit() {
         const name = answers[name_label];
-        const email = answers[email_label];
+        const email = answers[email_label].toLowerCase().trim();
         setInProgress(true);
         logIntakeAsync({community, logKey, stage:'submit'});
         const yesTopics = _.mapValues(selectedTopics, v => 'yes');
-        await submitCommunityFormAsync({community, logKey, photoData, photoKey, thumbData, name, email, answers, topics:yesTopics});
+        const {intakeKey} = await submitCommunityFormAsync({community, sendEmail: false, logKey, photoData, photoKey, thumbData, name, email, answers, topics:yesTopics});
+        setIntake(intakeKey);
         logIntakeAsync({community, logKey, stage:'received'});
-        setConfirmed(true);
+        if (getCurrentUser()) {
+            navigation.replace('community', {community});
+        } else {
+            const data = await requestLoginCode({email});
+            if (data.success != true) {
+                setError(data.message);
+                setInProgress(false);
+            } else {
+                setConfirmEmail(true);
+                setInProgress(false);
+            }
+        }
     }
 
     // console.log('stuff', answers, answers.email, answers.name, photoData);
 
     // return <ConfirmScreen community={community} email='hello@world.com' />
 
-    if (confirmed) {
-        return <ConfirmScreen community={community} email={answers[email_label]} />
+    if (confirmEmail) {
+        return <ConfirmEmailScreen community={community} intake={intake} 
+                    email={answers[email_label]} onBack={() => setConfirmEmail(false)}/>
     }
 
     const validEmail = valid[email_label] || getCurrentUser();
@@ -355,21 +443,19 @@ export function IntakeScreen({community:paramCommunity, route}) {
                     onChangeAnswer={answer => setAnswers({...answers, [textToKey(q.question)]: answer})} 
                 />
             )}
-            <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
+            {/* <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
             <View style={{margin: 16}}>
                 <Text style={{fontSize: 18, marginBottom: 4, fontWeight: 'bold'}}>What Topics would you like to Discuss?</Text>
                 <Text style={{color: '#666'}}>Choosing more topics increases the chance of a good match.</Text>
             </View>
-            {/* <ScrollView style={{marginHorizontal: 16, borderRadius: 16, paddingVertical: 8, maxHeight: 500, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}}>  */}
-                {shownTopicKeys.map(topicKey =>
-                    <Topic key={topicKey} topic={topics[topicKey]}
-                        selected={selectedTopics[topicKey]}
-                        onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
-                    />
-                )}
-            {/* </ScrollView> */}
+            {shownTopicKeys.map(topicKey =>
+                <Topic key={topicKey} topic={topics[topicKey]}
+                    selected={selectedTopics[topicKey]}
+                    onChangeSelected={selected => setSelectedTopics({...selectedTopics, [topicKey]: selected})}
+                />
+            )} */}
             <View style={{borderTopColor: '#ddd', marginHorizontal: 0, marginBottom: 16, marginTop: 32, borderTopWidth: StyleSheet.hairlineWidth}} />
-            <WideButton style={{alignSelf: 'flex-start'}} onPress={onSubmit} disabled={!validEmail || !validName || inProgress || topicCount < 1}>
+            <WideButton style={{alignSelf: 'flex-start'}} alwaysActive onPress={onSubmit} disabled={!validEmail || !validName || inProgress}>
                 {inProgress ? 'Submitting...' : 'Submit'}
             </WideButton>
             {validEmail ? null : 
@@ -378,15 +464,130 @@ export function IntakeScreen({community:paramCommunity, route}) {
             {validName ? null : 
                 <ValidationWarning>Valid name required</ValidationWarning>
             }
+            {error ? 
+                <ValidationWarning>{error}</ValidationWarning>
+            : null}
             {/* {thumbData || photoKey ? null :
                 <ValidationWarning>Profile photo required</ValidationWarning>                
             } */}
-            {topicCount >= 1 ? null :
+            {/* {topicCount >= 1 ? null :
                 <ValidationWarning>You must select at least one topic</ValidationWarning>                
-            }
+            } */}
             <IrisHelp/>
 
 
         </ScreenContentScroll>
     )
 }
+
+
+const styles = StyleSheet.create({
+    loadingMessage: {
+      fontSize: 16,
+    },
+    loggingInScreen: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      flex: 1
+    },
+    horizBox: {
+      flexDirection: 'row',
+      justifyContent: 'space-around'
+    },
+    codeInput: {
+      padding: 8,
+      margin: 8,
+      fontSize: 30,
+      backgroundColor: 'white',
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 24,
+      flex: 1
+    },
+    textInput: {
+      padding: 8,
+      margin: 8,
+      backgroundColor: 'white',
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 12,
+      flex: 1
+    },
+  
+    codeBox: {
+      backgroundColor: 'white',
+      padding: 8,
+      width: 150,
+      borderColor: '#ddd',
+      borderRadius: 8,
+      borderWidth: 1,
+      margin: 4,
+      textAlign: 'center',
+      // flex: 1,
+      marginHorizontal: 16,
+      fontSize: 30
+    },
+  
+    textBox: {
+      backgroundColor: 'white',
+      padding: 8,
+      borderColor: '#ddd',
+      borderRadius: 8,
+      borderWidth: 1,
+      margin: 4,
+      flex: 1,
+      marginHorizontal: 16
+    },
+  
+    error: {
+      backgroundColor: 'hsl(60,100%,90%)',
+      padding: 16,
+      marginTop: 32
+    },
+  
+    screen: {
+      flex: 1,
+      backgroundColor: 'rgb(230, 236, 240)',
+    },
+    hbox: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    switchCard: {
+      marginTop: 32,
+    },
+    contentCard: {
+      maxWidth: 400,
+      backgroundColor: 'white',
+      borderColor: '#eee',
+      borderWidth: StyleSheet.hairlineWidth,
+      marginTop: 10,
+      flex: 1,
+      // padding: 16,
+      // alignItems: 'center'
+    },
+    productLogo: {
+      // width: 36,
+      // height: 32,
+      width: 54,
+      height: 48,
+      marginRight: 10,
+      marginLeft: 8,
+    },
+    productLogoSmall: {
+      // width: 36,
+      // height: 32,
+      width: 54,
+      height: 48,
+      marginRight: 10,
+      marginLeft: 8,
+    },
+  
+    googleButton: {
+      width: 191,
+      height: 46,
+      marginRight: 8,
+      marginLeft: 8,
+    }
+  })

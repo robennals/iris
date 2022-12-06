@@ -102,7 +102,11 @@ exports.api = functions.https.onRequest((async (request, response) => {
     await pNotifs;
     // await pNotifData;
     await pUpdate;
-    await pEmail;
+    try {
+        await pEmail;
+    } catch (e) {
+        console.error('Error sending email', e);
+    }
 
     if (result.redirect) {
         var port = '';
@@ -128,7 +132,7 @@ exports.api = functions.https.onRequest((async (request, response) => {
                 response.setHeader('content-type', 'text/tab-separated-values');
                 response.send(result.tsvData);
             } else {
-                response.send(JSON.stringify(result))
+                response.send(JSON.stringify({...result, updates: null, emails: null, notifs: null}))
             }
         })
     }

@@ -521,7 +521,7 @@ async function createOrUpdateCommunityAsync({community, photoKey, photoUser, pho
 }
 exports.createOrUpdateCommunityAsync = createOrUpdateCommunityAsync;
 
-async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, answers, selectedTopics=null, topics=null, userId}) {
+async function submitCommunityFormAsync({community, logKey, photoData, thumbData, name, email, sendEmail=true, answers, selectedTopics=null, topics=null, userId}) {
     console.log('submit communityForm', {userId, community, name, email, answers, selectedTopics, topics});
 
     var uid = userId;
@@ -598,7 +598,7 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     }
 
     var emails = [];
-    if (!userId) {
+    if (!userId && sendEmail) {
         const {HtmlBody, TextBody} = Email.renderEmail('confirm', {
             name, communityName, community, intakeKey: key
         })
@@ -615,27 +615,23 @@ async function submitCommunityFormAsync({community, logKey, photoData, thumbData
     // console.log('updates', updates);
     // return {success: true}
 
-    return {success: true, updates, emails}
+    return {success: true, updates, emails, data: {intakeKey: key}}
 }
 exports.submitCommunityFormAsync = submitCommunityFormAsync;
 
 
-async function confirmSignupAsync({community, intake}) {
+async function confirmSignupAsync({community, intake, noHtml=false}) {
     const communityName = await FBUtil.getDataAsync(['community', community, 'name']);
     const intakeItem = await FBUtil.getDataAsync(['intake/' + community + '/' + intake], null);
  
     const uid = intakeItem.user;
-    const commMember = await FBUtil.getDataAsync(['commMember/' + community + '/' + uid], null);
-    const commTopics = await FBUtil.getDataAsync(['topic', community]);
 
     if (!intakeItem || !uid) {
         return {success: 'false', message: 'malformed request'};
     }
 
-    const topic = intakeItem.topics || oldTopicsToNew(commTopics, intakeItem.selectedTopics);
+    const topic = intakeItem.topics || null;
 
-    const template = FS.readFileSync('template/confirmsuccess.html').toString();
-    const html = Mustache.render(template, {communityName});
 
     const time = Date.now();
     var updates = {};
@@ -651,7 +647,14 @@ async function confirmSignupAsync({community, intake}) {
         updates['/logs/intake/'+ community + '/' + intakeItem.logKey + '/confirmed'] = true;
     }
 
-    return {success: true, updates, html};
+    if (noHtml) {
+        return {success: true, updates};
+    } else {
+        const template = FS.readFileSync('template/confirmsuccess.html').toString();
+        const html = Mustache.render(template, {communityName});
+    
+        return {success: true, updates, html};
+    }
 }
 
 exports.confirmSignupAsync = confirmSignupAsync;

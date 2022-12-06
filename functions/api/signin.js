@@ -64,14 +64,19 @@ async function requestLoginCode({email, createUser}) {
 
   console.log('sending mail to ', email);
 
-  await Email.sendEmail({
-    To: email,
-    From: 'Iris Login <login@iris-talk.com>',
-    Subject: 'Login code for Iris',
-    HtmlBody: htmlOutput,
-    TextBody: textOutput
-  })
-  return {success: true, message: 'Login code sent to ' + email};
+  try {
+    await Email.sendEmail({
+      To: email,
+      From: 'Iris Login <login@iris-talk.com>',
+      Subject: 'Login code for Iris',
+      HtmlBody: htmlOutput,
+      TextBody: textOutput
+    })
+    return {success: true, message: 'Login code sent to ' + email};
+  } catch (e) {
+    console.error('Cannot send email:', e);
+    return {success: false, message: 'Invalid email address: ' + email};
+  }
 }
 
 
@@ -89,7 +94,9 @@ async function getLoginTokenForCode({email, code}) {
 
   const userEmails = await FBUtil.getDataAsync(['special','userEmail']);
   const uid = _.findKey(userEmails, userEmail => normStr(userEmail) == normStr(email))
+  const pAccessKey = await FBUtil.getDataAsync(['userPrivate', uid, 'accessKey']);
   const lastPIN = await FBUtil.getDataAsync(['special','loginPIN',uid]);
+  const accessKey = await pAccessKey;
 
   console.log({uid, lastPIN});
 
@@ -114,7 +121,7 @@ async function getLoginTokenForCode({email, code}) {
     const token = await FBUtil.createLoginToken(uid);
     await FBUtil.deleteItemAsync(['special','loginPIN',uid]);
     console.log('success');
-    return {success: true, token};
+    return {success: true, token, userId: uid, accessKey};
   } catch (e) {
     console.log('error in token generation:', e.message);
     return {success: 'false', message: e.message};
