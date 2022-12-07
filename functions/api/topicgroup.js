@@ -68,7 +68,7 @@ async function askToJoinGroupAsync({community, topic, host, text, userId}) {
             [host]: {name: hostName, photo: hostPhoto}
         }
         const groupInfo = {
-            name: topicInfo.name, member,
+            name: topicInfo.name, member, host,
             community, topic, privateName: hostName,
         }
         updates['group/' + group] = groupInfo;

@@ -71,6 +71,30 @@ export function ChatScreenHeader({navigation, route}) {
     )
 }
 
+function JoinRequestBanner({community, topic, group}){
+    const joinRequests = useDatabase([community, topic], ['userPrivate', getCurrentUser(), 'askToJoin', topic]);
+    const pendingJoinKeys = _.filter(_.keys(joinRequests), k => !joinRequests[k].state);
+    const navigation = useCustomNavigation();
+    if (pendingJoinKeys.length > 0) {
+        const names = andFormatStrings(_.map(pendingJoinKeys, k => joinRequests[k].name));
+        return (
+            <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
+                <View style={{flexDirection: 'row', alignItems: 'center', padding: 8, 
+                        borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth,
+                        backgroundColor: '#e5f3ff'}}>
+                    {pendingJoinKeys.map(k => 
+                        <MemberPhotoIcon key={k} user={k} photoKey={joinRequests[k].photo} name={joinRequests[k].name} size={32} />
+                    )}
+                    <Text style={{marginLeft: 8, flexShrink: 1}}><Text style={{fontWeight: 'bold'}}>{names}</Text> asked to join</Text>
+                </View>
+            </FixedTouchable>
+        )
+    } else {
+        return null;
+    }
+    return <Text>Join Banner</Text>
+}
+
 
 function NewMessageTracker({group}) {
     const [groups, setGroups] = useState({});
@@ -144,6 +168,8 @@ export function ChatScreen({navigation, route}) {
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const groupName = useDatabase([group], ['group', group, 'name']);
+    const host = useDatabase([group], ['group', group, 'host'], null);
+    const topic = useDatabase([group], ['group', group, 'topic'], null);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const timeOut = useDatabase([], ['userPrivate', getCurrentUser(), 'timeOut'], 0);
     const [reply, setReply] = useState(null);
@@ -209,6 +235,9 @@ export function ChatScreen({navigation, route}) {
                 <ArchivedBanner />
             :null}
             <NewMessageTracker group={group} />
+            {host == getCurrentUser() ?
+                <JoinRequestBanner community={community} topic={topic} group={group} />
+            : null}
           </Catcher>
           <View style={{backgroundColor: 'white', flex: 1}}>
             {/* <PhotoPopup />             */}
