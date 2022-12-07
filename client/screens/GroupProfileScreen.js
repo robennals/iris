@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { FixedTouchable, FormInput, FormTitle, memberKeysToHues, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
-import { getCurrentUser, internalReleaseWatchers, isMasterUser, useDatabase, watchData } from '../data/fbutil';
+import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
-import { adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
+import { acceptJoinRequestAsync, adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
 import { CommunityPhotoIcon, GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync, useCustomNavigation } from '../components/shim';
 import { Catcher } from '../components/catcher';
@@ -15,7 +15,7 @@ import { baseColor } from '../data/config';
 function BioAnswers({answers, bioQuestions}) {
     if (!bioQuestions || !answers) return null;
     const goodQuestions = bioQuestions.map(q => q.question).filter(q => !shouldIgnoreQuestion(q));
-    const sortedAnswers = goodQuestions.map(q => answers[textToKey(q)]);
+    const sortedAnswers = _.filter(goodQuestions.map(q => answers[textToKey(q)]), x => x);
     const joinedAnswers = _.join(sortedAnswers, ', ');
     return <Text style={{color: '#666'}} numberOfLines={1}>{joinedAnswers}</Text>
 }
@@ -26,11 +26,11 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
     return (
         <View style={{flexDirection: 'row', minHeight: 150}}>
             <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: userId})} >
-                <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={128} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+                <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={64} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
             </FixedTouchable>
             <View style={{marginTop: 0, marginLeft: 16, flex: 1}}>
                 <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: userId})} >
-                    <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 0}}>{member.name}</Text>
+                    <Text style={{fontSize: 15, fontWeight: '600', marginBottom: 0}}>{member.name}</Text>
                     {member.bio ? 
                         <Text style={{color: '#666'}}>{member.bio}</Text>
                     : 
@@ -39,19 +39,56 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
                         </Catcher>
                     }
                 </FixedTouchable>
-                {viewpoint ? 
+                {/* {viewpoint ? 
                     <FixedTouchable onPress={() => navigation.navigate('viewpoint', {community, group, topic, user:userId})}>
                         <View style={{marginTop: 4, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Text numberOfLines={2}>{viewpoint.text}</Text>
                             <Text style={{marginTop: 4, color: baseColor, fontSize: 12}}>Read Viewpoint...</Text>
                         </View>
                     </FixedTouchable>
-                : null}
-                <FollowAvoid user={userId} style={{marginTop: 16}}/>
+                : null} */}
+                <FollowAvoid user={userId} style={{marginTop: 8}}/>
             </View>
         </View>
     )
 }
+
+
+function JoinRequest({user, joinRequest, community, topic}) {
+    const [inProgress, setInProgress] = useState(false);
+
+    function onIgnore() {
+        setDataAsync(['userPrivate', getCurrentUser(), 'askToJoin', topic, user, 'state'], 'rejected');
+    }
+
+    async function onAccept() {
+        await acceptJoinRequestAsync({community, topic, user});
+    }
+
+    return (
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <MemberPhotoIcon user={user} photoKey={joinRequest.photo} name={joinRequest.name} size={64} />
+            <View style={{marginLeft: 16}}>
+                <Text style={{fontWeight: 'bold', marginBottom: 1}}>{joinRequest.name}</Text>
+                <Text style={{color: '#666'}}>{joinRequest.text}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 8}}>
+                    <FixedTouchable onPress={onAccept}>
+                        <View style={{borderColor: baseColor, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 16}}>
+                            <Text style={{color: baseColor}}>Accept</Text>
+                        </View>
+                    </FixedTouchable>
+                    <FixedTouchable onPress={onIgnore}>
+                        <View>
+                            <Text style={{color: '#666', marginHorizontal: 16}}>Ignore</Text>
+                        </View>
+                    </FixedTouchable>
+                </View>
+            </View>
+            
+        </View>
+    )
+}
+
 
 export function GroupProfileScreen({navigation, route}) {
     const {group} = route.params;
@@ -61,11 +98,18 @@ export function GroupProfileScreen({navigation, route}) {
     const [community, setCommunity] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
+    const host = useDatabase([group], ['group', group, 'host'], null);
     const published = useDatabase([community, topic], ['published', community, topic]);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const viewpoints = useDatabase([community, topic], ['viewpoint', community, topic], {});
+    const askToJoin = useDatabase([topic], ['userPrivate', getCurrentUser(), 'askToJoin', topic]);
 
     const publishedCount = _.keys(published || {}).length || '';
+
+    const askToJoinKeys = _.keys(askToJoin);
+    const pendingJoinKeys = _.filter(askToJoinKeys, k => !askToJoin[k].state);
+    const rejectedJoinKeys = _.filter(askToJoinKeys, k => askToJoin[k].state == 'rejected');
+    const isHost = host == getCurrentUser();
 
     console.log('archived', archived);
     console.log('published', published);
@@ -141,12 +185,31 @@ export function GroupProfileScreen({navigation, route}) {
                 :null}
             </View>
 
-            <Text style={{fontSize: 24, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
+            {isHost && pendingJoinKeys.length > 0 ?
+                <View>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>New Join Requests</Text>
+                    {pendingJoinKeys.map(k => 
+                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
+                    )}
+                </View>
+            : null}
+
+            <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
                 <MemberPreview key={m} topic={topic} group={group} viewpoint={viewpoints[m]} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
+            {isHost && rejectedJoinKeys.length > 0 ?
+                <View>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Rejected Join Requests</Text>
+                    {rejectedJoinKeys.map(k => 
+                        <JoinRequest keys={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
+                    )}
+                </View>
+            : null}
+
+            
 
             <View style={{marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd' }} />
 
