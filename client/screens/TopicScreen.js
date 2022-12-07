@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
 import { Action, andFormatStrings, FixedTouchable, memberKeysToHues, MyViewpointPreview, name_label, ScreenContentScroll, ViewpointActions, WideButton } from '../components/basics';
@@ -9,10 +9,11 @@ import { LinkText } from '../components/linktext';
 import { formatMessageTime, formatSummaryTime, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
+import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { Loading } from '../components/loading';
 import { useCustomNavigation } from '../components/shim';
 import { Help, HelpText } from '../components/help';
-import { editTopicAsync } from '../data/servercall';
+import { askToJoinAsync, editTopicAsync } from '../data/servercall';
 
 
 const lightShadowStyle = {
@@ -43,7 +44,64 @@ export function TopicScreenHeader({navigation, route}) {
     )
 }
 
-function TopicGroupPreview({topicGroup, topicGroupKey, community, topicKey}) {
+function AskToJoin({community, topicKey, topicGroupKey}) {
+    const [expanded, setExpanded] = useState(false);
+    const [text, setText] = useState('');
+    const [inProgress, setInProgress] = useState(false);
+    
+    async function onSubmit(){
+        setInProgress(true);
+        await askToJoinAsync({community, topic: topicKey, host: topicGroupKey, text}); 
+    }
+    
+    if (expanded) {
+        return (
+            <View>
+                <View style={{borderRadius: 16, borderColor: '#ddd', marginBottom: 4,  
+                borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 16}}>
+                    <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 16}}
+                        placeholder='Write a message to the host'
+                        placeholderTextColor='#999'
+                        value={text}
+                        multiline                    
+                        onChangeText={setText}
+                    />
+                </View>
+                {inProgress ? 
+                    <Text style={{color: '#666', alignSelf: 'flex-end', marginRight: 16}}>Submitting...</Text>
+                : 
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center'}}>
+                        <FixedTouchable onPress={() => setExpanded(false)}>
+                            <Text style={{color: '#666', marginRight: 16}}>Cancel</Text>
+                        </FixedTouchable>
+                        <FixedTouchable onPress={onSubmit}>
+                            <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-end'}}>
+                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Ask to Join</Text>
+                            </View>
+                        </FixedTouchable>
+                    </View>
+                }
+            </View>
+
+        )
+    } else {
+        return (
+            <FixedTouchable onPress={() => setExpanded(true)}>
+                <View style={{flexDirection: 'row', alignItems: 'center', borderRadius: 16, borderColor: '#ddd', 
+                        borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 16}}>
+                    <Text style={{flex: 1, marginHorizontal: 8, color: '#999'}}>
+                        Write a message to the host
+                    </Text>
+                    <View style={{backgroundColor: baseColor, borderRadius: 16}}>
+                        <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Ask to Join</Text>
+                    </View>
+                </View>
+            </FixedTouchable>
+        )
+    }
+}
+
+function TopicGroupPreview({topicGroup, topicGroupKey, community, topicKey, youAsked}) {
     const canEdit = topicGroupKey == getCurrentUser();
     const navigation = useCustomNavigation();
 
@@ -63,12 +121,16 @@ function TopicGroupPreview({topicGroup, topicGroupKey, community, topicKey}) {
                 :null}
             </View>
             <Text style={{marginTop: 8, color: '#666'}} numberOfLines={8}>{topicGroup.text}</Text>
+            {youAsked ? 
+                <Text style={{fontWeight: 'bold'}}>You asked to join</Text>
+            :
+                <AskToJoin community={community} topicKey={topicKey} topicGroupKey={topicGroupKey}/>
+            }
         </View>
     )
-    return <Text>Topic Group Preview</Text>
 }
 
-function TopicGroups({community, topicGroups, topic, topicKey}) {
+function TopicGroups({community, topicGroups, topic, topicKey, youAsked}) {
     const groupKeys = _.keys(topicGroups || {});
     const sortedGroupKeys = _.sortBy(groupKeys, k => topicGroups[k].time).reverse();
     const navigation = useCustomNavigation();
@@ -77,7 +139,9 @@ function TopicGroups({community, topicGroups, topic, topicKey}) {
         <View style={{borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#ddd', maxWidth: 450, flex: 1}}>
             <Text style={{fontSize: 15, fontWeight: 'bold', marginTop: 16, marginBottom: 4}}>Conversations</Text>
             {sortedGroupKeys.map(k => 
-                <TopicGroupPreview key={k} topicGroup={topicGroups[k]} topicGroupKey={k} community={community} topicKey={topicKey} />
+                <TopicGroupPreview key={k} topicGroup={topicGroups[k]} topicGroupKey={k} 
+                    community={community} topicKey={topicKey} 
+                    youAsked={youAsked[k]} />
             )}
             {!topicGroups[getCurrentUser()] ?
                 <WideButton alwaysActive onPress={() => navigation.navigate('myTopicGroup', {community, topic:topicKey})}>Create Conversation</WideButton>
@@ -146,19 +210,22 @@ export function TopicScreen({navigation, route}) {
     const {community, topic: topicKey} = route.params;
     const topic = useDatabase([community, topicKey], ['topic', community, topicKey]);
     const topicGroups = useDatabase([topicKey], ['topicGroup', community, topicKey]);
+    const youAsked = useDatabase([community, topicKey], ['userPrivate', getCurrentUser(), 'youAsked', community, topic]);
 
-    if (!topic || !topicGroups) return <Loading/>
+    if (!topic || !topicGroups || !youAsked) return <Loading/>
 
     console.log('topic', community, topic, topic);
 
     return (
-        <ScreenContentScroll>
-            <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
-                <View style={{maxWidth: 450, flex: 1}}>
-                    <Topic topicKey={topicKey} topic={topic} community={community} />
-                    <TopicGroups topicGroups={topicGroups} topicKey={topicKey} topic={topic} community={community} />
+        <KeyboardSafeView>
+            <ScreenContentScroll>
+                <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
+                    <View style={{maxWidth: 450, flex: 1}}>
+                        <Topic topicKey={topicKey} topic={topic} community={community} />
+                        <TopicGroups topicGroups={topicGroups} topicKey={topicKey} topic={topic} community={community} youAsked={youAsked}/>
+                    </View>
                 </View>
-            </View>
-        </ScreenContentScroll>
+            </ScreenContentScroll>
+        </KeyboardSafeView>
     )
 }

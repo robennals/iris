@@ -261,6 +261,11 @@ export async function saveTopicGroupAsync({community, topic, text}) {
     return await callServerApiAsync('saveTopicGroup', {community, topic, text});
 }
 
+export async function askToJoinAsync({community, topic, host, text}) {
+    return await callServerApiAsync('askToJoinGroup', {community, topic, text, host});
+}
+
+
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {
         return await callServerApiAsync('logError', {error, stack, context});

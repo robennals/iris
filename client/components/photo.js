@@ -92,8 +92,13 @@ function MiniMemberPhoto({members, hue, user, style, size}) {
 }
 
 export function GroupMultiIcon({members, size = 40}) {
-  const notMeMemberKeys = _.filter(Object.keys(members), k => !shouldIgnoreMember(k));
-  if (notMeMemberKeys.length == 1) {
+  const memberKeys = Object.keys(members);
+  const notMeMemberKeys = _.filter(memberKeys, k => !shouldIgnoreMember(k));
+  if (memberKeys.length == 1 && notMeMemberKeys.length == 0) {
+    return (
+      <View style={{width: size, height: size, borderRadius: size/2, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
+    )
+  } else if (notMeMemberKeys.length == 1) {
     return <MiniMemberPhoto members={members} user={notMeMemberKeys[0]} size={size} />
   } else if (notMeMemberKeys.length == 2) {
     return (

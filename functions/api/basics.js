@@ -12,6 +12,11 @@ exports.dayMillis = dayMillis;
 exports.weekMillis = weekMillis;
 
 
+const name_label = 'Full Name';
+const email_label = 'Email Address';
+
+exports.name_label = name_label;
+exports.email_label = email_label;
 
 function normStr(str) {
     return str.toLowerCase().trim();
