@@ -265,6 +265,10 @@ export async function askToJoinAsync({community, topic, host, text}) {
     return await callServerApiAsync('askToJoinGroup', {community, topic, text, host});
 }
 
+export async function acceptJoinRequestAsync({community, topic, user}) {
+    return await callServerApiAsync('acceptJoinRequest', {community, topic, user});
+}
+
 
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {

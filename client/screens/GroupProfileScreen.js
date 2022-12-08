@@ -24,7 +24,7 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
     const member=members[userId];
     const navigation = useCustomNavigation();
     return (
-        <View style={{flexDirection: 'row', minHeight: 150}}>
+        <View style={{flexDirection: 'row', marginBottom: 32}}>
             <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: userId})} >
                 <MemberPhotoIcon hue={hue} photoKey={member.photo} name={member.name} user={userId} thumb={false} size={64} style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
             </FixedTouchable>
@@ -47,42 +47,52 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
                         </View>
                     </FixedTouchable>
                 : null} */}
-                <FollowAvoid user={userId} style={{marginTop: 8}}/>
+                <FollowAvoid user={userId} style={{marginTop: 4}}/>
             </View>
         </View>
     )
 }
 
 
-function JoinRequest({user, joinRequest, community, topic}) {
+function JoinRequest({user, joinRequest, community, topic, showIgnore=false}) {
     const [inProgress, setInProgress] = useState(false);
+    const navigation = useCustomNavigation();
 
     function onIgnore() {
         setDataAsync(['userPrivate', getCurrentUser(), 'askToJoin', topic, user, 'state'], 'rejected');
     }
 
     async function onAccept() {
-        await acceptJoinRequestAsync({community, topic, user});
+        setInProgress(true);
+        await acceptJoinRequestAsync({community, topic, user});        
     }
 
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <MemberPhotoIcon user={user} photoKey={joinRequest.photo} name={joinRequest.name} size={64} />
+            <FixedTouchable onPress={() => navigation.navigate('profile', {community, member:user})}>
+                <MemberPhotoIcon user={user} photoKey={joinRequest.photo} name={joinRequest.name} size={64} />
+            </FixedTouchable>
             <View style={{marginLeft: 16}}>
                 <Text style={{fontWeight: 'bold', marginBottom: 1}}>{joinRequest.name}</Text>
                 <Text style={{color: '#666'}}>{joinRequest.text}</Text>
-                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 8}}>
-                    <FixedTouchable onPress={onAccept}>
-                        <View style={{borderColor: baseColor, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 16}}>
-                            <Text style={{color: baseColor}}>Accept</Text>
-                        </View>
-                    </FixedTouchable>
-                    <FixedTouchable onPress={onIgnore}>
-                        <View>
-                            <Text style={{color: '#666', marginHorizontal: 16}}>Ignore</Text>
-                        </View>
-                    </FixedTouchable>
-                </View>
+                {!inProgress ? 
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 8}}>
+                        <FixedTouchable onPress={onAccept}>
+                            <View style={{borderColor: baseColor, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 16}}>
+                                <Text style={{color: baseColor}}>Accept</Text>
+                            </View>
+                        </FixedTouchable>
+                        {showIgnore ? 
+                            <FixedTouchable onPress={onIgnore}>
+                                <View>
+                                    <Text style={{color: '#666', marginHorizontal: 16}}>Ignore</Text>
+                                </View>
+                            </FixedTouchable>
+                        : null}
+                    </View>
+                :
+                        <Text style={{color: '#666', marginVertical: 8}}>Accepting Request...</Text>
+                }
             </View>
             
         </View>
@@ -167,12 +177,10 @@ export function GroupProfileScreen({navigation, route}) {
                         </View>
                     </FixedTouchable>
                 : null}
-                <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 4}}>{name}</Text>
+                <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic})}>
+                    <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 4}}>{name}</Text>
+                </FixedTouchable>
             </View>
-
-            <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
-                <Text style={{color: '#666'}}>View {publishedCount}{publishedCount ? ' ' : ''}{publishedCount && publishedCount == 1 ? 'viewpoint' : 'viewpoints'}</Text>
-            </FixedTouchable>
 
             <View>
                 {filteredQuestions ? 
@@ -189,7 +197,7 @@ export function GroupProfileScreen({navigation, route}) {
                 <View>
                     <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>New Join Requests</Text>
                     {pendingJoinKeys.map(k => 
-                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
+                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} showIgnore />
                     )}
                 </View>
             : null}
@@ -202,9 +210,9 @@ export function GroupProfileScreen({navigation, route}) {
 
             {isHost && rejectedJoinKeys.length > 0 ?
                 <View>
-                    <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Rejected Join Requests</Text>
+                    <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Ignored Join Requests</Text>
                     {rejectedJoinKeys.map(k => 
-                        <JoinRequest keys={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
+                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
                     )}
                 </View>
             : null}

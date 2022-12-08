@@ -30,7 +30,7 @@ export function FollowAvoid({user, style}) {
                     </View>
                 }
             </FixedTouchable>
-            <View style={{margin: 8}} />
+            {/* <View style={{margin: 8}} />
             <FixedTouchable onPress={() => setUserRelationship('avoid')}>
                 {followAvoid == 'avoid' ? 
                     <View style={[styles.button, styles.avoiding]}>
@@ -42,15 +42,15 @@ export function FollowAvoid({user, style}) {
                     </View>
                 }
 
-            </FixedTouchable>            
+            </FixedTouchable>             */}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     button: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
         borderRadius: 16,
         borderWidth: StyleSheet.hairlineWidth
     },
