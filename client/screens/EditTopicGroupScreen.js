@@ -49,9 +49,9 @@ export function EditTopicGroupScreen({route}) {
 
     return (
         <KeyboardSafeView>
-            <View style={{backgroundColor: 'white', flex: 1}}>
-                <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', 
-                        borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
+            <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
+            <View style={{backgroundColor: 'white', flex: 1, maxWidth: 450}}>
+                <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center'}}>
                     <View />
                     <View style={{flexDirection: 'row'}}>                    
                         {oldTopicGroup && global_saveTopicGroupDrafts[topic] && global_saveTopicGroupDrafts[topic] != oldTopicGroup.text ?
@@ -66,12 +66,13 @@ export function EditTopicGroupScreen({route}) {
                     </View>
                 </View>
                 <TextInput multiline placeholder='Introduce your conversation to others. E.g. what is your current viewpoint. What are open questions. What will the outcome be from this conversation?' 
-                    style={{flex: 1, padding: 8}}
+                    style={{flex: 1, padding: 8, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 4}}
                     value={shownText}
                     textAlignVertical='top'
                     onChangeText={onChangeText}
                 />
                 {/* <View style={{backgroundColor: 'blue', flex: 1}}/> */}
+            </View>
             </View>
         </KeyboardSafeView>
     )

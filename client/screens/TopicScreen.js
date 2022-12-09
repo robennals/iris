@@ -101,6 +101,46 @@ function AskToJoin({community, topicKey, topicGroupKey}) {
     }
 }
 
+
+function GroupJoinWidget({youAsked, topicGroup, topicGroupKey, community, topicKey}) {
+    const navigation = useCustomNavigation();
+    if (topicGroup?.members?.[getCurrentUser()]) {
+        return (
+            <FixedTouchable onPress={() => navigation.navigate('group', {group: topicGroup.group})}>
+                <Text style={{color: '#666', textDecorationLine: 'underline'}}>Go to conversation</Text>
+            </FixedTouchable>
+        )
+    } else if (youAsked) {
+        return <Text style={{fontWeight: 'bold'}}>You asked to join</Text>
+    } else if (topicGroupKey == getCurrentUser()) {
+        return <Text style={{color: '#666', borderTopColor: '#ddd', 
+                    borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
+                    Waiting for join requests
+                </Text>
+    } else {
+        return <AskToJoin community={community} topicKey={topicKey} topicGroupKey={topicGroupKey}/>
+    }
+}
+
+function TopicGroupMembers({topicGroup, topicGroupKey}) {
+    const members = topicGroup.member;
+    if (!members || _.keys(members).length < 2) {
+        return null;
+    }
+    const memberKeys = _.keys(members);
+    const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
+    return (
+        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4, 
+            borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 16}}>
+            {_.map(_.keys(members), m => 
+                <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
+            )}
+            <Text style={{marginLeft: 8, fontSize: 13, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
+        </View>
+    )
+
+}
+
 function TopicGroupPreview({topicGroup, topicGroupKey, community, topicKey, youAsked}) {
     const canEdit = topicGroupKey == getCurrentUser();
     const navigation = useCustomNavigation();
@@ -121,11 +161,16 @@ function TopicGroupPreview({topicGroup, topicGroupKey, community, topicKey, youA
                 :null}
             </View>
             <Text style={{marginTop: 8, color: '#666'}} numberOfLines={8}>{topicGroup.text}</Text>
-            {youAsked ? 
-                <Text style={{fontWeight: 'bold'}}>You asked to join</Text>
+            {/* <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}> */}
+                <TopicGroupMembers topicGroup={topicGroup} topicGroupKey={topicGroupKey} />
+                <GroupJoinWidget youAsked={youAsked} topicGroup={topicGroup} topicGroupKey={topicGroupKey} 
+                    community={community} topicKey={topicKey} />
+            {/* </View> */}
+            {/* {youAsked ? 
+                <Text style={{fontWeight: 'bold', marginTop: 8}}>You asked to join</Text>
             :
                 <AskToJoin community={community} topicKey={topicKey} topicGroupKey={topicGroupKey}/>
-            }
+            } */}
         </View>
     )
 }
@@ -210,11 +255,12 @@ export function TopicScreen({navigation, route}) {
     const {community, topic: topicKey} = route.params;
     const topic = useDatabase([community, topicKey], ['topic', community, topicKey]);
     const topicGroups = useDatabase([topicKey], ['topicGroup', community, topicKey]);
-    const youAsked = useDatabase([community, topicKey], ['userPrivate', getCurrentUser(), 'youAsked', community, topic]);
+    const youAsked = useDatabase([community, topicKey], ['userPrivate', getCurrentUser(), 'youAsked', community, topicKey]);
 
     if (!topic || !topicGroups || !youAsked) return <Loading/>
 
-    console.log('topic', community, topic, topic);
+    // console.log('topic', community, topic, topic);
+    console.log('youAsked', youAsked);
 
     return (
         <KeyboardSafeView>
