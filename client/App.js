@@ -49,6 +49,7 @@ import { WaitingScreen } from './screens/WaitingScreen';
 import { FeedbackScreen } from './screens/FeedbackScreen';
 import { TopicScreen, TopicScreenHeader } from './screens/TopicScreen';
 import { EditTopicGroupScreen, EditTopicGroupScreenHeader } from './screens/EditTopicGroupScreen';
+import { EditPostScreen, EditPostScreenHeader } from './screens/EditPost';
 
 
 Sentry.init({
@@ -79,6 +80,8 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     join: 'join/:community',
     newTopic: 'newTopic/:community',
     editTopic: 'editTopic/:community/:topic',
+    newPost: 'newPost/:community',
+    editPost: 'editPost/:community/:topic',
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
@@ -258,6 +261,8 @@ const screens = {
   join: {component: IntakeScreen, title: 'Join Community'},
   newTopic: {component: EditTopicScreen, title: 'New Topic'},
   editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
+  newPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
+  editTopic: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},

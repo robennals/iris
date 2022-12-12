@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import { FixedTouchable, MinorButton, OneLineText, ScreenContentNoScroll, ToggleCheck, WideButton } from '../components/basics';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { useCustomNavigation } from '../components/shim';
-import { getCurrentUser, useDatabase } from '../data/fbutil';
 import { saveViewpointAsync, sendFeedbackAsync } from '../data/servercall';
 
 export function FeedbackScreen() {

@@ -20,6 +20,7 @@ function normStr(str) {
   }  
 
 const accessDeniedResult = {success: false, message: 'access denied'};
+exports.accessDeniedResult = accessDeniedResult;
 
 const masterUsers = ['msxTO8YflDYNgmixbmC5WbYGihU2', 'N8D5FfWwTxaJK65p8wkq9rJbPCB3', '8Nkk25o9o6bipF81nvGgGE59cXG2', 'K1IzX5mm1hPfqIaKgba7bhyYig73'];
 

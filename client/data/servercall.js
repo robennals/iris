@@ -221,6 +221,11 @@ export async function editTopicAsync({community, topic, name, pinned, summary, q
     return await callServerApiAsync('editTopic', {community, topic, name, pinned, summary, questions});
 }
 
+export async function editPostAsync({community, post, title, text, questions}) {
+    return await callServerApiAsync('editPost', {community, post, title, text, questions});
+}
+
+
 export async function adminGetLoginTokenAsync({email}) {
     return await callServerApiAsync('adminGetLoginToken', {email});
 }

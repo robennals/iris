@@ -1,10 +1,9 @@
 import React from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import _ from 'lodash';
-import { ScrollView } from 'react-native-gesture-handler';
 
 
 export function ModalMenu({items, onSelect, onClose}) {

@@ -76,7 +76,7 @@ function CommunityAdminActions({community}) {
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('communitySignups', {community})}>Signups</SmallMinorButton>
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('communityGroups', {community})}>Groups</SmallMinorButton>
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('join', {community})}>Intake Form</SmallMinorButton>
-            <SmallMinorButton alwaysActive innerStyle={{color:'white'}} style={{borderColor: baseColor, backgroundColor:baseColor}} onPress={() => navigation.navigate('newTopic', {community})}>New Topic</SmallMinorButton>
+            <SmallMinorButton alwaysActive innerStyle={{color:'white'}} style={{borderColor: baseColor, backgroundColor:baseColor}} onPress={() => navigation.navigate('newPost', {community})}>New Post</SmallMinorButton>
         </View>
     )
 }
@@ -226,24 +226,10 @@ export function CommunityScreen({navigation, route}) {
                 <ConnectedBanner />
                 <PhotoPromo />
                 <View style={{backgroundColor: 'white', flex: 1}}>
-                    {/* <SortSelector onModeChanged={onModeChanged} mode={mode} />
-                    {mode == 'topics' ? 
-                        <View style={{flexDirection: 'row'}}>
-                            <NewViewpointsPromo topics={topics} topicRead={topicRead} viewpointRead={viewpointReadTime} onPress={() => onModeChanged('viewpoints')}/>
-                        </View>
-                    : null} */}
-
                     {isMasterUser() && mode == 'topics' ? 
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    {/* {!isMasterUser() ?
-                        <View style={{borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ddd', backgroundColor: 'white'}}>
-                            <WideButton alwaysActive
-                                onPress={() => navigation.navigate('newTopic', {community})} 
-                                style={{alignSelf: 'center', margin: 8}}>{isMaster ? 'New Topic' : 'Suggest Topic'}</WideButton>
-                        </View>
-                    :null} */}
                     <TopicList mode={mode} topics={topics} myViewpoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
                 </View>
             </HeaderSpaceView>
@@ -275,14 +261,14 @@ function TopicList({mode, community, myViewpoints, topics, sortedTopicKeys, comm
             {mode == 'topics' ? 
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
-                        <SearchBox value={search} onChangeText={setSearch} placeholder='Search Topics'
+                        <SearchBox value={search} onChangeText={setSearch} placeholder='Search Posts'
                             style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                             marginHorizontal: 0}} />              
                         {isMasterUser() || search ? null : 
                             <WideButton alwaysActive
-                                onPress={() => navigation.navigate('newTopic', {community})} 
+                                onPress={() => navigation.navigate('newPost', {community})} 
                                 // onPress={() => console.log('community', community)}
-                                style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>Suggest Topic
+                                style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>New Post
                             </WideButton>
                         }
                     </View>
