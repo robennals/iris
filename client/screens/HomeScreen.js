@@ -241,19 +241,17 @@ export class GroupList extends React.PureComponent {
                     <View style={{height: 16}} />
                 : null}
 
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, marginBottom: 8, marginLeft: 16, marginRight: 6}}>
-                    {/* <View style={{flexDirection: 'row'}}>
-                        <MemberIcon name={name} size={32} style={{marginRight: 8}} />
-                        <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Groups</Text>
-                    </View> */}
-                    <Text style={{fontSize: Platform.OS == 'web' ? 24 : 30, fontWeight: 'bold'}}>Conversations</Text>
-                    <FixedTouchable onPress={() => navigation.navigate('myProfile')}>
-                        <MemberPhotoIcon photoKey={photo} name={name} user={getCurrentUser()} size={32} />
-                    </FixedTouchable>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 8, marginHorizontal: 8}}>
+                    <SearchBox value={search} onChangeText={search => this.setState({search})} 
+                        placeholder='Search Conversations'
+                        style={{marginHorizontal: 8, flex: 1}}
+                    />
+                    {search ? null :
+                        <FixedTouchable onPress={() => navigation.navigate('myProfile')}>
+                            <MemberPhotoIcon photoKey={photo} name={name} user={getCurrentUser()} size={32} />
+                        </FixedTouchable>
+                    }
                 </View>
-                <SearchBox value={search} onChangeText={search => this.setState({search})} 
-                    style={{marginHorizontal: 16, marginBottom: 8}}
-                />
                 {groupKeys.length == 0 ? 
                     <Catcher>
                         <FixedTouchable onPress={() => navigation.navigate('waiting')}>
