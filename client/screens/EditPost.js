@@ -14,7 +14,7 @@ export function EditPostScreenHeader({navigation, route}) {
     const communityName = useDatabase([community], ['community', community, 'name']);
     return (
         <View style={{marginHorizontal: 8}}>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>{post ? 'Edit Post' : 'New Post'}</Text>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>{post ? 'Edit Conversation' : 'New Conversation'}</Text>
             <OneLineText style={{fontSize: 12}}>
                 in {communityName}
             </OneLineText>
@@ -69,8 +69,8 @@ export function EditPostScreen({navigation, route}) {
                             </MinorButton>
                         : null}
                         <WideButton alwaysActive disabled={inProgress || !text} onPress={onPost} 
-                            progressText={!text ? null : (oldPost ? 'Updating...' : 'Posting...')}
-                            style={{margin: 8, paddingHorizontal: 4, paddingVertical: 2}}>{oldPost ? 'Update' : 'Post'}</WideButton>            
+                            progressText={!text ? null : (oldPost ? 'Updating...' : 'Creating...')}
+                            style={{margin: 8, paddingHorizontal: 4, paddingVertical: 2}}>{oldPost ? 'Update' : 'Create'}</WideButton>            
                     </View>
                 </View>
                 <View style={{flex: 1, borderColor: '#ddd', margin: 4, borderWidth: StyleSheet.hairlineWidth, borderRadius: 4}}>

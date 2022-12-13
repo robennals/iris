@@ -68,7 +68,7 @@ export function ProfileScreen({navigation, route}) {
                 <View>
                     <FollowAvoid user={member} style={{justifyContent: 'center', marginVertical: 8}} />
                     <Text style={{color: '#666', fontSize: 12, alignSelf: 'center'}}>
-                        Follow {first} to get matched with them more often.
+                        Follow {first} to see more conversations they are in.
                     </Text>
                 </View>
             :null}

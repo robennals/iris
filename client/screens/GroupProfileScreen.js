@@ -54,17 +54,17 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
 }
 
 
-function JoinRequest({user, joinRequest, community, topic, showIgnore=false}) {
+function JoinRequest({user, joinRequest, community, group, showIgnore=false}) {
     const [inProgress, setInProgress] = useState(false);
     const navigation = useCustomNavigation();
 
     function onIgnore() {
-        setDataAsync(['userPrivate', getCurrentUser(), 'askToJoin', topic, user, 'state'], 'rejected');
+        setDataAsync(['userPrivate', getCurrentUser(), 'askToJoinGroup', group, user, 'state'], 'rejected');
     }
 
     async function onAccept() {
         setInProgress(true);
-        await acceptJoinRequestAsync({community, topic, user});        
+        await acceptJoinRequestAsync({community, post:group, user});        
     }
 
     return (
@@ -104,17 +104,13 @@ export function GroupProfileScreen({navigation, route}) {
     const {group} = route.params;
     const [members, setMembers] = useState(null);
     const [name, setName] = useState('');
-    const [questions, setQuestions] = useState('');
     const [community, setCommunity] = useState(null);
     const [communityInfo, setCommunityInfo] = useState(null);
-    const topic = useDatabase([group], ['group', group, 'topic'], null);
     const host = useDatabase([group], ['group', group, 'host'], null);
-    const published = useDatabase([community, topic], ['published', community, topic]);
+    // const published = useDatabase([community, topic], ['published', community, topic]);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
-    const viewpoints = useDatabase([community, topic], ['viewpoint', community, topic], {});
-    const askToJoin = useDatabase([topic], ['userPrivate', getCurrentUser(), 'askToJoin', topic]);
-
-    const publishedCount = _.keys(published || {}).length || '';
+    // const viewpoints = useDatabase([community, topic], ['viewpoint', community, topic], {});
+    const askToJoin = useDatabase([group], ['userPrivate', getCurrentUser(), 'askToJoinGroup', group]);
 
     const askToJoinKeys = _.keys(askToJoin);
     const pendingJoinKeys = _.filter(askToJoinKeys, k => !askToJoin[k].state);
@@ -122,13 +118,14 @@ export function GroupProfileScreen({navigation, route}) {
     const isHost = host == getCurrentUser();
 
     console.log('archived', archived);
-    console.log('published', published);
+    console.log('members', members);
+    console.log('askTojoin', askToJoin);
+    // console.log('published', published);
 
     useEffect(() => {
         var x = {};
         watchData(x, ['group', group, 'name'], setName)
         watchData(x, ['group', group, 'member'], setMembers)
-        watchData(x, ['group', group, 'questions'], setQuestions, '');
         watchData(x, ['group', group, 'community'], setCommunity);
         return () => internalReleaseWatchers(x)
     }, [group]);
@@ -140,7 +137,7 @@ export function GroupProfileScreen({navigation, route}) {
         }
     }, [community]);    
 
-    if (!members || !viewpoints) return <Loading />;
+    if (!members) return <Loading />;
 
     const memberHues = memberKeysToHues(_.keys(members || {}));
 
@@ -177,7 +174,7 @@ export function GroupProfileScreen({navigation, route}) {
                         </View>
                     </FixedTouchable>
                 : null}
-                <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic})}>
+                <FixedTouchable onPress={() => navigation.navigate('post', {community, post:group})}>
                     <Text style={{fontSize: 32, fontWeight: 'bold', marginTop: 4, marginBottom: 4}}>{name}</Text>
                 </FixedTouchable>
             </View>
@@ -197,7 +194,7 @@ export function GroupProfileScreen({navigation, route}) {
                 <View>
                     <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>New Join Requests</Text>
                     {pendingJoinKeys.map(k => 
-                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} showIgnore />
+                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} group={group} showIgnore />
                     )}
                 </View>
             : null}
@@ -205,14 +202,14 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
-                <MemberPreview key={m} topic={topic} group={group} viewpoint={viewpoints[m]} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
+                <MemberPreview key={m} group={group} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
             {isHost && rejectedJoinKeys.length > 0 ?
                 <View>
                     <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Ignored Join Requests</Text>
                     {rejectedJoinKeys.map(k => 
-                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} topic={topic} />
+                        <JoinRequest key={k} user={k} joinRequest={askToJoin[k]} community={community} group={group} />
                     )}
                 </View>
             : null}

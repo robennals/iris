@@ -34,18 +34,18 @@ export class ExpoMixpanelAnalytics {
       os_version: Platform.Version,
     };
 
-    if (Platform.OS == 'web') {
-      try {
-        Network.getIpAddressAsync().then(ipAddress => {
-            Object.assign(this.constants, {
-                '$ip': ipAddress,
-                ip: ipAddress
-            })
-        })
-      } catch (e) {
-        console.log('could not get IP address');
-      }
-    }
+    // if (Platform.OS == 'web') {
+    //   try {
+    //     Network.getIpAddressAsync().then(ipAddress => {
+    //         Object.assign(this.constants, {
+    //             '$ip': ipAddress,
+    //             ip: ipAddress
+    //         })
+    //     })
+    //   } catch (e) {
+    //     console.log('could not get IP address');
+    //   }
+    // }
 
     Constants.getWebViewUserAgentAsync().then((userAgent) => {
       // @ts-ignore

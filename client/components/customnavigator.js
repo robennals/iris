@@ -88,7 +88,7 @@ function ScreenHeader({navigation, screens, screen, params, options, index, wide
     }
     return (
         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
                 {(wide && index < 2) ? <View style={{width: 4, height: 44}} />  :
                     <FixedTouchable onPress={() => navigation.goBack()}>
                         <FontAwesome name='angle-left' size={40} color='#666' style={{paddingHorizontal: 8, height: 44}} />            

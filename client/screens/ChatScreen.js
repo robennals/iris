@@ -50,10 +50,10 @@ export function ChatScreenHeader({navigation, route}) {
     }, [group])
 
     return (
-        <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})}>
+        <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})} style={{alignSelf: 'stretch', flex: 1}}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
                 <GroupSideBySideIcon members={members || {}} size={36} />
-                <View style={{marginLeft: 8}}>
+                <View style={{marginLeft: 8, flex: 1}}>
                     {communityInfo ? 
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             {/* <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text> */}
@@ -61,8 +61,7 @@ export function ChatScreenHeader({navigation, route}) {
                             <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
                         </View>
                     : null}
-
-                    <OneLineText style={{fontSize: 20, fontWeight: 'bold'}}>
+                    <OneLineText style={{fontSize: 20, fontWeight: 'bold', flexShrink: 1}}>
                         {name}
                     </OneLineText>
                 </View>
@@ -71,8 +70,8 @@ export function ChatScreenHeader({navigation, route}) {
     )
 }
 
-function JoinRequestBanner({community, topic, group}){
-    const joinRequests = useDatabase([community, topic], ['userPrivate', getCurrentUser(), 'askToJoin', topic]);
+function JoinRequestBanner({group}){
+    const joinRequests = useDatabase([group], ['userPrivate', getCurrentUser(), 'askToJoinGroup', group]);
     const pendingJoinKeys = _.filter(_.keys(joinRequests), k => !joinRequests[k].state);
     const navigation = useCustomNavigation();
     if (pendingJoinKeys.length > 0) {

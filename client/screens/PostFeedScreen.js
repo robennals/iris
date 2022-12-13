@@ -37,11 +37,12 @@ export function PostFeedScreenHeader({navigation, route}) {
 
 export function PostScreenHeader({navigation, route}) {
     const {community, post} = route.params;
-    const communityName = useDatabase([community], ['community', community, 'name']);
+    const communityName = useDatabase([community], ['community', community, 'name'], '');
+    const postName = useDatabase([community, post], ['post', community, post, 'title'], '');
     return (
-        <View style={{marginHorizontal: 8}}>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>Conversation Post</Text>
-            <OneLineText style={{fontSize: 12}}>
+        <View style={{marginHorizontal: 8, flex: 1}}>
+            <Text numberOfLines={1} style={{flexShrink: 1, fontSize: 16, fontWeight: 'bold'}}>{postName}</Text>
+            <OneLineText style={{fontSize: 12, flexShrink: 1}}>
                 in {communityName}
             </OneLineText>
         </View>
@@ -49,7 +50,8 @@ export function PostScreenHeader({navigation, route}) {
 }
 
 
-function PostGroupMembers({post, postInfo}) {
+function PostGroupMembers({community, post, postInfo}) {
+    const navigation = useCustomNavigation();
     const members = postInfo.member;
     if (!members || _.keys(members).length < 2) {
         return null;
@@ -60,7 +62,9 @@ function PostGroupMembers({post, postInfo}) {
         <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4, 
             borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 16}}>
             {_.map(_.keys(members), m => 
-                <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
+                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: m})}>
+                    <MemberPhotoIcon key={m} user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
+                </FixedTouchable>
             )}
             <Text style={{marginLeft: 8, fontSize: 13, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
         </View>
@@ -71,11 +75,16 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
     const navigation = useCustomNavigation();
     if (postInfo?.member?.[getCurrentUser()]) {
         return (
-            <FixedTouchable onPress={() => navigation.navigate('group', {group: postInfo.group})}>
+            <FixedTouchable onPress={() => navigation.navigate('group', {group: post})}>
                 <Text style={{color: '#666', textDecorationLine: 'underline'}}>Go to conversation</Text>
             </FixedTouchable>
         )
     } else if (youAsked) {
+        return <Text style={{fontWeight: 'bold', borderTopColor: '#ddd', 
+            borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
+                You asked to join
+        </Text>
+
         return <Text style={{fontWeight: 'bold'}}>You asked to join</Text>
     } else if (postInfo.from == getCurrentUser()) {
         return <Text style={{color: '#666', borderTopColor: '#ddd', 
@@ -92,11 +101,10 @@ function AskToJoin({community, post, postInfo}) {
     const [expanded, setExpanded] = useState(false);
     const [text, setText] = useState('');
     const [inProgress, setInProgress] = useState(false);
-    const host = postInfo.from
     
     async function onSubmit(){
         setInProgress(true);
-        await askToJoinAsync({community, post, host: topicGroupKey, text}); 
+        await askToJoinAsync({community, post, text}); 
     }
     
     if (expanded) {
@@ -252,7 +260,7 @@ function Post({community, post, postInfo, readTime, youAsked, expanded}) {
                             <Text style={{color: '#666'}} numberOfLines={4}>{postInfo.text}</Text>
                         }
                     </FixedTouchable>
-                    <PostGroupMembers post={post} postInfo={postInfo} />
+                    <PostGroupMembers community={community} post={post} postInfo={postInfo} />
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>
             </View>

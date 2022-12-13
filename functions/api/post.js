@@ -22,11 +22,10 @@ async function editPostAsync({community, post, title, text, userId}) {
         return accessDeniedResult;
     }
 
-    const group = oldPost?.group ?? FBUtil.newKey();
     const postKey = post ?? FBUtil.newKey();
 
     const postData = {        
-        text, title, group,
+        text, title, 
         from: oldPost?.from || userId,
         fromName: oldPost?.fromName || fromName, 
         fromPhoto: oldPost?.fromPhoto || fromPhoto, 
