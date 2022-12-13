@@ -35,12 +35,16 @@ export class ExpoMixpanelAnalytics {
     };
 
     if (Platform.OS == 'web') {
+      try {
         Network.getIpAddressAsync().then(ipAddress => {
             Object.assign(this.constants, {
                 '$ip': ipAddress,
                 ip: ipAddress
             })
         })
+      } catch (e) {
+        console.log('could not get IP address');
+      }
     }
 
     Constants.getWebViewUserAgentAsync().then((userAgent) => {

@@ -50,7 +50,7 @@ import { FeedbackScreen } from './screens/FeedbackScreen';
 import { TopicScreen, TopicScreenHeader } from './screens/TopicScreen';
 import { EditTopicGroupScreen, EditTopicGroupScreenHeader } from './screens/EditTopicGroupScreen';
 import { EditPostScreen, EditPostScreenHeader } from './screens/EditPost';
-import { PostFeedScreen, PostFeedScreenHeader } from './screens/PostFeedScreen';
+import { PostFeedScreen, PostFeedScreenHeader, PostScreen, PostScreenHeader } from './screens/PostFeedScreen';
 
 
 Sentry.init({
@@ -82,17 +82,17 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     newTopic: 'newTopic/:community',
     editTopic: 'editTopic/:community/:topic',
     newPost: 'newPost/:community',
-    editPost: 'editPost/:community/:topic',
+    editPost: 'editPost/:community/:post',
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
     profile: 'profile/:community/:member',
     topic: 'topic/:community/:topic',
+    post: 'post/:community/:post',
     home: 'home/',
     feedback: 'feedback/',
     myViewpoint: 'myViewpoint/:community/:topic',
     viewpoint: 'viewpoint/:community/:topic/:user',
-    post: 'post/:community/:topic',
     myTopicGroup: 'myTopicGroup/:community/:topic'
   }
 }}
@@ -268,7 +268,7 @@ const screens = {
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
-  post: {component: PublishedScreen, headerTitle: PublishedHeader},
+  post: {component: PostScreen, headerTitle: PostScreenHeader},
   missing: {component: MissingScreen, title: 'Missing Page'},
   topic: {component: TopicScreen , headerTitle: TopicScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},

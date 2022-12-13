@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
+import { Action, andFormatStrings, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -34,6 +34,20 @@ export function PostFeedScreenHeader({navigation, route}) {
         </FixedTouchable>
     )
 }
+
+export function PostScreenHeader({navigation, route}) {
+    const {community, post} = route.params;
+    const communityName = useDatabase([community], ['community', community, 'name']);
+    return (
+        <View style={{marginHorizontal: 8}}>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>Conversation Post</Text>
+            <OneLineText style={{fontSize: 12}}>
+                in {communityName}
+            </OneLineText>
+        </View>
+    )
+}
+
 
 function PostGroupMembers({post, postInfo}) {
     const members = postInfo.member;
@@ -133,6 +147,28 @@ function AskToJoin({community, post, postInfo}) {
 }
 
 
+export function PostScreen({navigation, route}) {
+    const {community, post} = route.params;
+    const postInfo = useDatabase([community], ['post', community, post]);
+    const readTime = useDatabase([community],['userPrivate', getCurrentUser(), 'postRead', community, post]);
+    const youAsked = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community, post], null);
+
+
+    if (!postInfo) return <Loading />
+
+    console.log('youAsked', youAsked);
+
+
+    return (
+        <KeyboardSafeView size={{flex: 1}}>
+            <StatusBar style='dark' />
+            <HeaderSpaceView style={{flex: 1}}>
+                <PhotoPromo />
+                <MemoPost expanded community={community} post={post} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
+            </HeaderSpaceView>
+        </KeyboardSafeView>
+    )
+}
 
 
 export function PostFeedScreen({navigation, route}) {
@@ -197,7 +233,8 @@ const lightShadowStyle = {
     shadowOpacity: 0.5, elevation: 2}
 
 
-function Post({community, post, postInfo, readTime, youAsked}) {
+function Post({community, post, postInfo, readTime, youAsked, expanded}) {
+    const navigation = useCustomNavigation();
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -207,7 +244,14 @@ function Post({community, post, postInfo, readTime, youAsked}) {
                         ...lightShadowStyle
                 }}> 
                     <PostHostLine community={community} post={post} postInfo={postInfo} />
-                    <Text style={{marginTop: 8, color: '#666'}} numberOfLines={8}>{postInfo.text}</Text>
+                    <FixedTouchable dummy={expanded} onPress={() => navigation.navigate('post', {community, post})}>
+                        <OneLineText style={{fontWeight: 'bold', fontSize: 16, marginVertical: 8}}>{postInfo.title}</OneLineText>
+                        {expanded ? 
+                            <LinkText style={{color: '#666'}} text={postInfo.text} />
+                        : 
+                            <Text style={{color: '#666'}} numberOfLines={4}>{postInfo.text}</Text>
+                        }
+                    </FixedTouchable>
                     <PostGroupMembers post={post} postInfo={postInfo} />
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>
@@ -215,6 +259,7 @@ function Post({community, post, postInfo, readTime, youAsked}) {
         </View>
     )
 }
+
 
 function PostHostLine({community, post, postInfo}) {
     const navigation = useCustomNavigation();
@@ -224,9 +269,11 @@ function PostHostLine({community, post, postInfo}) {
         <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'top'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>                
-                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={24} />
-                    <Text style={{marginLeft: 6}}><Text style={{fontWeight: 'bold'}}>{postInfo.fromName}</Text></Text>
-                    <Text style={{color: '#999', fontSize: 13}}> - {formatTime(postInfo.createTime)}</Text>
+                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={28} />
+                    <View style={{marginLeft: 8}}>
+                        <Text style={{fontWeight: 'bold', fontSize: 12}}>{postInfo.fromName}</Text>
+                        <Text style={{color: '#999', fontSize: 10}}>{formatTime(postInfo.createTime)}</Text>
+                    </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     {canEdit ? 

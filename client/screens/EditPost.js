@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { FormCheckbox, FormInput, FormTitle, mergeEditedParams, OneLineText, ScreenContentScroll, WideButton } from '../components/basics';
+import { FormCheckbox, FormInput, FormTitle, mergeEditedParams, MinorButton, OneLineText, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { internalReleaseWatchers, isMasterUser, useDatabase, watchData } from '../data/fbutil';
 import { editPostAsync, editTopicAsync } from '../data/servercall';
@@ -41,6 +41,11 @@ export function EditPostScreen({navigation, route}) {
     function onChangeText(text) {
         global_savePostDrafts[post] = {title, text};
         setText(text);
+    }
+
+    function onRevert() {
+        onChangeText(oldPost?.text);
+        setTitle(oldPost?.title);
     }
 
     async function onPost() {
