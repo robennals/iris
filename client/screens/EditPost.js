@@ -57,7 +57,7 @@ export function EditPostScreen({navigation, route}) {
                 <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center'}}>
                     <View />
                     <View style={{flexDirection: 'row'}}>                    
-                        {oldPost && global_savePostDrafts[topic] && global_savePostDrafts[topic].text != oldPost.text ?
+                        {oldPost && global_savePostDrafts[post] && global_savePostDrafts[post].text != oldPost.text ?
                             <MinorButton onPress={onRevert}
                                 style={{margin: 4, paddingHorizontal: 4, paddingVertical: 1}}>
                                 Revert

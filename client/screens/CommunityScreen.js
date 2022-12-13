@@ -162,16 +162,16 @@ function SortSelector({mode, onModeChanged}) {
 }
 
 export function CommunityScreen({navigation, route}) {
-    const {community, openTime, topic: boostedTopicKey} = route.params;
-    const topics = useDatabase([community], ['topic', community]);
+    const {community, openTime, post: boostedPostKey} = route.params;
+    // const topics = useDatabase([community], ['topic', community]);
+    const posts = useDatabase([community], ['post', community]);
     const communityInfo = useDatabase([community], ['community', community]);
-    const topicStates = useDatabase([community], ['commMember', community, getCurrentUser(), 'topic']);
+    // const topicStates = useDatabase([community], ['commMember', community, getCurrentUser(), 'topic']);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
-    const topicRead = useDatabase([community], ['userPrivate', getCurrentUser(), 'topicRead', community]);
+    const postRead = useDatabase([community], ['userPrivate', getCurrentUser(), 'postRead', community]);
     const myViewpoints = useDatabase([community], ['memberViewpoint', community, getCurrentUser()], {});
-    const viewpointReadTime = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community, 'readViewpointsTime'], 0);
 
-    const [mode, setMode] = useState('topics');
+    // const [mode, setMode] = useState('ranked');
     // const [sortedTopicKeys, setSortedTopicKeys] = useState(null);
     // const [renderTime, setRenderTime] = useState(null);
     
@@ -193,15 +193,10 @@ export function CommunityScreen({navigation, route}) {
     //     }
     // }, [topics, topicStates, openTime])
 
-    const filteredTopicKeys = _.filter(_.keys(topics), t => isMaster || topics[t].from == getCurrentUser() || topics[t].approved !== false);    
-    var sortedTopicKeys;
-    if (mode == 'viewpoints') {
-        sortedTopicKeys = _.sortBy(filteredTopicKeys, t => topics[t]?.lastMessage?.time || topics[t].time).reverse();             
-    } else {
-        sortedTopicKeys = _.sortBy(filteredTopicKeys, t => topics[t].time).reverse();             
-    }
-    if (boostedTopicKey) {
-        sortedTopicKeys = [boostedTopicKey, ..._.filter(sortedTopicKeys, k => k != boostedTopicKey)]
+    var sortedPostKeys = _.sortBy(_.keys(posts), t => posts[t].createTime).reverse();             
+
+    if (boostedPostKey) {
+        sortedPostKeys = [boostedPostKey, ..._.filter(sortedPostKeys, k => k != boostedPostKey)]
     }
 
     if (getCurrentUser() == null || (!isMaster && !localComm?.name)) {
@@ -210,14 +205,14 @@ export function CommunityScreen({navigation, route}) {
         )
     }
 
-    if (!topicStates || !topics || !sortedTopicKeys || !topicRead) return <Loading />;
+    if (!posts || !postRead) return <Loading />;
 
-    function onModeChanged(newMode) {
-        if (mode == 'viewpoints') {
-            setDataAsync(['userPrivate', getCurrentUser(), 'comm', community, 'readViewpointsTime'], Date.now());
-        }
-        setMode(newMode);
-    }
+    // function onModeChanged(newMode) {
+    //     if (mode == 'viewpoints') {
+    //         setDataAsync(['userPrivate', getCurrentUser(), 'comm', community, 'readViewpointsTime'], Date.now());
+    //     }
+    //     setMode(newMode);
+    // }
 
     return (
         <KeyboardSafeView style={{flex: 1}}>
@@ -230,7 +225,7 @@ export function CommunityScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <TopicList mode={mode} topics={topics} myViewpoints={myViewpoints} sortedTopicKeys={sortedTopicKeys} community={community} communityInfo={communityInfo} topicStates={topicStates} topicRead={topicRead} />
+                    <PostList mode={mode} posts={posts} sortedPostKeys={sortedPostKeys} community={community} communityInfo={communityInfo} postRead={topicRead} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -247,7 +242,7 @@ function topicLastTime({topicKey, topics, topicStates}) {
     }
 }
 
-function TopicList({mode, community, myViewpoints, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
+function PostList({mode, community, myViewpoints, topics, sortedTopicKeys, communityInfo, topicStates, topicRead}) {
     const navigation = useCustomNavigation();
     const [search, setSearch] = useState('');
     var filteredTopicKeys = sortedTopicKeys;
@@ -378,7 +373,7 @@ function Topic({community, mode, communityInfo, myViewpoint, topic, topicKey, st
                         <View style={{padding: 8}}>
                             <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: topic.from})}>
                                 <View style={{flexDirection: 'row', marginBottom: 4}}>
-                                    <MemberPhotoIcon photoKey={topic.fromPhoto} user={topic.from} name={topic.fromName} size={16} />
+                                    <MemberPhotoIcon photoKey={topic.fromPhoto} user={topic.from} name={topic.fromName} size={24} />
                                     <View style={{marginLeft: 4, flexDirection: 'row', alignItems: 'baseline'}}>
                                         <Text style={{fontSize: 12}}>{topic.fromName}</Text>
                                         <Text style={{fontSize: 12, color: '#666'}}> - {formatTime(topic.time)}</Text>

@@ -50,6 +50,7 @@ import { FeedbackScreen } from './screens/FeedbackScreen';
 import { TopicScreen, TopicScreenHeader } from './screens/TopicScreen';
 import { EditTopicGroupScreen, EditTopicGroupScreenHeader } from './screens/EditTopicGroupScreen';
 import { EditPostScreen, EditPostScreenHeader } from './screens/EditPost';
+import { PostFeedScreen, PostFeedScreenHeader } from './screens/PostFeedScreen';
 
 
 Sentry.init({
@@ -252,7 +253,8 @@ const screens = {
   myProfile: {component: MyProfileScreen, title: 'My Profile'},
   createCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Create Community'},    
   editCommunity: {component: AdminCreateOrEditCommunityScreen, title: 'Edit Community'},  
-  community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
+  community: {component: PostFeedScreen, headerTitle: PostFeedScreenHeader},
+  // community: {component: CommunityScreen, headerTitle: CommunityScreenHeader},
   communityProfile: {component: CommunityProfileScreen, title: 'Community Profile'},
   communitySignups: {component: CommunitySignupsScreen, title: 'Signups'},
   communityGroups: {component: CommunityGroupsScreen, title: 'Community Groups'},
@@ -262,7 +264,7 @@ const screens = {
   newTopic: {component: EditTopicScreen, title: 'New Topic'},
   editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
   newPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
-  editTopic: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
+  editPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
