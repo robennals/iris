@@ -53,13 +53,13 @@ export function PostScreenHeader({navigation, route}) {
 function PostGroupMembers({community, post, postInfo}) {
     const navigation = useCustomNavigation();
     const members = postInfo.member;
-    if (!members || _.keys(members).length < 2) {
+    if (!members || _.keys(members).length < 2 || members[getCurrentUser()]) {
         return null;
     }
     const memberKeys = _.keys(members);
     const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
     return (
-        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, marginTop: 4, 
+        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginTop: 4, 
             borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 16}}>
             {_.map(_.keys(members), m => 
                 <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: m})}>
@@ -75,7 +75,8 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
     const navigation = useCustomNavigation();
     if (postInfo?.member?.[getCurrentUser()]) {
         return (
-            <FixedTouchable onPress={() => navigation.navigate('group', {group: post})}>
+            <FixedTouchable onPress={() => navigation.navigate('group', {group: post})} 
+                style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
                 <Text style={{color: '#666', textDecorationLine: 'underline'}}>Go to conversation</Text>
             </FixedTouchable>
         )
@@ -179,6 +180,27 @@ export function PostScreen({navigation, route}) {
 }
 
 
+function clusterPostsByHost({posts, sortedPostKeys}) {
+    var hostClusters = {};
+    _.forEach(sortedPostKeys, k => {
+        const post = posts[k];
+        var cluster = hostClusters[post.from];
+        if (!cluster) {
+            cluster = {
+                time: post.createTime,
+                fromName: post.fromName,
+                leadPost: k,
+                otherPosts: []
+            }
+            hostClusters[post.from] = cluster;
+        } else {
+            cluster.otherPosts.push(k);
+        }
+    })
+    return hostClusters;
+}
+
+
 export function PostFeedScreen({navigation, route}) {
     const {community, post: boostedPostKey} = route.params;
     const posts = useDatabase([community], ['post', community]);
@@ -188,13 +210,16 @@ export function PostFeedScreen({navigation, route}) {
 
     if (!posts || !postRead || !localComm || !youAskedPost) return <Loading />
 
-    const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime);
+    const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
 
     if (getCurrentUser() == null || (!isMasterUser() && !localComm?.name)) {
         return (
             <IntakeScreen community={community} />
         )
     }
+
+    const hostClusters = clusterPostsByHost({posts, sortedPostKeys});
+    const sortedHostKeys = _.sortBy(_.keys(hostClusters), h => hostClusters[h].time).reverse();
 
     return (
         <KeyboardSafeView size={{flex: 1}}>
@@ -206,7 +231,7 @@ export function PostFeedScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <PostList posts={posts} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
+                    <PostList posts={posts} sortedHostKeys={sortedHostKeys} hostClusters={hostClusters} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -214,12 +239,15 @@ export function PostFeedScreen({navigation, route}) {
 }
 
 
-function PostList({posts, sortedPostKeys, community, postRead, youAskedPost}) {
+function PostList({posts, sortedHostKeys, hostClusters, sortedPostKeys, community, postRead, youAskedPost}) {
     const [search, setSearch] = useState('');
     var filteredPostKeys = sortedPostKeys;
     if (search) [
         filteredPostKeys = _.filter(sortedPostKeys, p => searchMatches(posts[p].title, search))
     ]
+
+    // console.log('hostClusters', hostClusters, sortedHostKeys);
+
 
     return (
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#fcf8f4'}}>
@@ -229,16 +257,58 @@ function PostList({posts, sortedPostKeys, community, postRead, youAskedPost}) {
                     <MemoPost community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
                 </Catcher>
             )}
+            {search ? null : 
+                sortedHostKeys.map(host => 
+                    <Catcher key={host} style={{alignSelf: 'stretch'}}>
+                        <MemoHostCluster community={community} posts={posts} host={host} hostCluster={hostClusters[host]} youAskedPost={youAskedPost} />
+                    </Catcher>
+                )
+            }
+
         </ScrollView>
     )
 }
 
-const MemoPost = React.memo(Post);
 
 const lightShadowStyle = {
     shadowRadius: 2, shadowColor: '#555', shadowOffset: {width: 0, height: 1},
         // borderColor: '#ddd', borderWidth: 2,
     shadowOpacity: 0.5, elevation: 2}
+
+
+const MemoHostCluster = React.memo(HostCluster);
+
+function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
+    const navigation = useCustomNavigation();
+    return (
+        <View>
+            <MemoPost community={community} post={hostCluster.leadPost} postInfo={posts[hostCluster.leadPost]} />            
+            {hostCluster.otherPosts.length > 0 ? 
+                <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
+                    <View style={{marginBottom: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                        <View style={{
+                            backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                            borderRadius: 4, flexShrink: 1, flex: 1, padding: 8,
+                            ...lightShadowStyle
+                        }}> 
+
+                            <Text style={{fontSize: 12}}>More by <Text style={{fontWeight: 'bold'}}>{hostCluster.fromName}</Text></Text>
+                            {hostCluster.otherPosts.slice(0,5).map(p => 
+                                <FixedTouchable key={p} onPress={() => navigation.navigate('post', {community, post: p})} style={{paddingVertical: 4}}>
+                                    <OneLineText style={{fontWeight: 'bold', color: '#666'}}>{posts[p].title}</OneLineText>
+                                </FixedTouchable>
+                            )}
+                        </View>
+                    </View>
+                </View>
+            : null}
+        </View>
+    )
+}
+
+
+const MemoPost = React.memo(Post);
+
 
 
 function Post({community, post, postInfo, readTime, youAsked, expanded}) {

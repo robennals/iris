@@ -21,7 +21,7 @@ async function acceptJoinRequestAsync({community, post, user, userId}) {
     const userPhoto = commMember.photoKey;
     const postName = postInfo.title;
     
-    const member = {name: userName, photo: userPhoto};
+    const member = {name: userName, photo: userPhoto, time: Date.now()};
     var updates = {};
     const time = Date.now();
     const lastMessage = {text: userName + ' joined', time}
@@ -113,7 +113,7 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         const hostName = hostMember.answer[name_label]
         const hostPhoto = hostMember.photoKey;
         const member = {
-            [host]: {name: hostName, photo: hostPhoto}
+            [host]: {name: hostName, photo: hostPhoto, time: postInfo.createTime}
         }
         const groupInfo = {
             name: postInfo.title, member, host,
