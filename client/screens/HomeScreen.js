@@ -40,7 +40,7 @@ function CommunityPreview({community, name, communityInfo, highlight}) {
             <View style={styles.groupPreviewRight}>
                 <View style={{alignSelf: 'flex-start', paddingHorizontal: 6, marginBottom: 1, paddingVertical: 1, 
                     borderRadius: 8, borderColor: unread ? 'black' : '#ddd', borderWidth: StyleSheet.hairlineWidth}}>
-                    <Text style={{fontSize: 10, color: unread ? 'black' : '#666'}}>{isPreview ? 'Community you can join' : 'Topic Feed'}</Text>
+                    <Text style={{fontSize: 10, color: unread ? 'black' : '#666'}}>{isPreview ? 'Community you can join' : 'Community'}</Text>
                 </View>
                 <OneLineText style={{fontSize: 16, fontWeight: unread ? 'bold' : null}}>
                     {name}

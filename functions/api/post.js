@@ -11,14 +11,14 @@ const { isMasterUser, accessDeniedResult } = require('./iris');
 
 async function editPostAsync({community, post, title, text, userId}) {
     const pCommMember = FBUtil.getDataAsync(['commMember', community, userId]);
-    const pOldPost = FBUtil.getDataAsync(['post', community, post]);
+    const pOldPost = post && FBUtil.getDataAsync(['post', community, post], null);
 
     const commMember = await pCommMember;
     const oldPost = await pOldPost;
     const fromName = commMember.answer[name_label];
     const fromPhoto = commMember.photoKey;
 
-    if (!isMasterUser(userId) && oldPost && oldPost.from != userId) {
+    if (!isMasterUser(userId) && post && oldPost && oldPost.from != userId) {
         return accessDeniedResult;
     }
 

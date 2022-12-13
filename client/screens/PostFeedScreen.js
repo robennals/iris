@@ -30,10 +30,6 @@ export function PostFeedScreenHeader({navigation, route}) {
                 <View style={{marginLeft: 8}}>
                     <Text style>{communityInfo.name}</Text>
                 </View>
-                <Text style={{marginTop: 8, color: '#666'}} numberOfLines={8}>{topicGroup.text}</Text>
-                <PostGroupMembers post={post} postInfo={postInfo} />
-                <GroupJoinWidget youAsked={youAsked} topicGroup={topicGroup} topicGroupKey={topicGroupKey} 
-                    community={community} topicKey={topicKey} />
             </View>
         </FixedTouchable>
     )
@@ -144,9 +140,9 @@ export function PostFeedScreen({navigation, route}) {
     const posts = useDatabase([community], ['post', community]);
     const postRead = useDatabase([community],['userPrivate', getCurrentUser(), 'postRead', community]);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
+    const youAskedPost = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community]);
 
-
-    if (!posts || !postRead || !localComm) return <Loading />
+    if (!posts || !postRead || !localComm || !youAskedPost) return <Loading />
 
     const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime);
 
@@ -166,7 +162,7 @@ export function PostFeedScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <PostList posts={posts} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} />
+                    <PostList posts={posts} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -174,7 +170,7 @@ export function PostFeedScreen({navigation, route}) {
 }
 
 
-function PostList({posts, sortedPostKeys, community, postRead}) {
+function PostList({posts, sortedPostKeys, community, postRead, youAskedPost}) {
     const [search, setSearch] = useState('');
     var filteredPostKeys = sortedPostKeys;
     if (search) [
@@ -186,7 +182,7 @@ function PostList({posts, sortedPostKeys, community, postRead}) {
             <SearchNewHeader community={community} search={search} setSearch={setSearch} />
             {filteredPostKeys.map(post => 
                 <Catcher key={post} style={{alignSelf: 'stretch'}}>
-                    <MemoPost community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} />
+                    <MemoPost community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
                 </Catcher>
             )}
         </ScrollView>
@@ -201,10 +197,7 @@ const lightShadowStyle = {
     shadowOpacity: 0.5, elevation: 2}
 
 
-function Post({community, post, postInfo, readTime}) {
-    const navigation = useCustomNavigation();
-    const canEdit = postInfo.from == getCurrentUser() || isMasterUser();
-
+function Post({community, post, postInfo, readTime, youAsked}) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -213,26 +206,38 @@ function Post({community, post, postInfo, readTime}) {
                         borderRadius: 8, flexShrink: 1, flex: 1, padding: 8,
                         ...lightShadowStyle
                 }}> 
-                    <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'top'}}>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>                
-                                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: topicGroupKey})}>
-                                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={24} />
-                                </FixedTouchable>
-                                <Text style={{marginLeft: 6}}>Hosted by <Text style={{fontWeight: 'bold'}}>{postInfo.fromName}</Text></Text>
-                            </View>
-                            {canEdit ? 
-                                <FixedTouchable onPress={() => navigation.navigate('editPost', {community, post})}>
-                                    <Entypo name='edit' color='#999' size={12}/>
-                                </FixedTouchable>
-                            :null}
-                        </View>
-                    </FixedTouchable>
+                    <PostHostLine community={community} post={post} postInfo={postInfo} />
+                    <Text style={{marginTop: 8, color: '#666'}} numberOfLines={8}>{postInfo.text}</Text>
+                    <PostGroupMembers post={post} postInfo={postInfo} />
+                    <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>
             </View>
         </View>
     )
-    return <Text>Post</Text>
+}
+
+function PostHostLine({community, post, postInfo}) {
+    const navigation = useCustomNavigation();
+    const canEdit = postInfo.from == getCurrentUser() || isMasterUser();
+
+    return (
+        <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'top'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>                
+                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={24} />
+                    <Text style={{marginLeft: 6}}><Text style={{fontWeight: 'bold'}}>{postInfo.fromName}</Text></Text>
+                    <Text style={{color: '#999', fontSize: 13}}> - {formatTime(postInfo.createTime)}</Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    {canEdit ? 
+                        <FixedTouchable onPress={() => navigation.navigate('editPost', {community, post})}>
+                            <Entypo name='edit' color='#999' size={12}/>
+                        </FixedTouchable>
+                    :null}
+                </View>
+            </View>
+        </FixedTouchable>
+    )
 }
 
 function SearchNewHeader({community, search, setSearch}) {
@@ -240,14 +245,14 @@ function SearchNewHeader({community, search, setSearch}) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
-                <SearchBox value={search} onChangeText={setSearch} placeholder='Search Posts'
+                <SearchBox value={search} onChangeText={setSearch} placeholder='Search Conversations'
                     style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                     marginHorizontal: 0}} />              
-                {isMasterUser() || search ? null : 
+                {search ? null : 
                     <WideButton alwaysActive
                         onPress={() => navigation.navigate('newPost', {community})} 
                         // onPress={() => console.log('community', community)}
-                        style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>New Post
+                        style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>New Conversation
                     </WideButton>
                 }
             </View>
