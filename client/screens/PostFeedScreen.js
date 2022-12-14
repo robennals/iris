@@ -6,7 +6,7 @@ import { Action, andFormatStrings, FixedTouchable, HeaderSpaceView, memberKeysTo
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
-import { formatMessageTime, formatSummaryTime, formatTime } from '../components/time';
+import { dayMillis, formatMessageTime, formatSummaryTime, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
 import { Catcher } from '../components/catcher';
 import { KeyboardSafeView } from '../components/keyboardsafeview';
@@ -60,10 +60,10 @@ function PostGroupMembers({community, post, postInfo}) {
     const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
     return (
         <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginTop: 4, 
-            borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 16}}>
+            borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 12}}>
             {_.map(_.keys(members), m => 
-                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: m})}>
-                    <MemberPhotoIcon key={m} user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
+                <FixedTouchable key={m} onPress={() => navigation.navigate('profile', {community, member: m})}>
+                    <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
                 </FixedTouchable>
             )}
             <Text style={{marginLeft: 8, fontSize: 13, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
@@ -142,7 +142,7 @@ function AskToJoin({community, post, postInfo}) {
         return (
             <FixedTouchable onPress={() => setExpanded(true)}>
                 <View style={{flexDirection: 'row', alignItems: 'center', borderRadius: 16, borderColor: '#ddd', 
-                        borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 16}}>
+                        borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 8}}>
                     <Text style={{flex: 1, marginHorizontal: 8, color: '#999'}}>
                         Write a message to the host
                     </Text>
@@ -201,14 +201,51 @@ function clusterPostsByHost({posts, sortedPostKeys}) {
 }
 
 
+function getPostBoost({postInfo, followAvoid}) {
+    console.log('getBoostedTime', postInfo, followAvoid);
+    if (postInfo.member && postInfo?.member?.[getCurrentUser()]) {
+        console.log('already in group', postInfo);
+        return null;
+    }
+    if ((postInfo.lastJoinTime || postInfo.createTime) < Date.now() - (5 * dayMillis)) {
+        console.log('too old', postInfo);
+        return null;
+    }
+    const memberKeys = _.keys(postInfo.member || {});
+    if (memberKeys.length > 5) {
+        console.log('too many members', postInfo);
+        return null;
+    }
+    if (followAvoid[postInfo.from] == 'follow') {
+        return {reasonHost: true, time: postInfo.createTime};
+    }
+    if (!postInfo.member) {
+        console.log('no members', postInfo);
+        return null;
+    }
+
+    const followedMemberKeys = _.filter(memberKeys, m => followAvoid[m] == 'follow');
+    console.log('followedMemberKeys', {followedMemberKeys, postInfo});
+    if (followedMemberKeys.length > 0) {
+        const sortedFollowedMembers = _.sortBy(followedMemberKeys, m => postInfo.member[m].time || 0).reverse();
+        const lastFollowedJoinTime = postInfo.member[sortedFollowedMembers[0]]?.time || null;
+        console.log('last', {lastFollowedJoinTime, sortedFollowedMembers});
+        return {reasonMember: sortedFollowedMembers[0], time: lastFollowedJoinTime};
+    } else {
+        return null;
+    }
+}
+
+
 export function PostFeedScreen({navigation, route}) {
     const {community, post: boostedPostKey} = route.params;
     const posts = useDatabase([community], ['post', community]);
     const postRead = useDatabase([community],['userPrivate', getCurrentUser(), 'postRead', community]);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
     const youAskedPost = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community]);
+    const followAvoid = useDatabase([], ['perUser', 'followAvoid', getCurrentUser()]);
 
-    if (!posts || !postRead || !localComm || !youAskedPost) return <Loading />
+    if (!posts || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
 
     const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
 
@@ -218,7 +255,11 @@ export function PostFeedScreen({navigation, route}) {
         )
     }
 
-    const hostClusters = clusterPostsByHost({posts, sortedPostKeys});
+    const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
+    const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
+    console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
+
+    const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
     const sortedHostKeys = _.sortBy(_.keys(hostClusters), h => hostClusters[h].time).reverse();
 
     return (
@@ -231,7 +272,7 @@ export function PostFeedScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <PostList posts={posts} sortedHostKeys={sortedHostKeys} hostClusters={hostClusters} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
+                    <PostList postBoosts={postBoosts} posts={posts} sortedHostKeys={sortedHostKeys} hostClusters={hostClusters} boostedPostKeys={boostedPostKeys} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -239,9 +280,9 @@ export function PostFeedScreen({navigation, route}) {
 }
 
 
-function PostList({posts, sortedHostKeys, hostClusters, sortedPostKeys, community, postRead, youAskedPost}) {
+function PostList({posts, postBoosts, sortedHostKeys, boostedPostKeys, hostClusters, sortedPostKeys, community, postRead, youAskedPost}) {
     const [search, setSearch] = useState('');
-    var filteredPostKeys = sortedPostKeys;
+    var filteredPostKeys = boostedPostKeys;
     if (search) [
         filteredPostKeys = _.filter(sortedPostKeys, p => searchMatches(posts[p].title, search))
     ]
@@ -254,7 +295,7 @@ function PostList({posts, sortedHostKeys, hostClusters, sortedPostKeys, communit
             <SearchNewHeader community={community} search={search} setSearch={setSearch} />
             {filteredPostKeys.map(post => 
                 <Catcher key={post} style={{alignSelf: 'stretch'}}>
-                    <MemoPost community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
+                    <MemoPost boost={postBoosts[post]} community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
                 </Catcher>
             )}
             {search ? null : 
@@ -311,11 +352,26 @@ const MemoPost = React.memo(Post);
 
 
 
-function Post({community, post, postInfo, readTime, youAsked, expanded}) {
+function BoostInfo({boost, postInfo}) {
+    if (boost.reasonHost) {
+        return <Text style={{marginHorizontal: 8, fontSize: 12, color: '#666', marginBottom: 1}}>You follow {postInfo.fromName}</Text>
+    } else if (boost.reasonMember) {
+        const memberName = postInfo.member[boost.reasonMember].name;
+        return <Text style={{marginHorizontal: 8, fontSize: 12, color: '#666', marginBottom: 1}}>{memberName} joined {formatTime(boost.time)}</Text>
+    } else {
+        return null;
+    }
+}
+
+
+function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) {
     const navigation = useCustomNavigation();
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                {boost ? 
+                    <BoostInfo boost={boost} postInfo={postInfo} />
+                : null}
                 <View style={{
                         backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                         borderRadius: 8, flexShrink: 1, flex: 1, padding: 8,

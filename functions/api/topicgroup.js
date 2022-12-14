@@ -29,6 +29,7 @@ async function acceptJoinRequestAsync({community, post, user, userId}) {
     updates['/group/' + group + '/member/zzz_irisbot'] = {name: 'Irisbot'};
     updates['/adminCommunity/' + community + '/group/' + group + '/member/' + user] = member;
     updates['/post/' + community + '/' + post + '/member/' + user] = member;
+    updates['/post/' + community + '/' + post + '/lastJoinTime'] = Date.now();
     updates['/userPrivate/' + user + '/group/' + group] = {
         name: postName, community, host, lastMessage
     }

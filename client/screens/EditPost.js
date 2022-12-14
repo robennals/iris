@@ -52,6 +52,7 @@ export function EditPostScreen({navigation, route}) {
         setInProgress(true);
         await editPostAsync({community, post: post || null, title: shownTitle, text: shownText});
         setInProgress(false);
+        global_savePostDrafts[post] = null;
         navigation.goBack();
     }
 
