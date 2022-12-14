@@ -28,9 +28,15 @@ export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
 
     const name = useDatabase([group], ['userPrivate', getCurrentUser(), 'group', group, 'name'], '');
+    const host = useDatabase([group], ['group', group, 'host'], null);
     const members = useDatabase([group], ['group', group, 'member']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const communityInfo = useDatabase([community], ['community', community]);
+
+    const hostName = host ? members?.[host]?.name : null;
+    const hostPhoto = host ? members?.[host]?.photo : null;
+
+    console.log('host', {host, hostName, hostPhoto, members});
 
     useEffect(() => {
         function markThisChatRead() {
@@ -56,9 +62,15 @@ export function ChatScreenHeader({navigation, route}) {
                 <View style={{marginLeft: 8, flex: 1}}>
                     {communityInfo ? 
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            {/* <Text style={{fontSize: 11, marginRight: 4, marginBottom: 0, color: '#666'}}>in</Text> */}
                             <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
                             <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
+                            {host ? 
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{fontSize: 11, marginBottom: 0, color: '#666'}}> - </Text>
+                                    <MemberPhotoIcon photoKey={hostPhoto} user={host} name={hostName} size={11} />
+                                    <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{hostName}</Text>
+                                </View>
+                            : null }
                         </View>
                     : null}
                     <OneLineText style={{fontSize: 20, fontWeight: 'bold', flexShrink: 1}}>
@@ -316,6 +328,7 @@ function MessageList({group, onReply, onEdit}) {
     const members = useDatabase([group], ['group', group, 'member']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
+    const host = useDatabase([group], ['group', group, 'host'], null);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const likes = useDatabase([group], ['group', group, 'like']);
     const scrollRef = React.createRef();
@@ -363,6 +376,7 @@ function MessageList({group, onReply, onEdit}) {
                 <Catcher key={key}>
                     <MemoMessage
                         message={message} prevMessage={prevMessage} nextMessage={nextMessage}
+                        host={host}
                         replyMessage={replyMessage} 
                         members={members} group={group}
                         messageKey={key} prevMessageKey={shownMessageKeys[idx-1]} nextMessageKey={shownMessageKeys[idx+1]}
@@ -446,7 +460,7 @@ function getViewpontText({message}) {
 const MemoMessage = React.memo(Message); 
 
 
-function Message({group, meInGroup, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, memberHues, onReply, onEdit}) {
+function Message({group, meInGroup, host, community, topic, message, prevMessage, nextMessage, replyMessage, messageLikes=null, members, messageKey, memberHues, onReply, onEdit}) {
     const navigation = useCustomNavigation();
     const [hover, setHover] = useState(false);
     const [popup, setPopup] = useState(false);
@@ -556,9 +570,14 @@ function Message({group, meInGroup, community, topic, message, prevMessage, next
                             hueStyle
                          ]} >
                         {myMessage || samePrevAuthor ? null :
-                            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                            <View style={{flexDirection: 'row', alignItems: 'flex-start', marginBottom: 4}}>
                                 {/* <MemberPhotoIcon photoKey={fromMember.photo} user={message.from} name={fromMember.name} size={14} style={{marginRight: 2}}/> */}
                                 <Text style={{fontWeight: 'bold', fontSize: 12}}>{fromMember.name}</Text>
+                                {message.from == host ? 
+                                    <View style={{borderColor: '#666', borderWidth: StyleSheet.hairlineWidth, marginLeft: 8, paddingHorizontal: 4, paddingVertical: 0, borderRadius: 8}}>
+                                        <Text style={{fontSize: 10, color: '#444'}}>host</Text>
+                                    </View>
+                                : null}
                             </View>
                         }
                         {message.replyTo ?
