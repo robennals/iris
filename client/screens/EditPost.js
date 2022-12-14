@@ -75,7 +75,7 @@ export function EditPostScreen({navigation, route}) {
                     </View>
                 </View>
                 <View style={{flex: 1, borderColor: '#ddd', margin: 4, borderWidth: StyleSheet.hairlineWidth, borderRadius: 4}}>
-                    <TextInput placeholder='Post Title' value={shownTitle} onChangeText={setTitle} 
+                    <TextInput placeholder='Conversation Title' value={shownTitle} onChangeText={setTitle} 
                         style={{flex: 0, padding: 8, borderBottomColor: '#ddd', borderBottomWidth: StyleSheet.hairlineWidth}}
                         placeholderTextColor='#999'
                     />

@@ -10,10 +10,11 @@ const { name_label } = require('./basics');
 const { isMasterUser, accessDeniedResult } = require('./iris');
 
 async function editPostAsync({community, post, title, text, userId}) {
-    const pCommMember = FBUtil.getDataAsync(['commMember', community, userId]);
+    const pMembers = FBUtil.getDataAsync(['commMember', community]);
     const pOldPost = post && FBUtil.getDataAsync(['post', community, post], null);
 
-    const commMember = await pCommMember;
+    const members = await pMembers;
+    const commMember = members[userId];
     const oldPost = await pOldPost;
     const fromName = commMember.answer[name_label];
     const fromPhoto = commMember.photoKey;
@@ -23,6 +24,7 @@ async function editPostAsync({community, post, title, text, userId}) {
     }
 
     const postKey = post ?? FBUtil.newKey();
+    const time = Date.now();
 
     const postData = {        
         text, title, 
@@ -30,12 +32,21 @@ async function editPostAsync({community, post, title, text, userId}) {
         fromName: oldPost?.fromName || fromName, 
         fromPhoto: oldPost?.fromPhoto || fromPhoto, 
         members: oldPost?.members || null,
-        createTime: oldPost?.createTime || Date.now(),
+        createTime: oldPost?.createTime || time,
         editTime: oldPost ? Date.now() : null,
     }
 
     var updates = {};
     updates['post/' + community + '/' + postKey] = postData;
+
+    const lastMessage = {text: fromName + ': ' + title, time};
+
+    if (!oldPost) {
+        updates['community/' + community + '/lastMessage'] = lastMessage
+        _.forEach(_.keys(members), member => {
+            updates['userPrivate/' + member + '/comm/' + community + '/lastMessage/'] = lastMessage;
+        })
+    }
 
     return {success: true, updates};
 }
