@@ -218,34 +218,34 @@ function clusterPostsByHost({posts, sortedPostKeys}) {
 
 
 function getPostBoost({postInfo, followAvoid}) {
-    console.log('getBoostedTime', postInfo, followAvoid);
+    // console.log('getBoostedTime', postInfo, followAvoid);
     if (postInfo.member && postInfo?.member?.[getCurrentUser()]) {
-        console.log('already in group', postInfo);
+        // console.log('already in group', postInfo);
         return null;
     }
     if ((postInfo.lastJoinTime || postInfo.createTime) < Date.now() - (5 * dayMillis)) {
-        console.log('too old', postInfo);
+        // console.log('too old', postInfo);
         return null;
     }
     const memberKeys = _.keys(postInfo.member || {});
     if (memberKeys.length > 5) {
-        console.log('too many members', postInfo);
+        // console.log('too many members', postInfo);
         return null;
     }
     if (followAvoid[postInfo.from] == 'follow') {
         return {reasonHost: true, time: postInfo.createTime};
     }
     if (!postInfo.member) {
-        console.log('no members', postInfo);
+        // console.log('no members', postInfo);
         return null;
     }
 
     const followedMemberKeys = _.filter(memberKeys, m => followAvoid[m] == 'follow');
-    console.log('followedMemberKeys', {followedMemberKeys, postInfo});
+    // console.log('followedMemberKeys', {followedMemberKeys, postInfo});
     if (followedMemberKeys.length > 0) {
         const sortedFollowedMembers = _.sortBy(followedMemberKeys, m => postInfo.member[m].time || 0).reverse();
         const lastFollowedJoinTime = postInfo.member[sortedFollowedMembers[0]]?.time || null;
-        console.log('last', {lastFollowedJoinTime, sortedFollowedMembers});
+        // console.log('last', {lastFollowedJoinTime, sortedFollowedMembers});
         return {reasonMember: sortedFollowedMembers[0], time: lastFollowedJoinTime};
     } else {
         return null;
@@ -273,7 +273,7 @@ export function PostFeedScreen({navigation, route}) {
 
     const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
     const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
-    console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
+    // console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
 
     const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
     const sortedHostKeys = _.sortBy(_.keys(hostClusters), h => hostClusters[h].time).reverse();
