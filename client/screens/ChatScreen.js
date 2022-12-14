@@ -101,18 +101,18 @@ function NewMessageTracker({group}) {
         var x = {};
         watchData(x, ['userPrivate', getCurrentUser(), 'group'], setGroups);
         return () => internalReleaseWatchers(x);
-    }, [group]);
+    }, []);
     const groupKeys = Object.keys(groups || {});
     const unreadGroups = _.filter(groupKeys, 
         k => (groups[k].readTime < _.get(groups,[k, 'lastMessage', 'time']))
             && _.get(groups, [k, 'lastMessage', 'from']) != getCurrentUser()
-            && groups[k].name
+            && groups[k].name && !groups[k].archived
     );
     const unreadCount = unreadGroups.length;
 
     const title = _.get(groups, [group, 'name']);
     setTitle(title);
-    // console.log('NewMessageTracker', title, groups, group);
+    console.log('NewMessageTracker', {title, groups, group, unreadCount, unreadGroups});
 
     return <TitleBlinker count={unreadCount} title={title} />
 }
