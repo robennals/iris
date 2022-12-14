@@ -16,6 +16,7 @@ import { Help, HelpText } from '../components/help';
 import { askToJoinAsync, editTopicAsync } from '../data/servercall';
 import { PhotoPromo } from '../components/profilephoto';
 import { SearchBox } from '../components/searchbox';
+import { IntakeScreen } from './IntakeScreen';
 
 export function PostFeedScreenHeader({navigation, route}) {
     const {community} = route.params;
@@ -59,14 +60,13 @@ function PostGroupMembers({community, post, postInfo}) {
     const memberKeys = _.keys(members);
     const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
     return (
-        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginTop: 4, 
-            borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 12}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
             {_.map(_.keys(members), m => 
                 <FixedTouchable key={m} onPress={() => navigation.navigate('profile', {community, member: m})}>
                     <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
                 </FixedTouchable>
             )}
-            <Text style={{marginLeft: 8, fontSize: 13, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
+            <Text style={{marginLeft: 8, fontSize: 12, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
         </View>
     )
 }
@@ -110,7 +110,8 @@ function AskToJoin({community, post, postInfo}) {
     
     if (expanded) {
         return (
-            <View>
+            <View style={{marginTop: 8, paddingTop: 12, borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth}}>
+                <PostGroupMembers community={community} post={post} postInfo={postInfo} />
                 <View style={{borderRadius: 16, borderColor: '#ddd', marginBottom: 4,  
                 borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 16}}>
                     <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 16}}
@@ -130,7 +131,7 @@ function AskToJoin({community, post, postInfo}) {
                         </FixedTouchable>
                         <FixedTouchable onPress={onSubmit}>
                             <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-end'}}>
-                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Ask to Join</Text>
+                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Send Join Request</Text>
                             </View>
                         </FixedTouchable>
                     </View>
@@ -138,19 +139,32 @@ function AskToJoin({community, post, postInfo}) {
             </View>
 
         )
-    } else {
+    } else if (postInfo.member) {
         return (
-            <FixedTouchable onPress={() => setExpanded(true)}>
-                <View style={{flexDirection: 'row', alignItems: 'center', borderRadius: 16, borderColor: '#ddd', 
-                        borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 8}}>
-                    <Text style={{flex: 1, marginHorizontal: 8, color: '#999'}}>
-                        Write a message to the host
-                    </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 12, paddingTop: 8, borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth}}>
+                <PostGroupMembers community={community} post={post} postInfo={postInfo} />
+                <FixedTouchable onPress={() => setExpanded(true)}>            
                     <View style={{backgroundColor: baseColor, borderRadius: 16}}>
                         <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Ask to Join</Text>
                     </View>
-                </View>
-            </FixedTouchable>
+                </FixedTouchable>
+            </View>
+        )
+    } else {
+        return (
+            <View style={{marginTop: 12, paddingTop: 2, borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth}}>
+                <FixedTouchable onPress={() => setExpanded(true)}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', borderRadius: 16, borderColor: '#ddd', 
+                            borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 8}}>
+                        <Text style={{flex: 1, marginHorizontal: 8, color: '#999'}}>
+                            Write a message to the host
+                        </Text>
+                        <View style={{backgroundColor: baseColor, borderRadius: 16}}>
+                            <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Ask to Join</Text>
+                        </View>
+                    </View>
+                </FixedTouchable>
+            </View>
         )
     }
 }
@@ -173,7 +187,9 @@ export function PostScreen({navigation, route}) {
             <StatusBar style='dark' />
             <HeaderSpaceView style={{flex: 1}}>
                 <PhotoPromo />
-                <MemoPost expanded community={community} post={post} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
+                <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#fcf8f4'}}>
+                    <MemoPost expanded community={community} post={post} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
+                </ScrollView>
             </HeaderSpaceView>
         </KeyboardSafeView>
     )
@@ -333,7 +349,7 @@ function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
                             ...lightShadowStyle
                         }}> 
 
-                            <Text style={{fontSize: 12}}>More by <Text style={{fontWeight: 'bold'}}>{hostCluster.fromName}</Text></Text>
+                            <Text style={{fontSize: 12, marginBottom: 4}}>More by <Text style={{fontWeight: 'bold'}}>{hostCluster.fromName}</Text></Text>
                             {hostCluster.otherPosts.slice(0,5).map(p => 
                                 <FixedTouchable key={p} onPress={() => navigation.navigate('post', {community, post: p})} style={{paddingVertical: 4}}>
                                     <OneLineText style={{fontWeight: 'bold', color: '#666'}}>{posts[p].title}</OneLineText>
@@ -386,7 +402,7 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                             <Text style={{color: '#666'}} numberOfLines={4}>{postInfo.text}</Text>
                         }
                     </FixedTouchable>
-                    <PostGroupMembers community={community} post={post} postInfo={postInfo} />
+                    {/* <PostGroupMembers community={community} post={post} postInfo={postInfo} /> */}
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>
             </View>
@@ -426,7 +442,7 @@ function SearchNewHeader({community, search, setSearch}) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
-                <SearchBox value={search} onChangeText={setSearch} placeholder='Search Conversations'
+                <SearchBox value={search} onChangeText={setSearch} placeholder='Search'
                     style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                     marginHorizontal: 0}} />              
                 {search ? null : 
