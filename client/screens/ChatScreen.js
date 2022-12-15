@@ -66,6 +66,10 @@ export function ChatScreenHeader({navigation, route}) {
         }
     }, [group])
 
+    if (name === '') {
+        return <Text>You are not in this group</Text>
+    }
+
     return (
         <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})} style={{alignSelf: 'stretch', flex: 1}}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
@@ -191,6 +195,8 @@ function TimeOut({time}) {
 export function ChatScreen({navigation, route}) {
     const {group, replyViewpoint, updateTime} = route.params;
 
+
+    const localGroupName = useDatabase([group], ['userPrivate', getCurrentUser(), 'group', group, 'name'], '');
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const groupName = useDatabase([group], ['group', group, 'name']);
@@ -235,6 +241,10 @@ export function ChatScreen({navigation, route}) {
     const onClearReply = useCallback(() => {
         setReply(null);
     }, [])
+
+    if (localGroupName === '') {
+        return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>You are not in this group</Text></View>
+    }
 
     if (!members) {
         return <Loading />

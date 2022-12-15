@@ -181,6 +181,9 @@ async function apiActionAsync({action, components, params}) {
         case 'editPost': {
             return editPostAsync(params);
         }
+        case 'removeUserFromGroup': {
+            return Group.removeUserFromGroupAsync(params);
+        }
 
         default: {
             console.log('unknown action', action);

@@ -94,7 +94,7 @@ function MiniMemberPhoto({members, hue, user, style, size}) {
 export function GroupMultiIcon({members, size = 40}) {
   const memberKeys = Object.keys(members);
   const notMeMemberKeys = _.filter(memberKeys, k => !shouldIgnoreMember(k));
-  if (memberKeys.length == 1 && notMeMemberKeys.length == 0) {
+  if (notMeMemberKeys.length == 0) {
     return (
       <View style={{width: size, height: size, borderRadius: size/2, borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth}} />
     )

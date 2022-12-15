@@ -1,5 +1,6 @@
 const FBUtil = require('../output/fbutil');
 const _ = require('lodash');
+const { accessDeniedResult } = require('./iris');
 
 async function createGroupAsync({groupName, adminName, userId}) {
     const group = FBUtil.newKey();
@@ -136,6 +137,21 @@ async function leaveGroupAsync({group, userId}) {
     return {success: true, updates}
 }
 exports.leaveGroupAsync = leaveGroupAsync;
+
+async function removeUserFromGroupAsync({group, user, userId}) {
+    const groupInfo = await FBUtil.getDataAsync(['group', group]);
+    if (userId != groupInfo.host) {
+        return accessDeniedResult;
+    }
+    var updates = {
+        ['group/' + group + '/member/' + user]: null,
+        ['userPrivate/' + user + '/group/' + group]: null,
+        ['post/' + groupInfo.community + '/' + group + '/member/' + user]: null,
+        ['userPriavte/' + user + '/youAskedPost/' + groupInfo.community + '/' + group]: null    
+    }
+    return {success: true, updates}
+}
+exports.removeUserFromGroupAsync = removeUserFromGroupAsync;
 
 async function blockMemberAsync({group, member, block, userId}) {
     const updates = {

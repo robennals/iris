@@ -144,6 +144,10 @@ export async function leaveGroupAsync({group}) {
     return await callServerApiAsync('leaveGroup', {group});
 }
 
+export async function removeUserFromGroupAsync({user, group}) {
+    return await callServerApiAsync('removeUserFromGroup', {user, group});
+}
+
 export async function validateReplyAsync({group, rootKey, messageKey}) {
     return await callServerApiAsync('validateReply', {group, rootKey, messageKey});
 }

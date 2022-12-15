@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { FixedTouchable, FormInput, FormTitle, memberKeysToHues, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
+import { FixedTouchable, FormInput, FormTitle, memberKeysToHues, MinorButton, parseQuestions, parseTopics, ScreenContentScroll, shouldIgnoreQuestion, textToKey, WideButton } from '../components/basics';
 import { getCurrentUser, internalReleaseWatchers, isMasterUser, setDataAsync, useDatabase, watchData } from '../data/fbutil';
 import { Picker, View, StyleSheet, Text } from 'react-native';
 import _ from 'lodash';
-import { acceptJoinRequestAsync, adminArchiveGroupAsync, leaveGroupAsync, updateGroupProfileAsync } from '../data/servercall';
+import { acceptJoinRequestAsync, adminArchiveGroupAsync, leaveGroupAsync, removeUserFromGroupAsync, updateGroupProfileAsync } from '../data/servercall';
 import { CommunityPhotoIcon, GroupProfilePhotoPlaceholder, GroupProfilePhotoPreview, MemberPhotoIcon, pickImage } from '../components/photo';
 import { resizeImageAsync, useCustomNavigation } from '../components/shim';
 import { Catcher } from '../components/catcher';
-import { FollowAvoid } from '../components/followavoid';
+import { FollowButton } from '../components/followavoid';
 import { Loading } from '../components/loading';
 import { baseColor } from '../data/config';
+import { popupConfirm } from '../components/shimui';
 
 
 function BioAnswers({answers, bioQuestions}) {
@@ -20,7 +21,7 @@ function BioAnswers({answers, bioQuestions}) {
     return <Text style={{color: '#666'}} numberOfLines={1}>{joinedAnswers}</Text>
 }
 
-function MemberPreview({community, group, topic, viewpoint, members, hue, userId, bioQuestions}) {
+function MemberPreview({community, isHost, group, topic, viewpoint, members, hue, userId, bioQuestions}) {
     const member=members[userId];
     const navigation = useCustomNavigation();
     return (
@@ -47,9 +48,29 @@ function MemberPreview({community, group, topic, viewpoint, members, hue, userId
                         </View>
                     </FixedTouchable>
                 : null} */}
-                <FollowAvoid user={userId} style={{marginTop: 4}}/>
+                {userId != getCurrentUser() ?
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 4}}>
+                        <FollowButton user={userId}/>
+                        {isHost && userId != getCurrentUser() ?
+                            <RemoveButton user={userId} group={group} />
+                        : null}
+                    </View>
+                : null }
             </View>
         </View>
+    )
+}
+
+function RemoveButton({user, group}) {
+    async function onRemove() {
+        popupConfirm({title: 'Are you sure you want to remove this user?', text: '', onConfirm: async () => {
+            await removeUserFromGroupAsync({user, group});   
+        }})
+    }
+    return (
+        <FixedTouchable onPress={() => onRemove()} style={{marginLeft: 8}}>
+            <Text>Remove</Text>
+        </FixedTouchable>
     )
 }
 
@@ -202,7 +223,7 @@ export function GroupProfileScreen({navigation, route}) {
             <Text style={{fontSize: 16, fontWeight: 'bold', marginTop: 32, marginBottom: 24}}>Participants</Text>
 
             {filteredMemberKeys.map(m => 
-                <MemberPreview key={m} group={group} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
+                <MemberPreview key={m} isHost={isHost} group={group} community={community} hue={memberHues[m]} members={members} bioQuestions={bioQuestions} userId={m} />
             )}
 
             {isHost && rejectedJoinKeys.length > 0 ?

@@ -15,7 +15,16 @@ import _ from 'lodash';
 
 /* eslint-disable react/no-find-dom-node */
 
-  
+
+export function popupConfirm({title, text, onConfirm}) {
+  if (confirm(title + '\n' + text) == true) {
+    onConfirm();
+  } else {
+    console.log('Cancel pressed');
+  }
+}
+
+
 export function ModalMenu() {return null}
 
 

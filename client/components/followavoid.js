@@ -4,7 +4,7 @@ import { baseColor } from '../data/config';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import { FixedTouchable } from './basics';
 
-export function FollowAvoid({user, style}) {
+export function FollowButton({user, style}) {
     const followAvoid = useDatabase([user], ['perUser', 'followAvoid', getCurrentUser(), user], '');
 
     function setUserRelationship(type) {

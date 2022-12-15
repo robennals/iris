@@ -9,7 +9,7 @@ import { MemberPhotoIcon, MemberProfilePhotoPlaceholder, MemberProfilePhotoPrevi
 import { resizeImageAsync } from '../components/shim';
 import { Loading } from '../components/loading';
 import { Catcher } from '../components/catcher';
-import { FollowAvoid } from '../components/followavoid';
+import { FollowAvoid, FollowButton } from '../components/followavoid';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 
 function RenameWidget({name, user}) {
@@ -66,7 +66,7 @@ export function ProfileScreen({navigation, route}) {
             </View>
             {member != getCurrentUser() ?
                 <View>
-                    <FollowAvoid user={member} style={{justifyContent: 'center', marginVertical: 8}} />
+                    <FollowButton user={member} style={{justifyContent: 'center', marginVertical: 8}} />
                     <Text style={{color: '#666', fontSize: 12, alignSelf: 'center'}}>
                         Follow {first} to see more conversations they are in.
                     </Text>

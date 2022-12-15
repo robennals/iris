@@ -1,10 +1,21 @@
 import React from 'react';
-import {View, FlatList, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
+import {View, FlatList, Text, TouchableOpacity, StyleSheet, ScrollView, Alert} from 'react-native';
 import { Catcher } from './catcher';
 import Modal from 'react-native-modal';
 import { FixedTouchable } from './basics';
 import _ from 'lodash';
 
+
+export function popupConfirm({title, text, onConfirm}) {
+  Alert.alert(title, text, [
+    {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel"
+      },
+      { text: "OK", onPress: onConfirm}
+  ]);
+}
 
 export function ModalMenu({items, onSelect, onClose}) {
     return (
