@@ -382,6 +382,8 @@ function BoostInfo({boost, postInfo}) {
 
 function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) {
     const navigation = useCustomNavigation();
+    const questions = _.filter(_.map((postInfo.questions || '').split('\n'), q => q.trim()), s => s);
+    const shownQuestions = expanded ? questions : questions.slice(0,3);
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -399,8 +401,17 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                         {expanded ? 
                             <LinkText style={{color: '#666'}} text={postInfo.text} />
                         : 
-                            <Text style={{color: '#666'}} numberOfLines={4}>{postInfo.text}</Text>
+                            <Text style={{color: '#666'}} numberOfLines={2}>{postInfo.text}</Text>
                         }
+                        {expanded && shownQuestions.length > 0 ? 
+                            <Text style={{fontWeight: 'bold', marginTop: 24, fontSize: 13}}>Questions</Text>
+                        :null}
+                        {shownQuestions.map(q => 
+                            <View key={q} style={{flexDirection: 'row', flexShrink: 1, marginTop: 8}}>
+                                <Text style={{color: '#666', marginRight: 4}}>{'\u2022'}</Text>
+                                <Text numberOfLines={expanded ? null : 2} style={{color: '#666', marginBottom: 2}}>{q}</Text>
+                            </View>                    
+                        )}
                     </FixedTouchable>
                     {/* <PostGroupMembers community={community} post={post} postInfo={postInfo} /> */}
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />

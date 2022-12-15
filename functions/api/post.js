@@ -9,7 +9,7 @@ const { join } = require('path');
 const { name_label } = require('./basics');
 const { isMasterUser, accessDeniedResult } = require('./iris');
 
-async function editPostAsync({community, post, title, text, userId}) {
+async function editPostAsync({community, post, title, text, questions, userId}) {
     const pMembers = FBUtil.getDataAsync(['commMember', community]);
     const pOldPost = post && FBUtil.getDataAsync(['post', community, post], null);
 
@@ -27,7 +27,7 @@ async function editPostAsync({community, post, title, text, userId}) {
     const time = Date.now();
 
     const postData = {        
-        text, title, 
+        text, title, questions,
         from: oldPost?.from || userId,
         fromName: oldPost?.fromName || fromName, 
         fromPhoto: oldPost?.fromPhoto || fromPhoto, 

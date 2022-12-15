@@ -114,10 +114,14 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         const hostName = hostMember.answer[name_label]
         const hostPhoto = hostMember.photoKey;
         const member = {
-            [host]: {name: hostName, photo: hostPhoto, time: postInfo.createTime}
+            [host]: {name: hostName, photo: hostPhoto, time: postInfo.createTime},
+            ['zzz_irisbot']: {name: 'Irisbot'}
         }
+
+        const message = await writeIntroMessagesAsync({postInfo, host});
+
         const groupInfo = {
-            name: postInfo.title, member, host,
+            name: postInfo.title, member, host, message,
             community, privateName: hostName,
         }
         updates['group/' + group] = groupInfo;
@@ -126,6 +130,7 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
             name: postInfo.title, community, lastMessage, host
         }
         updates['post/' + community + '/' + post + '/member'] = member; 
+
     } else {
         updates['userPrivate/' + host + '/group/' + group + '/lastMessage'] = lastMessage;
     }
@@ -144,3 +149,33 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
 
 }
 exports.askToJoinGroupAsync = askToJoinGroupAsync;
+
+
+async function writeIntroMessagesAsync({postInfo, host}) {
+    const time = Date.now();
+
+    var messages = {};
+
+    hostMessage({text: postInfo.text, time, messages, host});
+
+    if (postInfo.questions) {
+        const parsedQuestions = _.filter(_.map((postInfo.questions || '').split('\n'), q => q.trim()), s => s);
+
+        var timeIncrement = 0;
+        parsedQuestions.forEach(question => {
+            timeIncrement++;
+            // questions.push(question);
+            hostMessage({text: question, time: time+timeIncrement, messages, host});
+        })
+    }
+
+    return messages;
+}
+
+function hostMessage({text, time, messages, host}) {
+    const key = FBUtil.newKey();
+    messages[key] = {
+        text, time, from: host
+    }
+}
+
