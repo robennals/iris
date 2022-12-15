@@ -47,7 +47,7 @@ export function ChatScreenHeader({navigation, route}) {
         }
     }, [group])
 
-    console.log('host', {host, hostName, hostPhoto, members});
+    // console.log('host', {host, hostName, hostPhoto, members});
 
     useEffect(() => {
         function markThisChatRead() {
@@ -143,7 +143,7 @@ function NewMessageTracker({group}) {
 
     const title = _.get(groups, [group, 'name']);
     setTitle(title);
-    console.log('NewMessageTracker', {title, groups, group, unreadCount, unreadGroups});
+    // console.log('NewMessageTracker', {title, groups, group, unreadCount, unreadGroups});
 
     return <TitleBlinker count={unreadCount} title={title} />
 }

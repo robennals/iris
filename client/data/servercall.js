@@ -32,9 +32,13 @@ export function releaseServerTokenWatch(){
 
 export async function initServerAccessKeyAsync(userId){
     console.log('initServerAccessKey', userId);
-    const accessKey = await getDataAsync(['userPrivate', userId, 'accessKey']);
-    console.log('got access key', accessKey);
-    global_accessKey = accessKey;
+    if (userId) {
+        const accessKey = await getDataAsync(['userPrivate', userId, 'accessKey']);
+        console.log('got access key', accessKey);
+        global_accessKey = accessKey;
+    } else {
+        console.log('not logged in. Not getting access key')
+    }
 }
 
 export function setInitialAccessKey(userId, accessKey) {

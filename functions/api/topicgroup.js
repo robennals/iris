@@ -49,9 +49,12 @@ async function acceptJoinRequestAsync({community, post, user, userId}) {
         data: {community, group, host, type: 'addToGroup'}
     }
 
+    const emails = await IrisEmail.createMailForGroupAcceptAsync({community, group, groupName: postName, hostName, user});
+
     console.log('updates', updates);
     console.log('notifs', notif);
-    return {success: true, updates, notifs: [notif]};
+    console.log('emails', emails);
+    return {success: true, updates, notifs: [notif], emails};
 }
 
 exports.acceptJoinRequestAsync = acceptJoinRequestAsync;
@@ -115,7 +118,6 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         const hostPhoto = hostMember.photoKey;
         const member = {
             [host]: {name: hostName, photo: hostPhoto, time: postInfo.createTime},
-            ['zzz_irisbot']: {name: 'Irisbot'}
         }
 
         const message = await writeIntroMessagesAsync({postInfo, host});
@@ -143,10 +145,13 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         data: {community, group, host, type: 'askToJoinGroup'}
     }
 
+    const emails = await IrisEmail.createMailForAskToJoinGroupAsync({community, group, userName, groupName: postInfo.title, requestText: text, host});
+
     console.log('updates', updates);
     console.log('notifs', notif);
-    return {success: true, updates, notifs: [notif]};
-
+    console.log('emails', emails);
+    return {success: true, updates, notifs: [notif], emails};
+    // return {success: true}
 }
 exports.askToJoinGroupAsync = askToJoinGroupAsync;
 

@@ -186,7 +186,6 @@ async function writeIntroMessagesAsync({viewpoints, community, group, topic, mem
         }
     });
 }
-exports.writeIntroMessagesAsync = writeIntroMessagesAsync;
 
 async function adminArchiveGroupAsync({group, archive = true, userId}) {
     console.log('adminArchive', archive);

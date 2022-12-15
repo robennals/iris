@@ -54,14 +54,15 @@ export function PostScreenHeader({navigation, route}) {
 function PostGroupMembers({community, post, postInfo}) {
     const navigation = useCustomNavigation();
     const members = postInfo.member;
-    if (!members || _.keys(members).length < 2 || members[getCurrentUser()]) {
+    const realMemberKeys = _.filter(_.keys(members), m => m != 'zzz_irisbot')
+    if (!members || realMemberKeys.length < 2 || members[getCurrentUser()]) {
         return null;
     }
-    const memberKeys = _.keys(members);
+    const memberKeys = realMemberKeys;
     const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
     return (
         <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-            {_.map(_.keys(members), m => 
+            {_.map(realMemberKeys, m => 
                 <FixedTouchable key={m} onPress={() => navigation.navigate('profile', {community, member: m})}>
                     <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
                 </FixedTouchable>
@@ -339,7 +340,7 @@ function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
     const navigation = useCustomNavigation();
     return (
         <View>
-            <MemoPost community={community} post={hostCluster.leadPost} postInfo={posts[hostCluster.leadPost]} />            
+            <MemoPost community={community} post={hostCluster.leadPost} postInfo={posts[hostCluster.leadPost]} youAsked={youAskedPost[hostCluster.leadPost]} />            
             {hostCluster.otherPosts.length > 0 ? 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     <View style={{marginBottom: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -428,7 +429,7 @@ function PostHostLine({community, post, postInfo}) {
 
     return (
         <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'top'}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>                
                     <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={28} />
                     <View style={{marginLeft: 8}}>

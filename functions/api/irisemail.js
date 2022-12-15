@@ -367,3 +367,64 @@ async function createMailsForNewGroupAsync({groupName, members, groupKey}) {
 
 exports.createMailsForNewGroupAsync = createMailsForNewGroupAsync;
 
+
+async function sendEmailIfNotifsDisabledAsync({community, toUser, subject, templateName, templateData}) {
+    const htmlTemplate = FS.readFileSync('template/' + templateName + '.html').toString();
+    // const textTemplate = FS.readFileSync('template/newgroup.text').toString();
+    const pEmail = FBUtil.getDataAsync(['special', 'userEmail', toUser]);
+    const pName = FBUtil.getDataAsync(['commMember', community, toUser, 'answer', Basics.name_label]);
+
+    const pActiveTime = FBUtil.getDataAsync(['userPrivate', toUser, 'lastAction'], 0);
+    const hostToken = await FBUtil.getDataAsync(['userPrivate', toUser, 'notifToken'], null);
+
+    const toEmail = await pEmail;
+    const toName = await pName;
+    const activeTime = await pActiveTime;
+
+    if (hostToken && activeTime > (Date.now() - Basics.dayMillis)) {
+        return [];
+    }
+
+    const HtmlBody = Mustache.render(htmlTemplate, templateData);
+
+    const emailToSend = {
+        To: toName + ' <' + toEmail + '>',
+        From: 'Iris Talk <support@iris-talk.com>',
+        Subject: subject,
+        HtmlBody 
+    }
+    return [emailToSend];
+}
+
+
+async function createMailForAskToJoinGroupAsync({community, group, groupName, requestText, userName, host}) {   
+    const templateData = {
+        userName,
+        groupName,
+        requestText,
+        groupKey: group
+    }
+
+    return await sendEmailIfNotifsDisabledAsync({community, 
+        subject: userName + ' asked to join ' + groupName,
+        toUser: host, templateName: 'joinrequest', templateData});
+}
+
+exports.createMailForAskToJoinGroupAsync = createMailForAskToJoinGroupAsync;
+
+
+
+async function createMailForGroupAcceptAsync({community, group, hostName, groupName, user}) {   
+    const templateData = {
+        hostName,
+        groupName,
+        groupKey: group
+    }
+
+    return await sendEmailIfNotifsDisabledAsync({community, 
+        subject: hostName + ' accepted your request to join ' + groupName,
+        toUser: user, templateName: 'joinaccept', templateData});
+}
+
+exports.createMailForGroupAcceptAsync = createMailForGroupAcceptAsync;
+
