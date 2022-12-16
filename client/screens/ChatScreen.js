@@ -71,33 +71,30 @@ export function ChatScreenHeader({navigation, route}) {
     }
 
     return (
-        <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})} style={{alignSelf: 'stretch', flex: 1}}>
+        <FixedTouchable onPress={() => navigation.navigate('groupProfile', {group})} style={{alignSelf: 'stretch'}}>
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
-                <GroupSideBySideIcon members={members || {}} size={36} />
-                <View style={{marginLeft: 8, flex: 1}}>
-                    <OneLineText style={{fontSize: 20, fontWeight: 'bold', flexShrink: 1}}>
-                        {name}
-                    </OneLineText>
+                <GroupSideBySideIcon members={members || {}} size={28} />
+                <View style={{marginLeft: 8}}>
+                    <OneLineText>{name}</OneLineText>
                     {clickPromo ? 
                         <Text style={{fontSize: 11, marginLeft: 2, color: '#666'}}>Click here for group info</Text>
                     : 
-                        (communityInfo ? 
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
-                                <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
-                                {host ? 
-                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <Text style={{fontSize: 11, marginBottom: 0, color: '#666'}}> - </Text>
-                                        <MemberPhotoIcon photoKey={hostPhoto} user={host} name={hostName} size={11} />
-                                        <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{hostName}</Text>
-                                    </View>
-                                : null }
-                            </View>
-                        : null)
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />
+                            <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{communityInfo.name}</Text>                        
+                            {host ? 
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{fontSize: 11, marginBottom: 0, color: '#666'}}> - </Text>
+                                    <MemberPhotoIcon photoKey={hostPhoto} user={host} name={hostName} size={11} />
+                                    <Text style={{fontSize: 11, marginLeft: 2, marginBottom: 0, color: '#666'}}>{hostName}</Text>
+                                </View>
+                            : null }                        
+                        </View>
                     }
                 </View>
             </View>
         </FixedTouchable>
+
     )
 }
 

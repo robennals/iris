@@ -7,7 +7,7 @@ import { CommunityPhotoIcon, getUrlForImage, PhotoPicker } from '../components/p
 import { PopupSelector } from '../components/shimui';
 import { baseColor, highlightColor } from '../data/config';
 import { getCurrentUser, internalReleaseWatchers, newKey, useDatabase, watchData } from '../data/fbutil';
-import { confirmCommunitySignup, confirmSignupAsync, logIntakeAsync, requestLoginCode, signinWithLoginCode, submitCommunityFormAsync } from '../data/servercall';
+import { confirmSignupAsync, logIntakeAsync, requestLoginCode, signinWithLoginCode, submitCommunityFormAsync } from '../data/servercall';
 import _ from 'lodash';
 import { removeFocusListener, useCustomNavigation } from '../components/shim';
 

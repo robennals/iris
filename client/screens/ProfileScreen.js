@@ -9,7 +9,7 @@ import { MemberPhotoIcon, MemberProfilePhotoPlaceholder, MemberProfilePhotoPrevi
 import { resizeImageAsync } from '../components/shim';
 import { Loading } from '../components/loading';
 import { Catcher } from '../components/catcher';
-import { FollowAvoid, FollowButton } from '../components/followavoid';
+import { FollowButton } from '../components/followavoid';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 
 function RenameWidget({name, user}) {

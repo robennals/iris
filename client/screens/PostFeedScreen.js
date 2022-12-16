@@ -86,8 +86,6 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
             borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
                 You asked to join
         </Text>
-
-        return <Text style={{fontWeight: 'bold'}}>You asked to join</Text>
     } else if (postInfo.from == getCurrentUser()) {
         return <Text style={{color: '#666', borderTopColor: '#ddd', 
                     borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
