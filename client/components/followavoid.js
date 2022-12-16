@@ -4,13 +4,13 @@ import { baseColor } from '../data/config';
 import { getCurrentUser, setDataAsync, useDatabase } from '../data/fbutil';
 import { FixedTouchable } from './basics';
 
-export function FollowButton({user, style}) {
+export function FollowButton({user, style, mini=false, firstName=''}) {
     const followAvoid = useDatabase([user], ['perUser', 'followAvoid', getCurrentUser(), user], '');
 
     function setUserRelationship(type) {
         var newState;
         if (followAvoid == type) {
-            newState = '';
+            newState = null;
         } else {
             newState = type;
         }
@@ -21,31 +21,19 @@ export function FollowButton({user, style}) {
         <View style={{flexDirection: 'row', alignItems: 'center', ...style}}>
             <FixedTouchable onPress={() => setUserRelationship('follow')}>
                 {followAvoid == 'follow' ? 
-                    <View style={[styles.button, styles.following]}>
-                        <Text style={styles.activeText}>Following</Text>
+                    <View style={[mini ? styles.miniButton : styles.button, styles.following]}>
+                        <Text style={[mini ? styles.miniText : null, styles.activeText]}>Following{firstName}</Text>
                     </View>
                 : 
-                    <View style={[styles.button, styles.follow]}>
-                        <Text style={styles.followText}>Follow</Text>
+                    <View style={[mini ? styles.miniButton : styles.button, styles.follow]}>
+                        <Text style={[mini ? styles.miniText : null, styles.followText]}>Follow{firstName}</Text>
                     </View>
                 }
             </FixedTouchable>
-            {/* <View style={{margin: 8}} />
-            <FixedTouchable onPress={() => setUserRelationship('avoid')}>
-                {followAvoid == 'avoid' ? 
-                    <View style={[styles.button, styles.avoiding]}>
-                        <Text style={styles.activeText}>Avoiding</Text>
-                    </View>
-                : 
-                    <View style={[styles.button, styles.avoid]}>
-                        <Text style={styles.avoidText}>Avoid</Text>
-                    </View>
-                }
-
-            </FixedTouchable>             */}
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     button: {
@@ -53,6 +41,15 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
         borderRadius: 16,
         borderWidth: StyleSheet.hairlineWidth
+    },
+    miniButton: {
+        paddingHorizontal: 4,
+        paddingVertical: 0,
+        borderRadius: 16,
+        borderWidth: StyleSheet.hairlineWidth
+    },
+    miniText: {
+        fontSize: 10
     },
     activeText: {
         color: 'white',

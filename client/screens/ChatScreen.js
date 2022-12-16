@@ -77,7 +77,7 @@ export function ChatScreenHeader({navigation, route}) {
                 <View style={{marginLeft: 8}}>
                     <OneLineText>{name}</OneLineText>
                     {clickPromo ? 
-                        <Text style={{fontSize: 11, marginLeft: 2, color: '#666'}}>Click here for group info</Text>
+                        <Text style={{fontSize: 11, color: '#666'}}>Click here for conversation info</Text>
                     : 
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <CommunityPhotoIcon photoKey={communityInfo.photoKey} photoUser={communityInfo.photoUser} size={11} />

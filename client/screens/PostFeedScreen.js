@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
+import { Action, andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Entypo, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -17,6 +17,7 @@ import { askToJoinAsync, editTopicAsync } from '../data/servercall';
 import { PhotoPromo } from '../components/profilephoto';
 import { SearchBox } from '../components/searchbox';
 import { IntakeScreen } from './IntakeScreen';
+import { FollowButton } from '../components/followavoid';
 
 export function PostFeedScreenHeader({navigation, route}) {
     const {community} = route.params;
@@ -29,7 +30,8 @@ export function PostFeedScreenHeader({navigation, route}) {
             <View style={{flexDirection: 'row', alignItems: 'center', padding: 8}}>
                 <CommunityPhotoIcon photoKey={communityInfo?.photoKey} photoUser={communityInfo.photoUser} name={communityInfo.name} size={28} />
                 <View style={{marginLeft: 8}}>
-                    <Text style>{communityInfo.name}</Text>
+                    <Text>{communityInfo.name}</Text>
+                    <Text style={{color: '#666', fontSize: 11}}>Conversation Feed</Text>
                 </View>
             </View>
         </FixedTouchable>
@@ -394,7 +396,7 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                         borderRadius: 8, flexShrink: 1, flex: 1, padding: 8,
                         ...lightShadowStyle
                 }}> 
-                    <PostHostLine community={community} post={post} postInfo={postInfo} />
+                    <PostHostLine expanded={expanded} community={community} post={post} postInfo={postInfo} />
                     <FixedTouchable dummy={expanded} onPress={() => navigation.navigate('post', {community, post})}>
                         <OneLineText style={{fontWeight: 'bold', fontSize: 16, marginVertical: 8}}>{postInfo.title}</OneLineText>
                         {expanded ? 
@@ -421,7 +423,7 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
 }
 
 
-function PostHostLine({community, post, postInfo}) {
+function PostHostLine({community, post, postInfo, expanded}) {
     const navigation = useCustomNavigation();
     const canEdit = postInfo.from == getCurrentUser() || isMasterUser();
 
@@ -430,9 +432,14 @@ function PostHostLine({community, post, postInfo}) {
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>                
                     <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={28} />
-                    <View style={{marginLeft: 8}}>
-                        <Text style={{fontWeight: 'bold', fontSize: 12}}>{postInfo.fromName}</Text>
-                        <Text style={{color: '#999', fontSize: 10}}>{formatTime(postInfo.createTime)}</Text>
+                    <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                        <View style={{marginLeft: 8, marginRight: 8}}>
+                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{postInfo.fromName}</Text>
+                            <Text style={{color: '#999', fontSize: 10}}>{formatTime(postInfo.createTime)}</Text>
+                        </View>
+                        {expanded ? 
+                            <FollowButton mini user={postInfo.from} firstName={' ' + firstName(postInfo.fromName)} />
+                        : null}
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -452,14 +459,15 @@ function SearchNewHeader({community, search, setSearch}) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
             <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
-                <SearchBox value={search} onChangeText={setSearch} placeholder='Search'
+                <SearchBox value={search} onChangeText={setSearch} placeholder='Search Conversations'
                     style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                     marginHorizontal: 0}} />              
                 {search ? null : 
                     <WideButton alwaysActive
                         onPress={() => navigation.navigate('newPost', {community})} 
                         // onPress={() => console.log('community', community)}
-                        style={{alignSelf: 'center', margin: 0, marginLeft: 8}}>New Conversation
+                        innerStyle={{fontSize: 14, marginHorizontal: 6}}
+                        style={{alignSelf: 'center', margin: 0, marginLeft: 8, paddingVertical: 6, paddingHorizontal: 6}}>New Conversation
                     </WideButton>
                 }
             </View>

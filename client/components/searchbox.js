@@ -12,7 +12,7 @@ export function SearchBox({onChangeText, value, style, placeholder='Search'}) {
         <Ionicons name='ios-search' size={20} color='#999' style={{marginLeft: 8}} />
         <FormInput value={value || ''} underlineColorAndroid='transparent' placeholder={placeholder} 
             onChangeText={onChangeText} 
-            style={{flex: 1, flexShrink: 1, width: '100%', fontSize: 16, padding: 8}}/>
+            style={{flex: 1, flexShrink: 1, width: '100%', fontSize: 14, padding: 6}}/>
         {!value ? null : 
           <FixedTouchable part='search-cancel' onPress={()=>onChangeText('')}>
             <Entypo name='circle-with-cross' size={20} color='#999' style={{marginHorizontal: 8}} />   
