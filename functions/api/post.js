@@ -71,6 +71,9 @@ async function editUpdateAsync({community, post, update, text, userId}) {
     if (!update) {        
         updates['post/' + community + '/' + post + '/lastUpdate'] = postUpdate;
         updates['group/' + post + '/message/' + updateKey] = {...postUpdate, isUpdate: true, from: userId};
+    } else {
+        updates['group/' + post + '/message/' + updateKey + '/text'] = text;
+        updates['group/' + post + '/message/' + updateKey + '/editTime'] = time;    
     }
     updates['update/' + community + '/' + post + '/' + updateKey] = postUpdate;
 

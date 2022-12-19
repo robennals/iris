@@ -34,6 +34,9 @@ function ChatHelp({hostName}) {
                 This conversation is hosted by {hostName}. They are responsible for moderating the conversation
                 and deciding who to let into the conversation.
             </HelpText>
+            <HelpText>
+                The host can also write Public Updates to let people outside the conversation know what has been happening.
+            </HelpText>
         </Help>
     )
 }

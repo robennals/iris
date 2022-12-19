@@ -276,7 +276,7 @@ export function PostScreen({navigation, route}) {
                             : null}
                             <View>
                                 {sortedUpdateKeys.map(u => 
-                                    <PostUpdate key={u} updateInfo={updates[u]} />
+                                    <PostUpdate key={u} updateInfo={updates[u]} canEdit={postInfo.from == getCurrentUser()} community={community} post={post} update={u} />
                                 )}
                             </View>
                         </View>
@@ -287,14 +287,66 @@ export function PostScreen({navigation, route}) {
     )
 }
 
-function PostUpdate({updateInfo}) {
-    return (
-        <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
-                padding: 8, borderRadius: 8, marginVertical: 4}}>
-            <LinkText text={updateInfo.text} />
-            <Text style={{color: '#666', fontSize: 13, alignSelf: 'flex-end'}}> - {formatTime(updateInfo.time)}</Text>
-        </View>
-    )
+function PostUpdate({updateInfo, community, post, update, canEdit}) {
+    const [edit, setEdit] = useState(false);
+    const [text, setText] = useState(updateInfo.text);
+    const [inProgress, setInProgress] = useState(false);
+ 
+    async function onSubmit(){
+        setInProgress(true);
+        await editUpdateAsync({community, post, update, text});
+        setInProgress(false);
+        setEdit(false);
+    }
+
+    if (edit) {
+        return (
+            <View style={{marginBottom: 16}}>
+                <View style={{borderRadius: 16, borderColor: '#ddd', marginBottom: 4, backgroundColor: 'white', 
+                    borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between'}}>
+
+                    <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 8}}
+                        placeholder='Write a new public update'
+                        placeholderTextColor='#666'
+                        value={text}
+                        multiline                    
+                        onChangeText={setText}
+                    />
+                </View>
+                {inProgress ? 
+                    <Text style={{color: '#666', alignSelf: 'flex-end', marginRight: 16}}>Submitting...</Text>
+                : 
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center'}}>
+                        <FixedTouchable onPress={() => setEdit(false)}>
+                            <Text style={{color: '#666', marginRight: 16}}>Cancel</Text>
+                        </FixedTouchable>
+                        <FixedTouchable onPress={onSubmit}>
+                            <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-end'}}>
+                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Submit Edit</Text>
+                            </View>
+                        </FixedTouchable>
+                    </View>
+                }
+            </View>
+        )
+    } else {
+        return (
+            <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
+                    padding: 8, borderRadius: 8, marginVertical: 4}}>           
+                <LinkText text={updateInfo.text} />
+                {canEdit ? 
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 8}}>
+                        <FixedTouchable onPress={() => setEdit(true)}>
+                            <Text style={{color: '#666', fontSize: 13}}>Edit</Text>
+                        </FixedTouchable>
+                        <Text style={{color: '#666', fontSize: 13}}> - {formatTime(updateInfo.time)}</Text>
+                    </View>
+                : 
+                    <Text style={{color: '#666', fontSize: 13, alignSelf: 'flex-end'}}> - {formatTime(updateInfo.time)}</Text>
+                }
+            </View>
+        )
+    }
 }
 
 

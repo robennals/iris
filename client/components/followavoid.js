@@ -44,12 +44,12 @@ const styles = StyleSheet.create({
     },
     miniButton: {
         paddingHorizontal: 8,
-        paddingVertical: 0,
+        paddingVertical: 2,
         borderRadius: 16,
         borderWidth: StyleSheet.hairlineWidth
     },
     miniText: {
-        fontSize: 15
+        fontSize: 14
     },
     activeText: {
         color: 'white',
