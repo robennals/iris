@@ -52,6 +52,26 @@ export function PostScreenHeader({navigation, route}) {
     )
 }
 
+function ConversationFeedHelp({communityName}) {
+    return (
+        <Help id='conversationfeed' title='About the Conversation Feed' style={{marginTop: 16}}>
+            <HelpText>
+                The conversation feed contains private conversations that you can ask to join.
+            </HelpText>
+            <HelpText>
+                Each conversation is run by a host. The host writes a post describing what they
+                want to talk about, decides who to let into their conversation, and moderates the conversation.
+            </HelpText>
+            <HelpText>
+                You can use conversations for lots of things. To get feedback on an idea, to make a decision,
+                to organize a group of peolpe to perform some task, to get help with something, 
+                or just to chat about something that's on your mind.
+            </HelpText>
+
+        </Help>
+    )
+}
+
 
 function PostGroupMembers({community, post, postInfo}) {
     const navigation = useCustomNavigation();
@@ -309,6 +329,8 @@ function PostList({posts, postBoosts, sortedHostKeys, boostedPostKeys, hostClust
 
     return (
         <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#fcf8f4'}}>
+            <ConversationFeedHelp />
+
             <SearchNewHeader community={community} search={search} setSearch={setSearch} />
             {filteredPostKeys.map(post => 
                 <Catcher key={post} style={{alignSelf: 'stretch'}}>
@@ -322,6 +344,7 @@ function PostList({posts, postBoosts, sortedHostKeys, boostedPostKeys, hostClust
                     </Catcher>
                 )
             }
+            <View style={{height: 100}} />
 
         </ScrollView>
     )
@@ -346,7 +369,7 @@ function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
                     <View style={{marginBottom: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                         <View style={{
                             backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                            borderRadius: 4, flexShrink: 1, flex: 1, padding: 8,
+                            borderRadius: 4, padding: 8,
                             ...lightShadowStyle
                         }}> 
 
@@ -393,16 +416,16 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                 : null}
                 <View style={{
                         backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
-                        borderRadius: 8, flexShrink: 1, flex: 1, padding: 8,
+                        borderRadius: 8, padding: 8,
                         ...lightShadowStyle
                 }}> 
                     <PostHostLine expanded={expanded} community={community} post={post} postInfo={postInfo} />
                     <FixedTouchable dummy={expanded} onPress={() => navigation.navigate('post', {community, post})}>
-                        <OneLineText style={{fontWeight: 'bold', fontSize: 16, marginVertical: 8}}>{postInfo.title}</OneLineText>
+                        <Text numberOfLines={expanded ? null : 1} style={{fontWeight: 'bold', fontSize: 18, marginVertical: 8}}>{postInfo.title}</Text>
                         {expanded ? 
-                            <LinkText style={{color: '#666'}} text={postInfo.text} />
+                            <LinkText style={{color: '#666', fontSize: 16}} text={postInfo.text} />
                         : 
-                            <Text style={{color: '#666'}} numberOfLines={2}>{postInfo.text}</Text>
+                            <Text style={{color: '#666', fontSize: 16}} numberOfLines={2}>{postInfo.text}</Text>
                         }
                         {expanded && shownQuestions.length > 0 ? 
                             <Text style={{fontWeight: 'bold', marginTop: 24, fontSize: 13}}>Questions</Text>
@@ -431,11 +454,11 @@ function PostHostLine({community, post, postInfo, expanded}) {
         <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>                
-                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={28} />
+                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={32} />
                     <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                         <View style={{marginLeft: 8, marginRight: 8}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 12}}>{postInfo.fromName}</Text>
-                            <Text style={{color: '#999', fontSize: 10}}>{formatTime(postInfo.createTime)}</Text>
+                            <Text style={{fontWeight: 'bold', fontSize: 14}}>{postInfo.fromName}</Text>
+                            <Text style={{color: '#999', fontSize: 12}}>{formatTime(postInfo.createTime)}</Text>
                         </View>
                         {expanded ? 
                             <FollowButton mini user={postInfo.from} firstName={' ' + firstName(postInfo.fromName)} />
@@ -458,7 +481,7 @@ function SearchNewHeader({community, search, setSearch}) {
     const navigation = useCustomNavigation();
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-            <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 16, flex: 1, alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', maxWidth: 450, marginHorizontal: 16, marginTop: 0, flex: 1, alignItems: 'center'}}>
                 <SearchBox value={search} onChangeText={setSearch} placeholder='Search Conversations'
                     style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                     marginHorizontal: 0}} />              

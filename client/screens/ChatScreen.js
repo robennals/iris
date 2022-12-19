@@ -23,6 +23,20 @@ import { Loading } from '../components/loading';
 import { StatusBar } from 'expo-status-bar';
 import { BottomFlatScroller } from '../components/bottomscroller';
 import { baseColor } from '../data/config';
+import { Help, HelpText } from '../components/help';
+
+
+function ChatHelp({hostName}) {
+    if (!hostName) return null;
+    return (
+        <Help id='chat' title='About Conversations' style={{marginVertical: 16}}>
+            <HelpText>
+                This conversation is hosted by {hostName}. They are responsible for moderating the conversation
+                and deciding who to let into the conversation.
+            </HelpText>
+        </Help>
+    )
+}
 
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
@@ -356,6 +370,8 @@ function MessageList({group, onReply, onEdit}) {
     const scrollRef = React.createRef();
     const memberHues = useMemo(() => memberKeysToHues(_.keys(members || {})), [members]);
 
+    const hostName = host ? members[host]?.name : null;
+
     // compareMessageChanges(messages);
 
     // console.log('messageList', {messages, localMessages, members, likes});
@@ -383,7 +399,9 @@ function MessageList({group, onReply, onEdit}) {
     function renderMessage({item}) {
         // console.log('renderMessageFunc', item);
         const {key, idx} = item;
-        if (key == 'space') {
+        if (key == 'help') {
+            return <ChatHelp hostName={hostName} />
+        } else if (key == 'space') {
             return <View style={{height: 16}} />
         } else if (key == 'archived') {
             return <Feedback archived={archived} group={group} />
@@ -420,6 +438,7 @@ function MessageList({group, onReply, onEdit}) {
             renderItem={renderMessage}
             extraData={group}
             data={[
+                {key: 'help'},
                 {key: 'space'},
                 ...shownMessageKeys.map((k,idx) => ({key: k, idx, message: allMessages[k]})),
                 {key: 'archived'},
