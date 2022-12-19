@@ -93,7 +93,8 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     feedback: 'feedback/',
     myViewpoint: 'myViewpoint/:community/:topic',
     viewpoint: 'viewpoint/:community/:topic/:user',
-    myTopicGroup: 'myTopicGroup/:community/:topic'
+    myTopicGroup: 'myTopicGroup/:community/:topic',
+    reportAbuse: 'reportAbuse/:thingType/:community/:thing'
   }
 }}
 

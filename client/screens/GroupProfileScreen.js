@@ -243,7 +243,7 @@ export function GroupProfileScreen({navigation, route}) {
                 <WideButton onPress={() => navigation.replace('leaveGroup', {group})}>
                     Leave Group
                 </WideButton>
-                <WideButton alwaysActive onPress={() => navigation.replace('reportAbuse', {group})} 
+                <WideButton alwaysActive onPress={() => navigation.replace('reportAbuse', {community, thing:group, thingType: 'conversation'})} 
                         style={{alignSelf: 'flex-start'}}>
                     Report Abuse
                 </WideButton>

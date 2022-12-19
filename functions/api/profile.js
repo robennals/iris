@@ -6,23 +6,19 @@ const Mustache = require('mustache');
 const FS = require('fs');
 
 
-async function reportAbuseAsync({group, member, community=null, abuseType, details, userId}) {
-    const pGroupName = FBUtil.getDataAsync(['group', group, 'name']);
-    const pMemberName = FBUtil.getDataAsync(['userPrivate', member, 'name']);
+async function reportAbuseAsync({community=null, thing, thingType, details, userId}) {
     const pReporterName = FBUtil.getDataAsync(['userPrivate', userId, 'name']);
     const pCommunityName = FBUtil.getDataAsync(['community', community, 'name']);
-    const groupName = await pGroupName;
-    const memberName = await pMemberName;
     const reporterName = await pReporterName;
     const communityName = await pCommunityName;
 
     const htmlTemplate = FS.readFileSync('template/abusereport.html').toString();
     const htmlOutput = Mustache.render(htmlTemplate, {
-        groupName, group, communityName, community, memberName, member, abuseType, details, userId, reporterName});
+        communityName, community, reporterName, userId, thing, thingType, details});
     const email = {
         To: 'rob.ennals@gmail.com',
         From: 'TalkWell Abuse <abuse@talkwell.net>',
-        Subject: 'Abuse Report: ' + memberName,
+        Subject: 'Abuse Report: ' + reporterName,
         HtmlBody: htmlOutput
     }
     return {success: true, emails: [email]}

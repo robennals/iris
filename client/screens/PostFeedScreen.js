@@ -4,7 +4,7 @@ import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data
 import _ from 'lodash';
 import { Action, andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
-import { Entypo, Ionicons } from '@expo/vector-icons';
+import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
 import { dayMillis, formatMessageTime, formatSummaryTime, formatTime } from '../components/time';
 import { baseColor } from '../data/config';
@@ -440,6 +440,12 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                     {/* <PostGroupMembers community={community} post={post} postInfo={postInfo} /> */}
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>
+                {expanded ? 
+                    <FixedTouchable onPress={() => navigation.navigate('reportAbuse', {community, thing:post, thingType: 'post'})}>
+                        <Text style={{color: '#666', fontSize: 13, marginTop: 2, marginLeft: 4}}>                        
+                            <FontAwesome name='flag' /> Report Abuse</Text>
+                    </FixedTouchable>
+                : null}
             </View>
         </View>
     )

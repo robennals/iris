@@ -81,7 +81,7 @@ export function ProfileScreen({navigation, route}) {
             <Catcher>
                 <BioAnswers communityInfo={communityInfo} answers={answers} />
             </Catcher>
-            <WideButton alwaysActive onPress={() => navigation.replace('reportAbuse', {community, member})} 
+            <WideButton alwaysActive onPress={() => navigation.replace('reportAbuse', {community, thing:member, thingType: 'member'})} 
                         style={{alignSelf: 'center'}}>
                     Report Abuse
             </WideButton>
