@@ -588,14 +588,15 @@ function Message({group, meInGroup, host, community, topic, message, prevMessage
             }
             {/* <View style={message.published ? styles.publishedMessageBox : {flexShrink: 1}}> */}
             <View style={{flexShrink: 1}}>
-                {message.viewpoint || message.published || message.proposePublic? 
-                    <FixedTouchable onPress={() => navigation.navigate('highlights', {community, topic})}>
+                {message.isUpdate ? 
+                    <FixedTouchable onPress={() => navigation.navigate('post', {community, post:group})}>
                         <View style={{marginHorizontal: 8, marginTop: 4, flexDirection: 'row', alignItems: 'center'}}>
                             <Entypo name='megaphone' color='#FABC05' size={16} />
-                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>{getViewpontText({message})} - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
+                            <Text style={{color: '#666', marginLeft: 4, fontSize: 12}}>Public Update - <Text style={{textDecorationLine: 'underline'}}>see all</Text></Text>
                         </View>            
                     </FixedTouchable>
                 : null}
+
 
             {/* <View style={{flex: 1, flexGrow: 0, maxWidth: 550}}> */}
                 <FixedTouchable dummy={Platform.OS == 'web'} onPress={onPress} onLongPress={onPress} style={{flex: 1, maxWidth: 550}}>
@@ -605,7 +606,7 @@ function Message({group, meInGroup, host, community, topic, message, prevMessage
                             prevAlsoMe ? {marginTop: 1, borderTopRightRadius: 4} : {},
                             nextAlsoMe ? {marginBottom: 1, borderBottomRightRadius: 4} : {},
                             // myMessage && messageLikes ? {alignSelf: 'stretch'} : {},
-                            message.published || message.proposePublic || message.viewpoint ? {borderColor: '#222', borderWidth: 4, marginTop: 1, marginBottom: 8, ...shadowStyle} : {},
+                            message.isUpdate || message.published || message.proposePublic || message.viewpoint ? {borderColor: '#222', borderWidth: 4, marginTop: 1, marginBottom: 8, ...shadowStyle} : {},
                             message.prevPublic && (!message.proposePublic) ? {marginTop: 1} : {},
                             // messageLikes ? {marginBottom: 24} : {},
                             hueStyle
@@ -673,8 +674,8 @@ function Message({group, meInGroup, host, community, topic, message, prevMessage
             </View>
 
             <View style={{width: 64, flexShrink: 0, flexDirection: 'row', justifyContent: myMessage ? 'flex-end' : 'flex-start', alignItems: 'center', 
-                marginTop: (message.published || message.proposePublic || message.prevPublic) ? 24 : null}}>
-                {hover && meInGroup && myMessage ? 
+                marginTop: message.isUpdate ? 24 : null}}>
+                {hover && meInGroup && myMessage && !message.isUpdate ? 
                     <View style={{marginHorizontal: 4}}>
                         <FixedTouchable onPress={onEditClicked}>
                             <Entypo name='edit' size={20} color='#999' />
@@ -700,7 +701,6 @@ function Message({group, meInGroup, host, community, topic, message, prevMessage
             </View>
         </View>
         </View>
-        // </Swipeable>
     )
 }
 

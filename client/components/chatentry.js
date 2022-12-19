@@ -23,6 +23,8 @@ export const ChatEntryBox = memo(forwardRef(
     const [textKey, setTextKey] = useState(0);
     const [proposePublic, setProposePublic] = useState(false);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
+    const host = useDatabase([group], ['group', group, 'host'], null);
+
     const navigation = useCustomNavigation();
 
 
@@ -188,12 +190,12 @@ export const ChatEntryBox = memo(forwardRef(
                         onKeyPress={Platform.OS == 'web' ? onKeyPress : null}                
                     />
                 </View>
-                {!expanded && topic ? 
-                    <FixedTouchable onPress={() => navigation.navigate('myViewpoint', {community, topic})}>
+                {host == getCurrentUser() ? 
+                    <FixedTouchable onPress={() => navigation.navigate('post', {community, post: group, newUpdate: true})}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, 
                             alignItems: 'center', marginLeft: 8, borderColor: '#999', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>
                             <Entypo name='megaphone' color='#FABC05' size={16} />
-                            <Text style={{marginLeft: 4, color: '#222'}}>Viewpoint</Text>
+                            <Text style={{marginLeft: 4, color: '#222'}}>Write Update</Text>
                         </View>
                     </FixedTouchable>                
                 : null}

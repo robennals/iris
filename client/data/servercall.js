@@ -282,6 +282,10 @@ export async function acceptJoinRequestAsync({community, post, user}) {
     return await callServerApiAsync('acceptJoinRequest', {community, post, user});
 }
 
+export async function editUpdateAsync({community, post, update, text}) {
+    return await callServerApiAsync('editUpdate', {community, post, update, text});
+}
+
 
 export async function logErrorAsync({error, stack=null, context=null}) {
     try {

@@ -52,3 +52,30 @@ async function editPostAsync({community, post, title, text, questions, userId}) 
 }
 
 exports.editPostAsync = editPostAsync;
+
+
+async function editUpdateAsync({community, post, update, text, userId}) {
+    if (post) {
+        const postInfo = await FBUtil.getDataAsync(['post', community, post]);
+        if (postInfo.from != userId) {
+            console.log('postInfo', postInfo);
+            console.log('userId', userId);
+            return accessDeniedResult;
+        }
+    }
+
+    const updateKey = update || FBUtil.newKey();
+    var updates = {};
+    const time = Date.now();
+    const postUpdate = {text, time};
+    if (!update) {        
+        updates['post/' + community + '/' + post + '/lastUpdate'] = postUpdate;
+        updates['group/' + post + '/message/' + updateKey] = {...postUpdate, isUpdate: true, from: userId};
+    }
+    updates['update/' + community + '/' + post + '/' + updateKey] = postUpdate;
+
+    return {success: true, updates}
+}
+
+exports.editUpdateAsync = editUpdateAsync;
+

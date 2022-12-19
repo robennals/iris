@@ -13,7 +13,7 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 import { Loading } from '../components/loading';
 import { useCustomNavigation } from '../components/shim';
 import { Help, HelpText } from '../components/help';
-import { askToJoinAsync, editTopicAsync } from '../data/servercall';
+import { askToJoinAsync, editTopicAsync, editUpdateAsync } from '../data/servercall';
 import { PhotoPromo } from '../components/profilephoto';
 import { SearchBox } from '../components/searchbox';
 import { IntakeScreen } from './IntakeScreen';
@@ -50,6 +50,61 @@ export function PostScreenHeader({navigation, route}) {
             </OneLineText>
         </View>
     )
+}
+
+function NewUpdate({community, post, newUpdate}) {
+    const [expanded, setExpanded] = useState(newUpdate);
+    const [text, setText] = useState('');
+    const [inProgress, setInProgress] = useState(false);
+ 
+    async function onSubmit(){
+        setInProgress(true);
+        await editUpdateAsync({community, post, text});
+        setInProgress(false);
+        setExpanded(false);
+    }
+
+    if (expanded) {
+        return (
+            <View style={{marginBottom: 16}}>
+                <View style={{borderRadius: 16, borderColor: '#ddd', marginBottom: 4, backgroundColor: 'white', 
+                    borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between'}}>
+                    <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 8}}
+                        placeholder='Write a new public update'
+                        placeholderTextColor='#666'
+                        value={text}
+                        multiline                    
+                        onChangeText={setText}
+                    />
+                </View>
+                {inProgress ? 
+                    <Text style={{color: '#666', alignSelf: 'flex-end', marginRight: 16}}>Submitting...</Text>
+                : 
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center'}}>
+                        <FixedTouchable onPress={() => setExpanded(false)}>
+                            <Text style={{color: '#666', marginRight: 16}}>Cancel</Text>
+                        </FixedTouchable>
+                        <FixedTouchable onPress={onSubmit}>
+                            <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-end'}}>
+                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>Publish Update</Text>
+                            </View>
+                        </FixedTouchable>
+                    </View>
+                }
+            </View>
+
+        )
+    } else {
+        return (
+            <FixedTouchable onPress={() => setExpanded(true)}>
+                <View style={{borderColor: '#ddd', backgroundColor: 'white', 
+                        borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, padding: 8, marginBottom: 16}}>
+                    <Text style={{color: '#666'}}>Write a new public update</Text>
+                </View>
+            </FixedTouchable>
+        )
+    }
+
 }
 
 function ConversationFeedHelp({communityName}) {
@@ -192,16 +247,17 @@ function AskToJoin({community, post, postInfo}) {
 
 
 export function PostScreen({navigation, route}) {
-    const {community, post} = route.params;
-    const postInfo = useDatabase([community], ['post', community, post]);
-    const readTime = useDatabase([community],['userPrivate', getCurrentUser(), 'postRead', community, post]);
-    const youAsked = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community, post], null);
+    const {community, post, newUpdate} = route.params;
+    const postInfo = useDatabase([community, post], ['post', community, post]);
+    const readTime = useDatabase([community, post],['userPrivate', getCurrentUser(), 'postRead', community, post]);
+    const youAsked = useDatabase([community, post], ['userPrivate', getCurrentUser(), 'youAskedPost', community, post], null);
+    const updates = useDatabase([community, post], ['update', community, post]);
 
-
-    if (!postInfo) return <Loading />
+    if (!postInfo || !updates) return <Loading />
 
     console.log('youAsked', youAsked);
 
+    const sortedUpdateKeys = _.sortBy(_.keys(updates), u => updates[u].time).reverse();;
 
     return (
         <KeyboardSafeView size={{flex: 1}}>
@@ -210,9 +266,34 @@ export function PostScreen({navigation, route}) {
                 <PhotoPromo />
                 <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#fcf8f4'}}>
                     <MemoPost expanded community={community} post={post} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
+                    <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
+                        <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                            {sortedUpdateKeys.length > 0 || postInfo.from == getCurrentUser() ? 
+                                <Text style={{fontSize: 18, marginTop: 8, marginBottom: 8, fontWeight: 'bold', marginLeft: 8}}>Public Updates</Text>
+                            : null}
+                            {postInfo.from == getCurrentUser() ?
+                                <NewUpdate community={community} post={post} newUpdate={newUpdate} />
+                            : null}
+                            <View>
+                                {sortedUpdateKeys.map(u => 
+                                    <PostUpdate key={u} updateInfo={updates[u]} />
+                                )}
+                            </View>
+                        </View>
+                    </View>
                 </ScrollView>
             </HeaderSpaceView>
         </KeyboardSafeView>
+    )
+}
+
+function PostUpdate({updateInfo}) {
+    return (
+        <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
+                padding: 8, borderRadius: 8, marginVertical: 4}}>
+            <LinkText text={updateInfo.text} />
+            <Text style={{color: '#666', fontSize: 13, alignSelf: 'flex-end'}}> - {formatTime(updateInfo.time)}</Text>
+        </View>
     )
 }
 
@@ -407,7 +488,7 @@ function BoostInfo({boost, postInfo}) {
 function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) {
     const navigation = useCustomNavigation();
     const questions = _.filter(_.map((postInfo.questions || '').split('\n'), q => q.trim()), s => s);
-    const shownQuestions = expanded ? questions : questions.slice(0,3);
+    const shownQuestions = expanded ? questions : (postInfo.lastUpdate ? [] : questions.slice(0,3));
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -427,6 +508,13 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                         : 
                             <Text style={{color: '#666', fontSize: 16}} numberOfLines={2}>{postInfo.text}</Text>
                         }
+                        {!expanded && postInfo.lastUpdate ? 
+                            <View style={{marginTop: 8}}>
+                                <Text style={{fontSize: 12}}><Text style={{fontWeight: 'bold'}}>Update</Text> - {formatTime(postInfo.lastUpdate.time)}</Text>
+                                <Text style={{color: '#666', fontSize: 16}} numberOfLines={3}>{postInfo.lastUpdate.text}</Text>
+                            </View>
+                           : null 
+                        } 
                         {expanded && shownQuestions.length > 0 ? 
                             <Text style={{fontWeight: 'bold', marginTop: 24, fontSize: 13}}>Questions</Text>
                         :null}
@@ -442,7 +530,7 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                 </View>
                 {expanded ? 
                     <FixedTouchable onPress={() => navigation.navigate('reportAbuse', {community, thing:post, thingType: 'post'})}>
-                        <Text style={{color: '#666', fontSize: 13, marginTop: 2, marginLeft: 4}}>                        
+                        <Text style={{color: '#999', fontSize: 12, marginTop: 4, marginLeft: 4}}>                        
                             <FontAwesome name='flag' /> Report Abuse</Text>
                     </FixedTouchable>
                 : null}
