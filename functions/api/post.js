@@ -59,6 +59,45 @@ async function editPostAsync({community, post, topic, title, text, questions, us
 exports.editPostAsync = editPostAsync;
 
 
+async function editPostTopicAsync({community, topic=null, name, questions, pinned, summary, userId}) {
+    const isMaster = isMasterUser(userId);
+    var updates = {};
+    var topicKey = topic ? topic : FBUtil.newKey();
+    var oldTopic = null;
+    const pMembers = FBUtil.getDataAsync(['commMember', community]);
+    const pCommunityName = FBUtil.getDataAsync(['community', community, 'name']);
+    if (topic) {
+        oldTopic = await FBUtil.getDataAsync(['postTopic', community, topic], null);
+    }
+    const members = await pMembers; const communityName = await pCommunityName;
+
+    console.log('editTopic', topic, topicKey, pinned, oldTopic);
+
+    const time = Date.now();
+    updates['postTopic/' + community + '/' + topicKey] = {
+        name, questions, summary, time: oldTopic?.time || time,
+        pinned: pinned || null,
+        approved: isMaster, from: oldTopic?.from || userId,
+        fromName: oldTopic?.fromName || members[userId]?.answer?.['Full Name'] || null,
+        fromPhoto: oldTopic?.fromPhoto || members[userId]?.photoKey || null,
+    }
+
+    if ((!topic || !oldTopic.approved) && isMaster) {
+        console.log('New topic or newly approved topic');
+    
+        const lastMessage = {text: 'New topic: ' + name, time};
+        updates['community/' + community + '/lastMessage'] = lastMessage
+
+        _.forEach(_.keys(members), member => {
+            updates['userPrivate/' + member + '/comm/' + community + '/lastMessage'] = lastMessage
+            console.log('new topic notif', name);
+        })
+    }
+    return {success: true, updates}
+}
+exports.editPostTopicAsync = editPostTopicAsync;
+
+
 async function editUpdateAsync({community, post, update, text, userId}) {
     if (post) {
         const postInfo = await FBUtil.getDataAsync(['post', community, post]);

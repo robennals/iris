@@ -14,7 +14,7 @@ const { irisDigestAsync, wakeupMessageAsync, autoCloseAsync, wakeupGroupsAsync }
 const { testTopicsEmailAsync } = require('./topicsemail');
 const { sendFeedbackAsync } = require('./feedback');
 const { saveTopicGroupAsync, askToJoinGroupAsync, acceptJoinRequestAsync } = require('./topicgroup');
-const { editPostAsync, editUpdateAsync } = require('./post');
+const { editPostAsync, editUpdateAsync, editPostTopicAsync } = require('./post');
 
 async function apiActionAsync({action, components, params}) {
     console.log('apiAction', action, components);
@@ -186,6 +186,9 @@ async function apiActionAsync({action, components, params}) {
         }
         case 'editUpdate': {
             return editUpdateAsync(params);
+        }
+        case 'editPostTopic': {
+            return editPostTopicAsync(params);
         }
 
         default: {

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { FormCheckbox, FormInput, FormTitle, mergeEditedParams, ScreenContentScroll, WideButton } from '../components/basics';
 import { CommunityPhotoIcon } from '../components/photo';
 import { internalReleaseWatchers, isMasterUser, watchData } from '../data/fbutil';
-import { editTopicAsync } from '../data/servercall';
+import { editPostTopicAsync, editTopicAsync } from '../data/servercall';
 import _ from 'lodash';
 
 function questionJsonToText(questions) {
@@ -58,7 +58,7 @@ export function EditTopicScreen({navigation, route}) {
 
 
     async function onSubmit() {
-        await editTopicAsync({community, topic: topic || null, name: merged.name, 
+        await editPostTopicAsync({community, topic: topic || null, name: merged.name, 
                 pinned: merged.pinned,
                 summary: merged.summary, questions: questionTextToJson(merged.questions)});
         navigation.goBack();
