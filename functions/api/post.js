@@ -9,7 +9,7 @@ const { join } = require('path');
 const { name_label } = require('./basics');
 const { isMasterUser, accessDeniedResult } = require('./iris');
 
-async function editPostAsync({community, post, title, text, questions, userId}) {
+async function editPostAsync({community, post, topic, title, text, questions, userId}) {
     const pMembers = FBUtil.getDataAsync(['commMember', community]);
     const pOldPost = post && FBUtil.getDataAsync(['post', community, post], null);
 
@@ -29,6 +29,7 @@ async function editPostAsync({community, post, title, text, questions, userId}) 
     const postData = {        
         text, title, questions,
         from: oldPost?.from || userId,
+        topic: oldPost?.topic || topic || null,
         fromName: oldPost?.fromName || fromName, 
         fromPhoto: oldPost?.fromPhoto || fromPhoto, 
         members: oldPost?.members || null,
@@ -38,6 +39,10 @@ async function editPostAsync({community, post, title, text, questions, userId}) 
 
     var updates = {};
     updates['post/' + community + '/' + postKey] = postData;
+
+    if (topic) {
+        updates['postTopic/' + community + '/' + topic + '/group/' + postKey] = true;
+    }
 
     const lastMessage = {text: fromName + ': ' + title, time};
 

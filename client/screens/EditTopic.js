@@ -83,17 +83,17 @@ export function EditTopicScreen({navigation, route}) {
                 </View>
 
                 <FormTitle title='Topic Name'>
-                    <FormInput value={merged.name} onChangeText={setName} />
+                    <FormInput value={merged.name} maxLength={40} onChangeText={setName} />
                 </FormTitle>
                 <FormTitle title='Brief Summary (optional)'>
                     <FormInput value={merged.summary} onChangeText={setSummary} />                
                 </FormTitle>
-                <FormTitle title='Three Short Questions (one per line)'>
+                {/* <FormTitle title='Three Short Questions (one per line)'>
                     <FormInput value={merged.questions || ''} onChangeText={setQuestions} multiline extraStyle={{flex: null, height: 72}} />
-                </FormTitle>
-                {isMaster ?
+                </FormTitle> */}
+                {/* {isMaster ?
                     <FormCheckbox label='Pin in Intake Form' selected={merged.pinned} onChangeSelected={setPinned} />
-                : null}
+                : null} */}
                 <WideButton onPress={onSubmit} style={{marginTop: 32, alignSelf: 'flex-start'}} 
                     inProgress={topic ? 'Updating...' : 'Creating Topic...'}>
                     {topic ? 'Update Topic' : (isMaster ? 'Create Topic' : 'Suggest Topic')}

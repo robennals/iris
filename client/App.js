@@ -51,6 +51,7 @@ import { TopicScreen, TopicScreenHeader } from './screens/TopicScreen';
 import { EditTopicGroupScreen, EditTopicGroupScreenHeader } from './screens/EditTopicGroupScreen';
 import { EditPostScreen, EditPostScreenHeader } from './screens/EditPost';
 import { PostFeedScreen, PostFeedScreenHeader, PostScreen, PostScreenHeader } from './screens/PostFeedScreen';
+import { PostTopicScreen, PostTopicScreenHeader } from './screens/PostTopicScreen';
 
 
 Sentry.init({
@@ -83,6 +84,7 @@ const linking = {prefixes: [prefix, 'https://iris-talk.com'], config: {
     editTopic: 'editTopic/:community/:topic',
     newPost: 'newPost/:community',
     editPost: 'editPost/:community/:post',
+    newTopicPost: 'newTopicPost/:community/:topic',
     communityProfile: 'communityProfile/:community',
     published: 'published/:community/:topic',
     highlights: 'highlighted:/:community/:topic',
@@ -265,13 +267,14 @@ const screens = {
   newTopic: {component: EditTopicScreen, title: 'New Topic'},
   editTopic: {component: EditTopicScreen, title: 'Edit Topic'},
   newPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
+  newTopicPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
   editPost: {component: EditPostScreen, headerTitle: EditPostScreenHeader},
   adminLogin: {component: AdminLoginScreen, title: 'Admin Login'},
   published: {component: PublishedScreen, headerTitle: PublishedHeader},
   highlights: {component: PublishedScreen, headerTitle: PublishedHeader},
   post: {component: PostScreen, headerTitle: PostScreenHeader},
   missing: {component: MissingScreen, title: 'Missing Page'},
-  topic: {component: TopicScreen , headerTitle: TopicScreenHeader},
+  topic: {component: PostTopicScreen , headerTitle: PostTopicScreenHeader},
   myViewpoint: {component: EditViewpointScreen, headerTitle: EditViewpointScreenHeader},
   viewpoint: {component: ViewpointScreen, headerTitle: ViewpointScreenHeader},
   waiting: {component: WaitingScreen, title: 'Waiting for Matches'},

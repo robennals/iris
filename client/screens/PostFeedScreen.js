@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, firstName, FixedTouchable, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
+import { Action, andFormatStrings, firstName, FixedTouchable, Header, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -250,10 +250,11 @@ export function PostScreen({navigation, route}) {
     const {community, post, newUpdate} = route.params;
     const postInfo = useDatabase([community, post], ['post', community, post]);
     const readTime = useDatabase([community, post],['userPrivate', getCurrentUser(), 'postRead', community, post]);
-    const youAsked = useDatabase([community, post], ['userPrivate', getCurrentUser(), 'youAskedPost', community, post], null);
+    const youAsked = useDatabase([community, post], ['userPrivate', getCurrentUser(), 'youAskedPost', community, post], null);    
     const updates = useDatabase([community, post], ['update', community, post]);
+    const topicInfo = useDatabase([community, post, postInfo?.topic], ['postTopic', community, postInfo?.topic]);
 
-    if (!postInfo || !updates) return <Loading />
+    if (!postInfo || !updates || postInfo.topic && !topicInfo) return <Loading />
 
     console.log('youAsked', youAsked);
 
@@ -265,7 +266,7 @@ export function PostScreen({navigation, route}) {
             <HeaderSpaceView style={{flex: 1}}>
                 <PhotoPromo />
                 <ScrollView style={{flex: 1, flexShrink: 1, backgroundColor: '#fcf8f4'}}>
-                    <MemoPost expanded community={community} post={post} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
+                    <MemoPost expanded community={community} post={post} topicInfo={topicInfo} postInfo={postInfo} readTime={readTime} youAsked={youAsked} />
                     <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                         <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
                             {sortedUpdateKeys.length > 0 || postInfo.from == getCurrentUser() ? 
@@ -410,12 +411,13 @@ function getPostBoost({postInfo, followAvoid}) {
 export function PostFeedScreen({navigation, route}) {
     const {community, post: boostedPostKey} = route.params;
     const posts = useDatabase([community], ['post', community]);
+    const topics = useDatabase([community], ['postTopic', community]);
     const postRead = useDatabase([community],['userPrivate', getCurrentUser(), 'postRead', community]);
     const localComm = useDatabase([community], ['userPrivate', getCurrentUser(), 'comm', community], false);
     const youAskedPost = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community]);
     const followAvoid = useDatabase([], ['perUser', 'followAvoid', getCurrentUser()]);
 
-    if (!posts || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
+    if (!posts || !topics || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
 
     const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
 
@@ -430,7 +432,8 @@ export function PostFeedScreen({navigation, route}) {
     // console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
 
     const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
-    const sortedHostKeys = _.sortBy(_.keys(hostClusters), h => hostClusters[h].time).reverse();
+    const hostAndTopicKeys = [... _.keys(hostClusters), ... _.keys(topics)];
+    const sortedHostAndTopicKeys = _.sortBy(hostAndTopicKeys, h => hostClusters[h]?.time || topics[h]?.time || 0).reverse();
 
     return (
         <KeyboardSafeView size={{flex: 1}}>
@@ -442,7 +445,7 @@ export function PostFeedScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <PostList postBoosts={postBoosts} posts={posts} sortedHostKeys={sortedHostKeys} hostClusters={hostClusters} boostedPostKeys={boostedPostKeys} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
+                    <PostList postBoosts={postBoosts} posts={posts} sortedHostAndTopicKeys={sortedHostAndTopicKeys} hostClusters={hostClusters} topics={topics} boostedPostKeys={boostedPostKeys} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -450,7 +453,7 @@ export function PostFeedScreen({navigation, route}) {
 }
 
 
-function PostList({posts, postBoosts, sortedHostKeys, boostedPostKeys, hostClusters, sortedPostKeys, community, postRead, youAskedPost}) {
+function PostList({posts, topics, postBoosts, sortedHostAndTopicKeys, boostedPostKeys, hostClusters, sortedPostKeys, community, postRead, youAskedPost}) {
     const [search, setSearch] = useState('');
     var filteredPostKeys = boostedPostKeys;
     if (search) [
@@ -465,21 +468,66 @@ function PostList({posts, postBoosts, sortedHostKeys, boostedPostKeys, hostClust
             <ConversationFeedHelp />
 
             <SearchNewHeader community={community} search={search} setSearch={setSearch} />
+            {filteredPostKeys.length > 0 ?
+                <Header style={{marginTop: 16}}>Highighted Conversations</Header>
+            : null}
             {filteredPostKeys.map(post => 
                 <Catcher key={post} style={{alignSelf: 'stretch'}}>
-                    <MemoPost boost={postBoosts[post]} community={community} post={post} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
+                    <MemoPost boost={postBoosts[post]} community={community} post={post} topicInfo={topics[posts[post]?.topic]} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
                 </Catcher>
             )}
+            {filteredPostKeys.length > 0 ?
+                <Header style={{marginTop: 16}}>Other Conversations</Header>
+            
+            : null}
             {search ? null : 
-                sortedHostKeys.map(host => 
-                    <Catcher key={host} style={{alignSelf: 'stretch'}}>
-                        <MemoHostCluster community={community} posts={posts} host={host} hostCluster={hostClusters[host]} youAskedPost={youAskedPost} />
+                sortedHostAndTopicKeys.map(hostOrTopic => 
+                    <Catcher key={hostOrTopic} style={{alignSelf: 'stretch'}}>
+                        {hostClusters[hostOrTopic] ? 
+                            <MemoHostCluster community={community} topics={topics} posts={posts} host={hostOrTopic} hostCluster={hostClusters[hostOrTopic]} youAskedPost={youAskedPost} />
+                        :
+                            <PostTopic community={community} topic={hostOrTopic} topicInfo={topics[hostOrTopic]} />
+                        }
                     </Catcher>
                 )
             }
             <View style={{height: 100}} />
 
         </ScrollView>
+    )
+}
+
+
+function PostTopic({expanded, community, topic, topicInfo}) {
+    const navigation = useCustomNavigation();
+    return (
+        <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
+            <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                <View style={{
+                            backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                            borderRadius: 8, padding: 8,
+                            ...lightShadowStyle
+                    }}>
+                    <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic})}>
+                        <View style={{flexDirection: 'row', marginBottom: 2}}>
+                            <View style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 4}}>
+                                <Text style={{color: '#666', fontSize: 11}}>Topic</Text>
+                            </View>
+                            <Text style={{color: '#999', fontSize: 12}}> - {formatTime(topicInfo.time)}</Text>
+                        </View>
+
+                        {/* <Text style={{color: '#999', fontSize: 12}}>New Topic<Text style={{color: '#999'}}> - {formatTime(topicInfo.time)}</Text></Text> */}
+                        <Text style={{fontSize: 18, marginBottom: 8}}><Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text></Text>
+                        <Text numberOfLines={expanded ? null : 2} style={{fontSize: 16, color: '#666', marginBottom: 12}}>{topicInfo.summary}</Text>
+                    </FixedTouchable>
+                    <FixedTouchable onPress={() => navigation.navigate('newTopicPost', {community, topic})}>
+                        <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-start'}}>
+                            <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>New Conversation</Text>
+                        </View>
+                    </FixedTouchable>
+                </View>
+            </View>
+        </View>
     )
 }
 
@@ -492,11 +540,12 @@ const lightShadowStyle = {
 
 const MemoHostCluster = React.memo(HostCluster);
 
-function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
+function HostCluster({community, host, topics, posts, hostCluster, youAskedPost}) {
     const navigation = useCustomNavigation();
     return (
         <View>
-            <MemoPost community={community} post={hostCluster.leadPost} postInfo={posts[hostCluster.leadPost]} youAsked={youAskedPost[hostCluster.leadPost]} />            
+            <MemoPost community={community} post={hostCluster.leadPost} 
+                    topicInfo={topics[posts[hostCluster.leadPost]?.topic]} postInfo={posts[hostCluster.leadPost]} youAsked={youAskedPost[hostCluster.leadPost]} />            
             {hostCluster.otherPosts.length > 0 ? 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
                     <View style={{marginBottom: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -521,7 +570,7 @@ function HostCluster({community, host, posts, hostCluster, youAskedPost}) {
 }
 
 
-const MemoPost = React.memo(Post);
+export const MemoPost = React.memo(Post);
 
 
 
@@ -537,13 +586,17 @@ function BoostInfo({boost, postInfo}) {
 }
 
 
-function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) {
+function Post({community, boost, post, topicInfo, postInfo, readTime, youAsked, expanded, hideTopic}) {
     const navigation = useCustomNavigation();
     const questions = _.filter(_.map((postInfo.questions || '').split('\n'), q => q.trim()), s => s);
     const shownQuestions = expanded ? questions : (postInfo.lastUpdate ? [] : questions.slice(0,3));
+    const topic = postInfo.topic;
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                {expanded && topic && !hideTopic ?
+                    <TopicPromo community={community} topic={topic} topicInfo={topicInfo} /> 
+                : null}
                 {boost ? 
                     <BoostInfo boost={boost} postInfo={postInfo} />
                 : null}
@@ -552,7 +605,7 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
                         borderRadius: 8, padding: 8,
                         ...lightShadowStyle
                 }}> 
-                    <PostHostLine expanded={expanded} community={community} post={post} postInfo={postInfo} />
+                    <PostHostLine expanded={expanded} hideTopic={hideTopic || expanded} topic={postInfo.topic} topicInfo={topicInfo} community={community} topic={postInfo.topic} topicInfo={topicInfo} post={post} postInfo={postInfo} />
                     <FixedTouchable dummy={expanded} onPress={() => navigation.navigate('post', {community, post})}>
                         <Text numberOfLines={expanded ? null : 1} style={{fontWeight: 'bold', fontSize: 18, marginVertical: 8}}>{postInfo.title}</Text>
                         {expanded ? 
@@ -591,23 +644,50 @@ function Post({community, boost, post, postInfo, readTime, youAsked, expanded}) 
     )
 }
 
+function TopicPromo({community, topic, topicInfo}) {
+    const navigation = useCustomNavigation();
+    return (
+        <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic})}>
+            <View style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
+                    borderRadius: 8, padding: 8, marginBottom: 8,
+                    ...lightShadowStyle}}>
+                <Text><Text style={{color: '#666'}}>about</Text> <Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text></Text>
+            </View>
+        </FixedTouchable>
+    )
+}
 
-function PostHostLine({community, post, postInfo, expanded}) {
+
+function PostHostLine({community, post, hideTopic, topic, topicInfo, postInfo, expanded}) {
     const navigation = useCustomNavigation();
     const canEdit = postInfo.from == getCurrentUser() || isMasterUser();
 
     return (
-        <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>                
-                    <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={32} />
+                    <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>
+                        <MemberPhotoIcon user={postInfo.from} photoKey={postInfo.fromPhoto} name={postInfo.fromName} size={32} />
+                    </FixedTouchable>
                     <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                         <View style={{marginLeft: 8, marginRight: 8}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 14}}>{postInfo.fromName}</Text>
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <FixedTouchable onPress={() => navigation.navigate('profile', {community, member: postInfo.from})}>            
+                                    <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 14, flexShrink: 1}}>{postInfo.fromName}</Text>
+                                </FixedTouchable>
+                                {topic && !expanded && !hideTopic ?
+                                    <FixedTouchable onPress={() => navigation.navigate('topic', {community, topic})}>
+                                        <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 14, marginLeft: 0, flexShrink: 2}}>
+                                            <Entypo name='chevron-right' />
+                                            {/* <Text style={{fontWeight: 'normal', color: '#666'}}> about </Text> */}
+                                            {topicInfo?.name}
+                                        </Text>
+                                    </FixedTouchable> 
+                                : null}               
+                            </View>
                             <Text style={{color: '#999', fontSize: 12}}>{formatTime(postInfo.createTime)}</Text>
                         </View>
-                        {expanded ? 
-                            <FollowButton mini user={postInfo.from} firstName={' ' + firstName(postInfo.fromName)} />
+                        {expanded && postInfo.from != getCurrentUser() ? 
+                            <FollowButton mini style={{marginLeft: 8}} user={postInfo.from} firstName={' ' + firstName(postInfo.fromName)} />
                         : null}
                     </View>
                 </View>
@@ -619,7 +699,6 @@ function PostHostLine({community, post, postInfo, expanded}) {
                     :null}
                 </View>
             </View>
-        </FixedTouchable>
     )
 }
 
@@ -653,6 +732,7 @@ function CommunityAdminActions({community}) {
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('communitySignups', {community})}>Signups</SmallMinorButton>
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('communityGroups', {community})}>Groups</SmallMinorButton>
             <SmallMinorButton alwaysActive onPress={() => navigation.navigate('join', {community})}>Intake Form</SmallMinorButton>
+            <SmallMinorButton alwaysActive onPress={() => navigation.navigate('newTopic', {community})}>New Topic</SmallMinorButton>
         </View>
     )
 }

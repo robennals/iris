@@ -22,6 +22,24 @@ export function shallowEqual(a, b) {
   return true;
 }
 
+export const lightShadowStyle = {
+  shadowRadius: 2, shadowColor: '#555', shadowOffset: {width: 0, height: 1},
+      // borderColor: '#ddd', borderWidth: 2,
+  shadowOpacity: 0.5, elevation: 2}
+
+
+export function Header({style, children}) {
+    return (
+        <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
+            <View style={{marginHorizontal: 16, flex: 1, maxWidth: 450}}>
+                <Text style={{fontSize: 12, fontWeight: 'bold', marginHorizontal: 8, textTransform: 'uppercase', color: '#666', ...style}}>
+                    {children}
+                </Text>
+            </View>
+        </View>
+    )
+}
+
 export function Action({icon, name, pad=1, onPress, entypo=false}) {
   return (
       <FixedTouchable onPress={onPress} style={{marginLeft: 8}}>
@@ -326,6 +344,7 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
     return <TextInput placeholder={placeholder} style={style ? style : [textBoxStyle, extraStyle]}
       textContentType={textContentType} multiline={multiline}
       placeholderTextColor = '#666'
+      maxLength={maxLength}
       keyboardType={keyboardType}
       autoCompleteType={autoCompleteType}
       underlineColorAndroid='transparent'

@@ -10,12 +10,14 @@ import { KeyboardSafeView } from '../components/keyboardsafeview';
 
 
 export function EditPostScreenHeader({navigation, route}) {
-    const {community, post} = route.params;
+    const {community, post, topic} = route.params;
     const communityName = useDatabase([community], ['community', community, 'name']);
+    const topicName = useDatabase([community, topic], ['postTopic', community, topic, 'name']);
     return (
         <View style={{marginHorizontal: 8}}>
             <Text style={{fontSize: 16, fontWeight: 'bold'}}>{post ? 'Edit Conversation' : 'New Conversation'}</Text>
             <OneLineText style={{fontSize: 12}}>
+                {topic && topicName ? <Text>about <Text style={{fontWeight: 'bold'}}>{topicName}</Text> </Text> : null}
                 in {communityName}
             </OneLineText>
         </View>
@@ -25,7 +27,7 @@ export function EditPostScreenHeader({navigation, route}) {
 var global_savePostDrafts = {};
 
 export function EditPostScreen({navigation, route}) {
-    const {community, post} = route.params;
+    const {community, post, topic} = route.params;
     const [inProgress, setInProgress] = useState(false);
     const [title, setTitle] = useState(null);
     const [text, setText] = useState(null);
@@ -65,7 +67,7 @@ export function EditPostScreen({navigation, route}) {
 
     async function onPost() {
         setInProgress(true);
-        await editPostAsync({community, post: post || null, title: shownTitle, text: shownText, questions: shownQuestions});
+        await editPostAsync({community, post: post || null, topic, title: shownTitle, text: shownText, questions: shownQuestions});
         setInProgress(false);
         global_savePostDrafts[post] = null;
         navigation.goBack();

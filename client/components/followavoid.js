@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth
     },
     miniText: {
-        fontSize: 14
+        fontSize: 12
     },
     activeText: {
         color: 'white',
