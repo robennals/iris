@@ -190,7 +190,7 @@ export const ChatEntryBox = memo(forwardRef(
                         onKeyPress={Platform.OS == 'web' ? onKeyPress : null}                
                     />
                 </View>
-                {host == getCurrentUser() ? 
+                {host == getCurrentUser() && !text ? 
                     <FixedTouchable onPress={() => navigation.navigate('post', {community, post: group, newUpdate: true})}>
                         <View style={{flexDirection: 'row', backgroundColor: '#f4f4f4', height: 36, 
                             alignItems: 'center', marginLeft: 8, borderColor: '#999', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4}}>

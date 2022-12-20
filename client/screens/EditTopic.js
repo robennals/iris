@@ -39,7 +39,7 @@ export function EditTopicScreen({navigation, route}) {
     useEffect(() => {
         var x = {};
         if (topic) {
-            watchData(x, ['topic', community, topic], setOld);
+            watchData(x, ['postTopic', community, topic], setOld);
         }
         return () => internalReleaseWatchers();
     }, [topic])

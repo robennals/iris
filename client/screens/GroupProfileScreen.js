@@ -93,9 +93,9 @@ function JoinRequest({user, joinRequest, community, group, showIgnore=false}) {
             <FixedTouchable onPress={() => navigation.navigate('profile', {community, member:user})}>
                 <MemberPhotoIcon user={user} photoKey={joinRequest.photo} name={joinRequest.name} size={64} />
             </FixedTouchable>
-            <View style={{marginLeft: 16}}>
+            <View style={{marginLeft: 16, flex: 1}}>
                 <Text style={{fontWeight: 'bold', marginBottom: 1}}>{joinRequest.name}</Text>
-                <Text style={{color: '#666'}}>{joinRequest.text}</Text>
+                <Text style={{color: '#666', flexShrink: 1}}>{joinRequest.text}</Text>
                 {!inProgress ? 
                     <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 8}}>
                         <FixedTouchable onPress={onAccept}>

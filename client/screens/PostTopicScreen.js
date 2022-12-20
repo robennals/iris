@@ -78,6 +78,7 @@ export function PostTopicScreen({navigation, route}) {
 
 function PostTopic({expanded, community, topic, topicInfo}) {
     const navigation = useCustomNavigation();
+    const canEdit = topicInfo.from == getCurrentUser();
     return (
         <View style={{flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch'}}>
             <View style={{marginVertical: 8, marginHorizontal: 16, flex: 1, maxWidth: 450}}>
@@ -86,11 +87,16 @@ function PostTopic({expanded, community, topic, topicInfo}) {
                             borderRadius: 8, padding: 8,
                             ...lightShadowStyle
                     }}> 
-                    <View style={{flexDirection: 'row', marginBottom: 2}}>
-                        <View style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 4}}>
-                            <Text style={{color: '#666', fontSize: 11}}>Topic</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <View style={{flexDirection: 'row', marginBottom: 2}}>
+                            <View style={{borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, borderRadius: 16, paddingHorizontal: 4}}>
+                                <Text style={{color: '#666', fontSize: 11}}>Topic</Text>
+                            </View>
+                            <Text style={{color: '#999', fontSize: 12}}> - {formatTime(topicInfo.time)}</Text>
                         </View>
-                        <Text style={{color: '#999', fontSize: 12}}> - {formatTime(topicInfo.time)}</Text>
+                        <FixedTouchable onPress={() => navigation.navigate('editTopic', {community, topic})}>
+                            <Entypo name='edit' color='#999' size={12}/>
+                        </FixedTouchable>
                     </View>
 
                     {/* <Text style={{color: '#999', fontSize: 12}}>New Topic<Text style={{color: '#999'}}> - {formatTime(topicInfo.time)}</Text></Text> */}
