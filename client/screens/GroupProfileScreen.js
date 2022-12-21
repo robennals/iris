@@ -138,9 +138,9 @@ export function GroupProfileScreen({navigation, route}) {
     const rejectedJoinKeys = _.filter(askToJoinKeys, k => askToJoin[k].state == 'rejected');
     const isHost = host == getCurrentUser();
 
-    console.log('archived', archived);
-    console.log('members', members);
-    console.log('askTojoin', askToJoin);
+    // console.log('archived', archived);
+    // console.log('members', members);
+    // console.log('askTojoin', askToJoin);
     // console.log('published', published);
 
     useEffect(() => {

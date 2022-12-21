@@ -12,7 +12,7 @@ export function Help({id, title, children, style}){
         setDataAsync(['userPrivate', getCurrentUser(), 'helpCollapsed', id], isCollapsed);
     }
 
-    console.log('collapsed', collapsed);
+    // console.log('collapsed', collapsed);
 
     if (collapsed) {
         return (

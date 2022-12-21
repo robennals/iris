@@ -409,6 +409,7 @@ function getPostBoost({postInfo, followAvoid}) {
 
 
 export function PostFeedScreen({navigation, route}) {
+    console.log('PostFeedScreen', route.params);
     const {community, post: boostedPostKey} = route.params;
     const posts = useDatabase([community], ['post', community]);
     const topics = useDatabase([community], ['postTopic', community]);
@@ -417,15 +418,18 @@ export function PostFeedScreen({navigation, route}) {
     const youAskedPost = useDatabase([community], ['userPrivate', getCurrentUser(), 'youAskedPost', community]);
     const followAvoid = useDatabase([], ['perUser', 'followAvoid', getCurrentUser()]);
 
-    if (!posts || !topics || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
-
-    const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
-
-    if (getCurrentUser() == null || (!isMasterUser() && !localComm?.name)) {
+    if (getCurrentUser() == null || (!isMasterUser() && localComm != null && !localComm?.name)) {
         return (
             <IntakeScreen community={community} />
         )
     }
+
+
+    if (!posts || !topics || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
+
+    const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
+
+    console.log('localComm', localComm, localComm?.name);
 
     const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
     const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
