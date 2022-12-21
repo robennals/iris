@@ -190,7 +190,7 @@ function AskToJoin({community, post, postInfo}) {
                 <PostGroupMembers community={community} post={post} postInfo={postInfo} />
                 <View style={{borderRadius: 16, borderColor: '#ddd', marginBottom: 4,  
                 borderWidth: StyleSheet.hairlineWidth, justifyContent: 'space-between', marginTop: 16}}>
-                    <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 16}}
+                    <TextInput autoFocus style={{padding: 8, height: 100, borderRadius: 16, textAlignVertical: 'top'}}
                         placeholder='Write a message to the host'
                         placeholderTextColor='#999'
                         value={text}
@@ -409,7 +409,7 @@ function getPostBoost({postInfo, followAvoid}) {
 
 
 export function PostFeedScreen({navigation, route}) {
-    console.log('PostFeedScreen', route.params);
+    // console.log('PostFeedScreen', route.params);
     const {community, post: boostedPostKey} = route.params;
     const posts = useDatabase([community], ['post', community]);
     const topics = useDatabase([community], ['postTopic', community]);
@@ -429,7 +429,7 @@ export function PostFeedScreen({navigation, route}) {
 
     const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
 
-    console.log('localComm', localComm, localComm?.name);
+    // console.log('localComm', localComm, localComm?.name);
 
     const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
     const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);

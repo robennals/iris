@@ -327,7 +327,8 @@ export function FormInput({autoFocus, onFocus, onBlur, value, maxLength, textCon
     borderWidth: 1,
     margin: 4,
     flex: 1,
-    marginHorizontal: 16
+    marginHorizontal: 16,
+    textAlignVertical: 'top'
   }
   if (Platform.OS == 'web') {
     return <TextInput placeholder={placeholder} style={style ? style : [textBoxStyle, extraStyle]}
