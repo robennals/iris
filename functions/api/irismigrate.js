@@ -18,6 +18,36 @@ const email_label = 'Email Address';
 
 
 const rob_userId = 'N8D5FfWwTxaJK65p8wkq9rJbPCB3'
+const lucie_userId = '8Nkk25o9o6bipF81nvGgGE59cXG2';
+const alex_userId = 'K1IzX5mm1hPfqIaKgba7bhyYig73';
+
+
+async function migrateTopicsToPostsAsync() {
+    const topics = await FBUtil.getDataAsync(['topic']);
+    var updates = {};
+    _.forEach(_.keys(topics), community => {
+        _.forEach(_.keys(topics[community]), topic => {
+            const topicInfo = topics[community][topic];
+            const questionList = JSON.parse(topicInfo.questions);
+            const questionText = _.join(questionList,'\n');
+            if (topicInfo.fromName) {
+                updates['post/' + community + '/' + topic] = {
+                    title: topicInfo.name,
+                    text: topicInfo.summary || '', 
+                    questions: questionText,
+                    from: topicInfo.from,
+                    fromName: topicInfo.fromName,
+                    fromPhoto: topicInfo.fromPhoto || null,
+                    createTime: topicInfo.time,
+                    approved: topicInfo.approved || true,
+                    isMigation: true
+                }
+            }
+        })
+    })
+    console.log('updates', updates);
+    return {success: true, updates};
+}
 
 
 async function migrateTopicAuthorPhotosAsync() {
@@ -368,6 +398,8 @@ async function adminRemoveCommunities() {
     return {success: true, updates}
 }
 
+
+
 async function adminCommandAsync({command, params, userId}) {
 
     const paramList = params.trim().split('\n').map(x => x.trim()).filter(x => x);
@@ -406,6 +438,8 @@ async function adminCommandAsync({command, params, userId}) {
             return await deleteUser({email: paramList[0]});
         case 'migrateTopicAuthorPhotos':
             return await migrateTopicAuthorPhotosAsync();
+        case 'migrateTopicsToPosts':
+            return await migrateTopicsToPostsAsync();
         default:
             return {success: false, message: 'Unknown admin command'}
     }
