@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getCurrentUser, isMasterUser, setDataAsync, useDatabase } from '../data/fbutil';
 import _ from 'lodash';
-import { Action, andFormatStrings, firstName, FixedTouchable, Header, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, ViewpointActions, WideButton } from '../components/basics';
+import { Action, andFormatStrings, firstName, FixedTouchable, Header, HeaderSpaceView, memberKeysToHues, MyViewpointPreview, name_label, OneLineText, ScreenContentScroll, searchMatches, SmallMinorButton, toBool, ViewpointActions, WideButton } from '../components/basics';
 import { CommunityPhotoIcon, MemberPhotoIcon } from '../components/photo';
 import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinkText } from '../components/linktext';
@@ -425,6 +425,7 @@ export function PostFeedScreen({navigation, route}) {
         )
     }
 
+    const isMember = toBool(localComm?.name);
 
     if (!posts || !topics || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
 
@@ -445,6 +446,9 @@ export function PostFeedScreen({navigation, route}) {
             <StatusBar style='dark' />
             <HeaderSpaceView style={{flex: 1}}>
                 <PhotoPromo />
+                {isMasterUser() && !isMember ? 
+                    <NonMemberWarning />
+                : null}
                 <View style={{backgroundColor: 'white', flex: 1}}>
                     {isMasterUser() ? 
                         <CommunityAdminActions community={community} />
@@ -454,6 +458,22 @@ export function PostFeedScreen({navigation, route}) {
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
+    )
+}
+
+function NonMemberWarning() {
+    return (
+        <View style={{ backgroundColor: '#F3F7C0', 
+                borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth, 
+                padding: 8, margin: 0}}>
+            <Text style={{fontWeight: 'bold'}}>
+                You are not a member of this community.
+            </Text>
+            <Text>
+                As a master user, you can look at this community, but you cannot create or join 
+                conversations unless you become a member.
+            </Text> 
+        </View>
     )
 }
 
