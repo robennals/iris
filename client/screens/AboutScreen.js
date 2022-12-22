@@ -52,7 +52,7 @@ export function AboutScreen() {
                     You can create your own private conversations and advertise them to other community members.
                 </Bullet>
                 <Bullet title='Talk Productively'>
-                    Since conversations are private and moderated by someone you trust, you can talk honestly and Productivelyw
+                    Since conversations are private and moderated by someone you trust, you can talk honestly and productively
                     without the trolling and toxicity found on more open platforms.
                 </Bullet>
                 <Para>

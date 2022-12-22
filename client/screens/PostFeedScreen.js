@@ -119,7 +119,8 @@ function ConversationFeedHelp({communityName}) {
             </HelpText>
             <HelpText>
                 You can use conversations for lots of things. To get feedback on an idea, to make a decision,
-                to organize a group of peolpe to perform some task, to get help with something, 
+                to organize a group of people to perform some task, to get help with something, 
+                to get to know other community members better, 
                 or just to chat about something that's on your mind.
             </HelpText>
 
