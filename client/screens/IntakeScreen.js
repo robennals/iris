@@ -379,7 +379,7 @@ export function IntakeScreen({community:paramCommunity, route}) {
 
     async function onSubmit() {
         const name = answers[name_label];
-        const email = answers[email_label].toLowerCase().trim();
+        const email = answers[email_label]?.toLowerCase()?.trim();
         setInProgress(true);
         logIntakeAsync({community, logKey, stage:'submit'});
         const yesTopics = _.mapValues(selectedTopics, v => 'yes');
