@@ -40,7 +40,7 @@ export function EditPostScreen({navigation, route}) {
 
     const shownText = text == null ? (global_savePostDrafts[post]?.text || oldPost?.text || '') : text;
     const shownTitle = title == null ? (global_savePostDrafts[post]?.title || oldPost?.title || '') : title;
-    const shownQuestions = questions == null ? (global_savePostDrafts[post]?.questions || oldPost?.questios || '') : questions;
+    const shownQuestions = questions == null ? (global_savePostDrafts[post]?.questions || oldPost?.questions || '') : questions;
 
     function onChangeText(text) {
         global_savePostDrafts[post] = {title, text, questions};
