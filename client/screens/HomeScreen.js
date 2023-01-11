@@ -105,9 +105,7 @@ const defaultCommunitySet = {
 }
 
 function ThingPreview({k, communitySet, groupSet, allCommunities, selected, showSelected}) {
-    if (k == 'waiting') {
-        return <WaitingForMatchesPreview />
-    } else if (communitySet[k]) {
+    if (communitySet[k]) {
         return (
             <CommunityPreview community={k} name={communitySet[k].name}
                 highlight={selected == k && showSelected}
@@ -252,13 +250,6 @@ export class GroupList extends React.PureComponent {
                         </FixedTouchable>
                     }
                 </View>
-                {groupKeys.length == 0 ? 
-                    <Catcher>
-                        <FixedTouchable onPress={() => navigation.navigate('waiting')}>
-                            <WaitingForMatchesPreview highlight={selected=='waiting'} />
-                        </FixedTouchable>
-                    </Catcher>
-                : null}
                 {shownKeys.map(k => 
                     <Catcher key={k}>
                         <FixedTouchable key={k} onPress={() => this.selectGroupOrCommunity(k)}>
