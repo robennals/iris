@@ -21,7 +21,7 @@ async function acceptJoinRequestAsync({community, post, user, userId}) {
     const userPhoto = commMember.photoKey;
     const postName = postInfo.title;
     
-    const member = {name: userName, photo: userPhoto, time: Date.now()};
+    const member = {name: userName, photo: userPhoto || null, time: Date.now()};
     var updates = {};
     const time = Date.now();
     const lastMessage = {text: userName + ' joined', time}
@@ -64,7 +64,7 @@ async function saveTopicGroupAsync({community, topic, text, userId}) {
     const pUserPhoto = FBUtil.getDataAsync(['userPrivate', userId, 'photo']);
     const oldTopicGroup = await FBUtil.getDataAsync(['topicGroup', community, topic, userId], null);
     const userName = await pUserName;
-    const userPhoto = await pUserPhoto;
+    const userPhoto = await pUserPhoto || null;
 
     const group = oldTopicGroup?.group ?? FBUtil.newKey();
 
@@ -73,14 +73,14 @@ async function saveTopicGroupAsync({community, topic, text, userId}) {
     const newTopicGroup = {
         text,
         fromName: userName,
-        fromPhoto: userPhoto,
+        fromPhoto: userPhoto || null,
         text,
         group,
         createTime: time
     }
 
     const newTopicInfo = {
-        fromName: userName, fromPhoto: userPhoto
+        fromName: userName, fromPhoto: userPhoto || null
     }
 
     var updates = {};
@@ -110,14 +110,14 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         text: userName + ' asked to join', time
     }
 
-    updates['userPrivate/' + host + '/askToJoinGroup/' + group + '/' + userId] = {name: userName, photo: userPhoto, text, time};
+    updates['userPrivate/' + host + '/askToJoinGroup/' + group + '/' + userId] = {name: userName, photo: userPhoto || null, text, time};
     if (!postInfo.member) {
         console.log('creating new group', postInfo, community, host);
         const hostMember = await FBUtil.getDataAsync(['commMember', community, host]);
         const hostName = hostMember.answer[name_label]
-        const hostPhoto = hostMember.photoKey;
+        const hostPhoto = hostMember.photoKey || null;
         const member = {
-            [host]: {name: hostName, photo: hostPhoto, time: postInfo.createTime},
+            [host]: {name: hostName, photo: hostPhoto || null, time: postInfo.createTime},
         }
 
         const message = await writeIntroMessagesAsync({postInfo, host});

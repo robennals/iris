@@ -17,7 +17,7 @@ async function editPostAsync({community, post, topic, title, text, questions, us
     const commMember = members[userId];
     const oldPost = await pOldPost;
     const fromName = commMember.answer[name_label];
-    const fromPhoto = commMember.photoKey;
+    const fromPhoto = commMember.photoKey || null;
 
     if (!isMasterUser(userId) && post && oldPost && oldPost.from != userId) {
         return accessDeniedResult;
@@ -31,7 +31,7 @@ async function editPostAsync({community, post, topic, title, text, questions, us
         from: oldPost?.from || userId,
         topic: oldPost?.topic || topic || null,
         fromName: oldPost?.fromName || fromName, 
-        fromPhoto: oldPost?.fromPhoto || fromPhoto, 
+        fromPhoto: oldPost?.fromPhoto || fromPhoto || null, 
         members: oldPost?.members || null,
         createTime: oldPost?.createTime || time,
         editTime: oldPost ? Date.now() : null,
