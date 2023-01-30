@@ -145,7 +145,7 @@ function PostGroupMembers({community, post, postInfo}) {
                     <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
                 </FixedTouchable>
             )}
-            <Text style={{marginLeft: 8, fontSize: 12, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
+            <Text numberOfLines={2} style={{marginLeft: 8, fontSize: 12, flexShrink: 1, color: '#666'}}>{names} are talking</Text>
         </View>
     )
 }
@@ -165,10 +165,15 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
                 You asked to join
         </Text>
     } else if (_.keys(postInfo?.member).length >= 5) {
-        return <Text style={{borderTopColor: '#ddd', 
-            borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
-            Conversation is full
-        </Text>
+        return (
+        <View style={{borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}> 
+            <PostGroupMembers community={community} post={post} postInfo={postInfo} />
+            <Text style={{borderTopColor: '#ddd', 
+                borderTopWidth: StyleSheet.hairlineWidth, marginTop: 8, paddingTop: 8}}>                
+                Conversation is full
+            </Text>
+        </View>
+        )
     } else if (postInfo.from == getCurrentUser()) {
         return <Text style={{color: '#666', borderTopColor: '#ddd', 
                     borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
