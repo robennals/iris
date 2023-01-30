@@ -164,6 +164,11 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
             borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
                 You asked to join
         </Text>
+    } else if (_.keys(postInfo?.member).length >= 5) {
+        return <Text style={{borderTopColor: '#ddd', 
+            borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
+            Conversation is full
+        </Text>
     } else if (postInfo.from == getCurrentUser()) {
         return <Text style={{color: '#666', borderTopColor: '#ddd', 
                     borderTopWidth: StyleSheet.hairlineWidth, marginTop: 16, paddingTop: 8}}>
