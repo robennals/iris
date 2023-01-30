@@ -740,14 +740,14 @@ function SearchNewHeader({community, search, setSearch}) {
                 <SearchBox value={search} onChangeText={setSearch} placeholder='Search Conversations'
                     style={{backgroundColor: 'white', borderColor: '#ddd', borderWidth: StyleSheet.hairlineWidth,
                     marginHorizontal: 0}} />              
-                {search ? null : 
+                {/* {search ? null : 
                     <WideButton alwaysActive
                         onPress={() => navigation.navigate('newPost', {community})} 
                         // onPress={() => console.log('community', community)}
                         innerStyle={{fontSize: 14, marginHorizontal: 6}}
                         style={{alignSelf: 'center', margin: 0, marginLeft: 8, paddingVertical: 6, paddingHorizontal: 6}}>New Conversation
                     </WideButton>
-                }
+                } */}
             </View>
         </View>
     )
