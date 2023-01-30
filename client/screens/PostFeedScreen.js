@@ -444,8 +444,10 @@ export function PostFeedScreen({navigation, route}) {
     // console.log('localComm', localComm, localComm?.name);
 
     const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
-    const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
-    // console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
+    // const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
+    // // console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
+    const boostedPostKeys = [];
+    const nonBoostedPostKeys = sortedPostKeys;
 
     const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
     const hostAndTopicKeys = [... _.keys(hostClusters), ... _.keys(topics)];
