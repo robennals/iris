@@ -139,7 +139,7 @@ function PostGroupMembers({community, post, postInfo}) {
     const memberKeys = realMemberKeys;
     const names = andFormatStrings(_.map(memberKeys, k => members[k].name));
     return (
-        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1, overflow: 'hidden'}}>
             {_.map(realMemberKeys, m => 
                 <FixedTouchable key={m} onPress={() => navigation.navigate('profile', {community, member: m})}>
                     <MemberPhotoIcon user={m} photoKey={members[m].photo} name={members[m].name} size={24} />
@@ -439,19 +439,22 @@ export function PostFeedScreen({navigation, route}) {
 
     if (!posts || !topics || !postRead || !localComm || !youAskedPost || !followAvoid) return <Loading />
 
-    const sortedPostKeys = _.sortBy(_.keys(posts), p => posts[p].createTime).reverse();
+    const postAndTopicKeys = [..._.keys(posts), ..._.keys(topics)];
+    const sortedPostAndTopicKeys = _.sortBy(postAndTopicKeys, p => posts[p]?.createTime || topics[p]?.time).reverse();
 
     // console.log('localComm', localComm, localComm?.name);
 
     const postBoosts = _.mapValues(posts, postInfo => getPostBoost({postInfo, followAvoid}));
     // const [boostedPostKeys, nonBoostedPostKeys] = _.partition(sortedPostKeys, p => postBoosts[p]);
     // // console.log('postkeys', {boostedPostKeys, nonBoostedPostKeys, postBoostTimes: postBoosts});
-    const boostedPostKeys = [];
-    const nonBoostedPostKeys = sortedPostKeys;
+    const boostedPostKeys = sortedPostAndTopicKeys;
+    const nonBoostedPostKeys = [];
 
-    const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
-    const hostAndTopicKeys = [... _.keys(hostClusters), ... _.keys(topics)];
-    const sortedHostAndTopicKeys = _.sortBy(hostAndTopicKeys, h => hostClusters[h]?.time || topics[h]?.time || 0).reverse();
+    const hostClusters = {}; 
+    // const hostClusters = clusterPostsByHost({posts, sortedPostKeys:nonBoostedPostKeys});
+    // const hostAndTopicKeys = [... _.keys(hostClusters), ... _.keys(topics)];
+    // const sortedHostAndTopicKeys = _.sortBy(hostAndTopicKeys, h => hostClusters[h]?.time || topics[h]?.time || 0).reverse();
+    const sortedHostAndTopicKeys = [];
 
     return (
         <KeyboardSafeView size={{flex: 1}}>
@@ -466,7 +469,7 @@ export function PostFeedScreen({navigation, route}) {
                         <CommunityAdminActions community={community} />
                     : null
                     } 
-                    <PostList postBoosts={postBoosts} posts={posts} sortedHostAndTopicKeys={sortedHostAndTopicKeys} hostClusters={hostClusters} topics={topics} boostedPostKeys={boostedPostKeys} sortedPostKeys={sortedPostKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
+                    <PostList postBoosts={postBoosts} posts={posts} sortedHostAndTopicKeys={sortedHostAndTopicKeys} hostClusters={hostClusters} topics={topics} boostedPostKeys={boostedPostKeys} sortedPostKeys={sortedPostAndTopicKeys} community={community} postRead={postRead} youAskedPost={youAskedPost} />
                 </View>
             </HeaderSpaceView>
         </KeyboardSafeView>
@@ -505,12 +508,18 @@ function PostList({posts, topics, postBoosts, sortedHostAndTopicKeys, boostedPos
             <ConversationFeedHelp />
 
             <SearchNewHeader community={community} search={search} setSearch={setSearch} />
-            {filteredPostKeys.length > 0 ?
+            {/* {filteredPostKeys.length > 0 ?
                 <Header style={{marginTop: 16}}>Highighted Conversations</Header>
-            : null}
-            {filteredPostKeys.map(post => 
-                <Catcher key={post} style={{alignSelf: 'stretch'}}>
-                    <MemoPost boost={postBoosts[post]} community={community} post={post} topicInfo={topics[posts[post]?.topic]} postInfo={posts[post]} readTime={postRead[post]} youAsked={youAskedPost[post]} />
+            : null} */}
+            {filteredPostKeys.map(postOrTopic => 
+                <Catcher key={postOrTopic} style={{alignSelf: 'stretch'}}>
+                    {topics[postOrTopic] ? 
+                        <PostTopic community={community} topic={postOrTopic} topicInfo={topics[postOrTopic]} />
+                    : 
+                        <MemoPost boost={postBoosts[postOrTopic]} community={community} post={postOrTopic} 
+                            topicInfo={topics[posts[postOrTopic]?.topic]} postInfo={posts[postOrTopic]} 
+                            readTime={postRead[postOrTopic]} youAsked={youAskedPost[postOrTopic]} />
+                    }
                 </Catcher>
             )}
             {filteredPostKeys.length > 0 ?
