@@ -497,7 +497,7 @@ function PostList({posts, topics, postBoosts, sortedHostAndTopicKeys, boostedPos
     const [search, setSearch] = useState('');
     var filteredPostKeys = boostedPostKeys;
     if (search) [
-        filteredPostKeys = _.filter(sortedPostKeys, p => searchMatches(posts[p].title, search))
+        filteredPostKeys = _.filter(sortedPostKeys, p => searchMatches(posts[p]?.title, search) || searchMatches(topics[p]?.name, search))
     ]
 
     // console.log('hostClusters', hostClusters, sortedHostKeys);
