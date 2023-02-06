@@ -101,7 +101,7 @@ function PostTopic({expanded, community, topic, topicInfo}) {
 
                     {/* <Text style={{color: '#999', fontSize: 12}}>New Topic<Text style={{color: '#999'}}> - {formatTime(topicInfo.time)}</Text></Text> */}
                     <Text style={{fontSize: 18, marginBottom: 8}}><Text style={{fontWeight: 'bold'}}>{topicInfo.name}</Text></Text>
-                    <Text style={{fontSize: 16, color: '#666', marginBottom: 12}}>{topicInfo.summary}</Text>
+                    <LinkText text={topicInfo.summary} style={{fontSize: 16, color: '#666', marginBottom: 12}} />
                 </View>
             </View>
         </View>
