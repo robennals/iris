@@ -123,7 +123,7 @@ async function askToJoinGroupAsync({community, post, text, userId}) {
         const message = await writeIntroMessagesAsync({postInfo, host});
 
         const groupInfo = {
-            name: postInfo.title, member, host, message,
+            name: postInfo.title, member, host, message, public: postInfo.public,
             community, privateName: hostName,
         }
         updates['group/' + group] = groupInfo;

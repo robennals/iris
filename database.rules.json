@@ -138,7 +138,7 @@
     "group": {
       "$group": {
         ".write": false,
-        ".read": "data.child('member').child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",
+        ".read": "data.child('public').val() == true || data.child('member').child(auth.uid).exists() || root.child('special').child('master').child(auth.uid).exists()",
         "like": {
           "$message": {
             "$user": {

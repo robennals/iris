@@ -185,7 +185,7 @@ function GroupJoinWidget({youAsked, postInfo, post, community}) {
 }
 
 
-function AskToJoin({community, post, postInfo}) {
+export function AskToJoin({community, post, postInfo}) {
     const [expanded, setExpanded] = useState(false);
     const [text, setText] = useState('');
     const [inProgress, setInProgress] = useState(false);
@@ -195,6 +195,10 @@ function AskToJoin({community, post, postInfo}) {
         await askToJoinAsync({community, post, text}); 
     }
     
+    if (!postInfo) {
+        return null;
+    }
+
     if (expanded) {
         return (
             <View style={{marginTop: 8, paddingTop: 12, borderTopColor: '#ddd', borderTopWidth: StyleSheet.hairlineWidth}}>
@@ -676,6 +680,13 @@ function Post({community, boost, post, topicInfo, postInfo, readTime, youAsked, 
                             </View>                    
                         )}
                     </FixedTouchable>
+                    {postInfo.public ? 
+                        <FixedTouchable onPress={() => navigation.navigate('group', {community, group: post})}>
+                            <View style={{backgroundColor: baseColor, borderRadius: 16, alignSelf: 'flex-start', marginTop: 8}}>
+                                <Text style={{color: 'white', paddingHorizontal: 8, paddingVertical: 4}}>View Public Conversation</Text>
+                            </View>
+                        </FixedTouchable>
+                    : null}
                     {/* <PostGroupMembers community={community} post={post} postInfo={postInfo} /> */}
                     <GroupJoinWidget youAsked={youAsked} post={post} postInfo={postInfo} community={community} />
                 </View>

@@ -233,8 +233,8 @@ export async function editPostTopicAsync({community, topic, name, pinned, summar
     return await callServerApiAsync('editPostTopic', {community, topic, name, pinned, summary, questions});
 }
 
-export async function editPostAsync({community, post, topic, title, text, questions}) {
-    return await callServerApiAsync('editPost', {community, post, topic, title, text, questions});
+export async function editPostAsync({community, isPublic, post, topic, title, text, questions}) {
+    return await callServerApiAsync('editPost', {community, isPublic, post, topic, title, text, questions});
 }
 
 

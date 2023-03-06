@@ -31,6 +31,7 @@ export function EditPostScreen({navigation, route}) {
     const [inProgress, setInProgress] = useState(false);
     const [title, setTitle] = useState(null);
     const [text, setText] = useState(null);
+    const [isPublic, setIsPublic] = useState(null);
     const [questions, setQuestions] = useState(null);
     const oldPost = useDatabase([community, post], ['post', community, post]);
 
@@ -41,6 +42,7 @@ export function EditPostScreen({navigation, route}) {
     const shownText = text == null ? (global_savePostDrafts[post]?.text || oldPost?.text || '') : text;
     const shownTitle = title == null ? (global_savePostDrafts[post]?.title || oldPost?.title || '') : title;
     const shownQuestions = questions == null ? (global_savePostDrafts[post]?.questions || oldPost?.questions || '') : questions;
+    const shownPublic = isPublic == null ? (global_savePostDrafts[post]?.public || oldPost?.public || false) : isPublic;
 
     function onChangeText(text) {
         global_savePostDrafts[post] = {title, text, questions};
@@ -67,7 +69,7 @@ export function EditPostScreen({navigation, route}) {
 
     async function onPost() {
         setInProgress(true);
-        await editPostAsync({community, post: post || null, topic, title: shownTitle, text: shownText, questions: shownQuestions});
+        await editPostAsync({isPublic: shownPublic, community, post: post || null, topic, title: shownTitle, text: shownText, questions: shownQuestions});
         setInProgress(false);
         global_savePostDrafts[post] = null;
         navigation.goBack();
@@ -109,6 +111,7 @@ export function EditPostScreen({navigation, route}) {
                                 <FormInput value={shownQuestions} onChangeText={onChangeQuestions} multiline 
                                     extraStyle={{flex: null, height: 72}} />
                             </FormTitle>
+                            <FormCheckbox label='Public Conversation' selected={shownPublic} onChangeSelected={setIsPublic} />
                             {/* <TextInput multiline placeholder='Introduce your conversation to others. E.g. what is your current viewpoint. What are open questions. What will the outcome be from this conversation?' 
                                 style={{flex: 1, padding: 8}}
                                 placeholderTextColor='#999'

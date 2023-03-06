@@ -24,6 +24,7 @@ import { StatusBar } from 'expo-status-bar';
 import { BottomFlatScroller } from '../components/bottomscroller';
 import { baseColor } from '../data/config';
 import { Help, HelpText } from '../components/help';
+import { AskToJoin } from './PostFeedScreen';
 
 
 function ChatHelp({hostName}) {
@@ -44,12 +45,15 @@ function ChatHelp({hostName}) {
 export function ChatScreenHeader({navigation, route}) {
     const {group} = route.params;
 
-    const name = useDatabase([group], ['userPrivate', getCurrentUser(), 'group', group, 'name'], '');
+    const localName = useDatabase([group], ['userPrivate', getCurrentUser(), 'group', group, 'name'], '');
+    const groupName = useDatabase([group], ['group', group, 'name'], '');
+    const isPublic = useDatabase([group], ['group', group, 'public'], null);
     const host = useDatabase([group], ['group', group, 'host'], null);
     const members = useDatabase([group], ['group', group, 'member']);
     const community = useDatabase([group], ['group', group, 'community'], null);
     const communityInfo = useDatabase([community], ['community', community]);
     const [clickPromo, setClickPromo] = useState(true);
+    const name = groupName || localName || '';
 
     const hostName = host ? members?.[host]?.name : null;
     const hostPhoto = host ? members?.[host]?.photo : null;
@@ -83,7 +87,7 @@ export function ChatScreenHeader({navigation, route}) {
         }
     }, [group])
 
-    if (name === '') {
+    if (name === '' && !isPublic) {
         return <Text>You are not in this group</Text>
     }
 
@@ -214,9 +218,11 @@ export function ChatScreen({navigation, route}) {
     const members = useDatabase([group], ['group', group, 'member']);
     const archived = useDatabase([group], ['group', group, 'archived'], false);
     const groupName = useDatabase([group], ['group', group, 'name']);
+    const isPublic = useDatabase([group], ['group', group, 'public'], null);
     const host = useDatabase([group], ['group', group, 'host'], null);
     const topic = useDatabase([group], ['group', group, 'topic'], null);
     const community = useDatabase([group], ['group', group, 'community'], null);
+    const postInfo = useDatabase([group, community], ['post', community, group], null);
     const timeOut = useDatabase([], ['userPrivate', getCurrentUser(), 'timeOut'], 0);
     const [reply, setReply] = useState(null);
     const chatInputRef = React.createRef();
@@ -256,7 +262,7 @@ export function ChatScreen({navigation, route}) {
         setReply(null);
     }, [])
 
-    if (localGroupName === '' && !isMasterUser(getCurrentUser())) {
+    if (localGroupName === '' && !isMasterUser(getCurrentUser()) && isPublic != true) {
         return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>You are not in this group</Text></View>
     }
 
@@ -293,9 +299,15 @@ export function ChatScreen({navigation, route}) {
             {/* <PhotoPopup />             */}
             <MemoMessageList group={group} onReply={onReply} onEdit={onEdit} />            
             {iAmNotInGroup ?
-                <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
-                    Join Group Chat
-                </WideButton>
+                (isMasterUser(getCurrentUser()) ?
+                    <WideButton progressText='Joining...' onPress={() => adminJoinGroupAsync({group})}>
+                        Join Group Chat
+                    </WideButton>
+                :   
+                    <View style={{marginBottom: 8, marginHorizontal: 4}}>
+                        <AskToJoin community={community} post={group} postInfo={postInfo} />
+                    </View>
+                )
             :
                 (archived && !isMasterUser(getCurrentUser()) ? 
                 null
@@ -312,6 +324,8 @@ export function ChatScreen({navigation, route}) {
       </GroupContext.Provider>
     )
 }
+
+
 
 function MoreButton({showCount, messageCount, onMore}) {
     if (showCount < messageCount) {
