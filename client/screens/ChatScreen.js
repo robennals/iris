@@ -256,7 +256,7 @@ export function ChatScreen({navigation, route}) {
         setReply(null);
     }, [])
 
-    if (localGroupName === '') {
+    if (localGroupName === '' && !isMasterUser(getCurrentUser())) {
         return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>You are not in this group</Text></View>
     }
 
